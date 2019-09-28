@@ -123,11 +123,12 @@ public class PlayerControllerBenni : MonoBehaviour
 
     void MovementCalculation()
     {
-        move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
-        if (move > 1)
-        {
-            move = 1;
-        }
+        //move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
+        //if (move > 1)
+        //{
+        //    move = 1;
+        //}
+
         moveVector = new Vector3(moveHorizontal, 0, moveVertical);
 
         //moveVector = transform.forward * moveVector.x + transform.right * moveVector.z;
@@ -140,9 +141,11 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     void Move()
     {
-        rigi.velocity = new Vector3(moveVector.x,
-                        rigi.velocity.y,
-                        moveVector.z);
+        transform.Rotate(Vector3.up * moveHorizontal);
+
+        rigi.velocity =  new Vector3(transform.forward.x * moveVertical * movementSpeed,
+                                     rigi.velocity.y,
+                                     transform.forward.z * moveVertical * movementSpeed);
     }
 
     private void Jump()
@@ -205,7 +208,11 @@ public class PlayerControllerBenni : MonoBehaviour
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
-                rigi.velocity = Vector3.forward * slidingSpeed;
+                transform.Rotate(Vector3.up * moveHorizontal);
+
+                rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
+                                            rigi.velocity.y,
+                                            transform.forward.z * slidingSpeed);
             }
             else
             {

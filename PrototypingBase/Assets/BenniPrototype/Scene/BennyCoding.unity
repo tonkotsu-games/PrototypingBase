@@ -202,7 +202,7 @@ Transform:
   m_LocalScale: {x: 4.4956, y: 4.4956, z: 4.4956}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &859134941
 GameObject:
@@ -281,13 +281,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 859134941}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: 0, y: 1, z: -4}
+  m_LocalScale: {x: 1, y: 0.5, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 6085553329293565493}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
 --- !u!114 &859134945
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,7 +358,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 859134941}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1fe952006be875488109949059b4fef, type: 3}
   m_Name: 
@@ -464,7 +464,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &1536634936
 MonoBehaviour:
@@ -613,7 +613,7 @@ PrefabInstance:
     - target: {fileID: 3742885252980725845, guid: 4b9ff603eb7573949b6ed32192db03bd,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3742885252980725845, guid: 4b9ff603eb7573949b6ed32192db03bd,
         type: 3}
@@ -629,26 +629,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7216226391083618036, guid: 4b9ff603eb7573949b6ed32192db03bd,
-        type: 3}
-      propertyPath: airJumpForce
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7216226391083618036, guid: 4b9ff603eb7573949b6ed32192db03bd,
-        type: 3}
-      propertyPath: jumpForce
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7216226391083618036, guid: 4b9ff603eb7573949b6ed32192db03bd,
-        type: 3}
-      propertyPath: slideTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7216226391083618036, guid: 4b9ff603eb7573949b6ed32192db03bd,
-        type: 3}
-      propertyPath: slidingSpeed
-      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b9ff603eb7573949b6ed32192db03bd, type: 3}
