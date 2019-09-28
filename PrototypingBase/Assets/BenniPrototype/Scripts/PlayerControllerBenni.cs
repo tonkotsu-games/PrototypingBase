@@ -13,6 +13,8 @@ public class PlayerControllerBenni : MonoBehaviour
         Parry
     }
 
+    #region Player
+
     #region Movement
     [Header("Value for the Movement")]
     [SerializeField]
@@ -22,6 +24,7 @@ public class PlayerControllerBenni : MonoBehaviour
     private float move;
 
     private Vector3 moveVector;
+    #endregion
 
     #region Jumping
     [Header("Value for Jump")]
@@ -49,6 +52,10 @@ public class PlayerControllerBenni : MonoBehaviour
     private float slidingSpeed;
 
     private bool sliding = false;
+    #endregion
+
+    #region Attack
+
     #endregion
 
     #endregion
