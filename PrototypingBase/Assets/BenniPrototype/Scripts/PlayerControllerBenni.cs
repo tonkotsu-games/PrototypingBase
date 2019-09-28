@@ -76,7 +76,7 @@ public class PlayerControllerBenni : MonoBehaviour
         moveHorizontal = Input.GetAxisRaw("Horizontal");
         moveVertical = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetButtonDown("Jump") && (grounded || lastStance == Stances.Jump))
+        if (Input.GetButtonDown("Jump"))
         {
             lastStance = currentStance;
             currentStance = Stances.Jump;
@@ -283,7 +283,10 @@ public class PlayerControllerBenni : MonoBehaviour
                         case Stances.Jump:
                             {
                                 sliding = false;
-                                jump = true;
+                                if (grounded)
+                                {
+                                    jump = true;
+                                }
                                 Jump();
                                 break;
                             }
