@@ -7,18 +7,9 @@ public class PlayerController : MonoBehaviour
     private float moveHorizontal;
     private float moveVertical;
 
-    public float MaskWeight;
-    private AnimatorClipInfo[] clipInfo;
-
-    public LayerMask ground;
-
-    BoxCollider groundCollider;
-
     [Header("Speed for the Movement")]
     [SerializeField] float movementSpeed;
     [SerializeField] float jumpForce;
-
-    public Vector3 heading;
 
     private Vector3 moveVector;
     private Vector3 jumpVector;
@@ -30,25 +21,15 @@ public class PlayerController : MonoBehaviour
 
     private Animator anim;
     private Rigidbody rigi;
-    private BoxCollider boxCol;
 
     private float move;
-    [SerializeField]
-    ParticleSystem[] bloodSplatter;
-
-    //gibt an, welcher Dancemove abgespielt werden soll
-    private int dancemove;
-    private int fixedUpdateTicks = 0;
 
     void Start()
     {
         jump = false;
 
-        dancemove = 0;
-
         rigi = gameObject.GetComponentInChildren<Rigidbody>();
         anim = gameObject.GetComponentInChildren<Animator>();
-        groundCollider = gameObject.GetComponent<BoxCollider>();
     }
 
     void Update()
@@ -66,17 +47,6 @@ public class PlayerController : MonoBehaviour
         MovementCalculation();
         Move();
 
-        if ((Input.GetAxisRaw("Horizontal") >= 0.1 ||
-             Input.GetAxisRaw("Horizontal") <= -0.1 ||
-             Input.GetAxisRaw("Vertical") >= 0.1 ||
-             Input.GetAxisRaw("Vertical") <= -0.1))
-        {
-            heading = new Vector3(Input.GetAxisRaw("Horizontal"),
-                                  0,
-                                  Input.GetAxisRaw("Vertical"));
-
-            heading = heading.normalized;
-        }
     }
 
     void MovementCalculation()
@@ -88,8 +58,9 @@ public class PlayerController : MonoBehaviour
         }
         moveVector = new Vector3(moveHorizontal, 0, moveVertical);
 
-        moveVector = moveVector.normalized * move * movementSpeed;
+        //moveVector = transform.forward * moveVector.x + transform.right * moveVector.z;
 
+        moveVector = moveVector.normalized * move * movementSpeed;
     }
 
     /// <summary>
@@ -106,6 +77,13 @@ public class PlayerController : MonoBehaviour
                         rigi.velocity.y,
                         moveVector.z);
     }
+
+
+
+
+
+
+
 
     private void OnTriggerStay(Collider other)
     {
