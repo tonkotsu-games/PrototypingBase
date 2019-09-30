@@ -109,7 +109,10 @@ public class CameraFollow : MonoBehaviour
     //FOR TRAILER ONLY
     static bool inTrailer = false;
     int stateTrailer = 0;
-     
+
+    //Test Rotation
+    private float cameraHorizontal;
+
     void Start()
     {
         this.gameObject.transform.position = target.position + offsetZero;
@@ -121,6 +124,8 @@ public class CameraFollow : MonoBehaviour
 
     void Update()
     {
+        cameraHorizontal = Input.GetAxisRaw("CameraHorizontal");
+        transform.Translate(Vector3.right * cameraHorizontal);
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             inTrailer = !inTrailer;

@@ -424,7 +424,7 @@ MonoBehaviour:
   jumpForce: 3
   airJumpForce: 3
   slideTime: 1
-  slidingSpeed: 10
+  slidingSpeed: 20
 --- !u!95 &3742885252980725844
 Animator:
   serializedVersion: 3

@@ -24,6 +24,9 @@ public class PlayerControllerBenni : MonoBehaviour
     private float move;
 
     private Vector3 moveVector;
+
+    [SerializeField]
+    private GameObject cam;
     #endregion
 
     #region Jumping
@@ -40,6 +43,7 @@ public class PlayerControllerBenni : MonoBehaviour
     private bool airJumping = false;
     private bool reachedHighestPoint = false;
     private bool overJumpHight = false;
+    private bool airParry = false;
     #endregion
 
     #region Slide
@@ -55,6 +59,8 @@ public class PlayerControllerBenni : MonoBehaviour
     #endregion
 
     #region Attack
+    private bool groundAttack = false;
+    private bool airAttack = false;
 
     #endregion
 
@@ -95,6 +101,18 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance = Stances.Slide;
             SubStancesCheck();
         }
+        if (Input.GetButtonDown("Attack"))
+        {
+            lastStance = currentStance;
+            currentStance = Stances.Attack;
+            SubStancesCheck();
+        }
+        if (Input.GetButtonDown("Parry"))
+        {
+            lastStance = currentStance;
+            currentStance = Stances.Parry;
+            SubStancesCheck();
+        }
     }
 
     private void FixedUpdate()
@@ -102,21 +120,34 @@ public class PlayerControllerBenni : MonoBehaviour
         if (currentStance == Stances.Ground)
         {
             MovementCalculation();
+            Heading();
             Move();
         }
         else if (currentStance == Stances.Jump)
         {
             MovementCalculation();
+            Heading();
             Move();
             CalculateJumpHight();
         }
         else if (currentStance == Stances.Slide)
         {
+            MovementCalculation();
             Slide();
         }
         else if (currentStance == Stances.Attack)
         {
-
+            if (grounded)
+            {
+                if (airAttack)
+                {
+                    anim.SetTrigger("meteor");
+                    airAttack = false;
+                    lastStance = currentStance;
+                    currentStance = Stances.Ground;
+                    SubStancesCheck();
+                }
+            }
         }
         else if (currentStance == Stances.Parry)
         {
@@ -128,19 +159,30 @@ public class PlayerControllerBenni : MonoBehaviour
         }
     }
 
+    private void Heading()
+    {
+        if (moveHorizontal < -0.1f ||
+           moveHorizontal > 0.1f ||
+           moveVertical < -0.1 ||
+           moveVertical > 0.1)
+        {
+            transform.rotation = Quaternion.LookRotation(moveVector);
+        }
+    }
+
     void MovementCalculation()
     {
-        //move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
-        //if (move > 1)
-        //{
-        //    move = 1;
-        //}
+        move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
+        if (move > 1)
+        {
+            move = 1;
+        }
 
-        moveVector = new Vector3(moveHorizontal, 0, moveVertical);
-
-        //moveVector = transform.forward * moveVector.x + transform.right * moveVector.z;
+        moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
 
         moveVector = moveVector.normalized * move * movementSpeed;
+
+        moveVector.y = 0;
     }
 
     /// <summary>
@@ -148,11 +190,9 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     void Move()
     {
-        transform.Rotate(Vector3.up * moveHorizontal);
-
-        rigi.velocity =  new Vector3(transform.forward.x * moveVertical * movementSpeed,
-                                     rigi.velocity.y,
-                                     transform.forward.z * moveVertical * movementSpeed);
+        rigi.velocity = new Vector3(moveVector.x,
+                                    rigi.velocity.y,
+                                    moveVector.z);
     }
 
     private void Jump()
@@ -215,7 +255,7 @@ public class PlayerControllerBenni : MonoBehaviour
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
-                transform.Rotate(Vector3.up * moveHorizontal);
+                transform.rotation = Quaternion.LookRotation(moveVector);
 
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
                                             rigi.velocity.y,
@@ -255,6 +295,18 @@ public class PlayerControllerBenni : MonoBehaviour
                                 sliding = true;
                                 break;
                             }
+                        case Stances.Attack:
+                            {
+                                groundAttack = true;
+                                Attack();
+                                break;
+                            }
+                        case Stances.Parry:
+                            {
+                                anim.SetTrigger("parry");
+                                AttackReset();
+                                break;
+                            }
                     }
                     break;
                 }
@@ -283,6 +335,22 @@ public class PlayerControllerBenni : MonoBehaviour
                                 sliding = true;
                                 break;
                             }
+                        case Stances.Attack:
+                            {
+                                reachedHighestPoint = false;
+                                airJumping = false;
+                                highestJumpHight = 0;
+                                airAttack = true;
+                                rigi.velocity = Vector3.down * 50;
+                                Attack();
+                                break;
+                            }
+                        case Stances.Parry:
+                            {
+                                airParry = true;
+                                anim.SetTrigger("parry");
+                                break;
+                            }
                     }
                     break;
                 }
@@ -309,16 +377,144 @@ public class PlayerControllerBenni : MonoBehaviour
                                 currentSlideTime = slideTime;
                                 break;
                             }
+                        case Stances.Attack:
+                            {
+                                sliding = false;
+                                rigi.velocity = Vector3.zero;
+                                groundAttack = true;
+                                Attack();
+                                break;
+                            }
+                        case Stances.Parry:
+                            {
+                                anim.SetTrigger("parry");
+                                break;
+                            }
+                    }
+                    break;
+                }
+            case Stances.Attack:
+                {
+                    switch (currentStance)
+                    {
+                        case Stances.Ground:
+                            {
+                                break;
+                            }
+                        case Stances.Jump:
+                            {
+                                if (grounded)
+                                {
+                                    jump = true;
+                                }
+                                Jump();
+                                break;
+                            }
+                        case Stances.Slide:
+                            {
+                                currentSlideTime = slideTime;
+                                break;
+                            }
+                        case Stances.Attack:
+                            {
+                                groundAttack = true;
+                                Attack();
+                                break;
+                            }
+                        case Stances.Parry:
+                            {
+                                anim.SetTrigger("parry");
+                                break;
+                            }
+                    }
+                    break;
+                }
+            case Stances.Parry:
+                {
+                    switch (currentStance)
+                    {
+                        case Stances.Ground:
+                            {
+                                if (airParry)
+                                {
+                                    reachedHighestPoint = false;
+                                    airJumping = false;
+                                    highestJumpHight = 0;
+                                }
+                                break;
+                            }
+                        case Stances.Jump:
+                            {
+                                if (!airParry)
+                                {
+                                    jump = true;
+                                }
+                                airParry = false;
+                                Jump();
+                                break;
+                            }
+                        case Stances.Slide:
+                            {
+                                currentSlideTime = slideTime;
+                                break;
+                            }
+                        case Stances.Attack:
+                            {
+                                if (airParry)
+                                {
+                                    reachedHighestPoint = false;
+                                    airJumping = false;
+                                    highestJumpHight = 0;
+                                    airAttack = true;
+                                    rigi.velocity = Vector3.down * 50;
+                                    airParry = false;
+                                }
+                                else
+                                {
+                                    groundAttack = true;
+                                }
+                                Attack();
+                                break;
+                            }
+                        case Stances.Parry:
+                            {
+                                anim.SetTrigger("parry");
+                                if(!airParry)
+                                {
+                                    lastStance = currentStance;
+                                    currentStance = Stances.Ground;
+                                }
+                                break;
+                            }
                     }
                     break;
                 }
         }
     }
 
+    public void Attack()
+    {
+        if (groundAttack)
+        {
+            anim.SetTrigger("groundAttack");
+            groundAttack = false;
+        }
+        else if (airAttack)
+        {
+            anim.SetTrigger("airAttack");
+        }
+    }
+
+    public void AttackReset()
+    {
+        lastStance = currentStance;
+        currentStance = Stances.Ground;
+        SubStancesCheck();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (currentStance == Stances.Jump)
+        if (currentStance == Stances.Jump || airParry)
         {
             lastStance = currentStance;
             currentStance = Stances.Ground;
