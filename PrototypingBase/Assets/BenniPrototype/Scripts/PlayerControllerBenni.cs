@@ -23,6 +23,7 @@ public class PlayerControllerBenni : MonoBehaviour
     private float moveVertical;
     private float move;
 
+    private Vector3 haeding;
     private Vector3 moveVector;
 
     [SerializeField]
@@ -35,8 +36,13 @@ public class PlayerControllerBenni : MonoBehaviour
     private float jumpForce;
     [SerializeField]
     private float airJumpForce;
+    [SerializeField]
+    private float fallingSpeed;
+    [SerializeField]
+    private float artificialGravitySpeed;
     private float currentJumpHight;
     private float highestJumpHight;
+    public float artificialGravity;
 
     private bool grounded = true;
     private bool jump = false;
@@ -113,6 +119,10 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance = Stances.Parry;
             SubStancesCheck();
         }
+        if (currentStance == Stances.Jump)
+        {
+            CalculateJumpHight();
+        }
     }
 
     private void FixedUpdate()
@@ -128,7 +138,6 @@ public class PlayerControllerBenni : MonoBehaviour
             MovementCalculation();
             Heading();
             Move();
-            CalculateJumpHight();
         }
         else if (currentStance == Stances.Slide)
         {
@@ -161,12 +170,26 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Heading()
     {
-        if (moveHorizontal < -0.1f ||
-           moveHorizontal > 0.1f ||
-           moveVertical < -0.1 ||
-           moveVertical > 0.1)
+
+        if (moveHorizontal < -0.3f ||
+           moveHorizontal > 0.3f ||
+           moveVertical < -0.3 ||
+           moveVertical > 0.3)
         {
-            transform.rotation = Quaternion.LookRotation(moveVector);
+            haeding = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
+            haeding = haeding.normalized;
+            haeding.y = 0;
+
+
+            if (haeding == Vector3.zero)
+            {
+                transform.rotation = Quaternion.identity;
+
+            }
+            else
+            {
+                transform.rotation = Quaternion.LookRotation(haeding);
+            }
         }
     }
 
@@ -177,12 +200,9 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             move = 1;
         }
-
-        moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
-
-        moveVector = moveVector.normalized * move * movementSpeed;
-
-        moveVector.y = 0;
+            moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
+            moveVector = moveVector.normalized * move * movementSpeed;
+            moveVector.y = 0;
     }
 
     /// <summary>
@@ -190,21 +210,39 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     void Move()
     {
-        rigi.velocity = new Vector3(moveVector.x,
-                                    rigi.velocity.y,
-                                    moveVector.z);
+        if (!grounded && rigi.velocity.y < 0)
+        {
+            rigi.velocity = new Vector3(moveVector.x,
+                                        Vector3.up.y * Physics.gravity.y * fallingSpeed,
+                                        moveVector.z);
+        }
+        else if (rigi.velocity.y > 0)
+        {
+            artificialGravity -= artificialGravitySpeed;
+
+            rigi.velocity = new Vector3(moveVector.x,
+                                        rigi.velocity.y + artificialGravity,
+                                        moveVector.z);
+        }
+        else
+        {
+            rigi.velocity = new Vector3(moveVector.x,
+                                        rigi.velocity.y,
+                                        moveVector.z);
+        }
     }
 
     private void Jump()
     {
         if (jump)
         {
-            rigi.AddForce(Vector3.up * 10000 * jumpForce);
+            rigi.velocity = Vector3.up * jumpForce;
             jump = false;
         }
         else if (airJumping)
         {
-            rigi.AddForce(Vector3.up * 10000 * airJumpForce);
+            artificialGravity = 0;
+            rigi.velocity = Vector3.up * airJumpForce;
             airJumping = false;
         }
     }
@@ -241,7 +279,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 overJumpHight = false;
                 airJumping = true;
             }
-            if (currentJumpHight < highestJumpHight - 1)
+            if (currentJumpHight < highestJumpHight - 10)
             {
                 highestJumpHight = currentJumpHight;
             }
@@ -255,7 +293,15 @@ public class PlayerControllerBenni : MonoBehaviour
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
-                transform.rotation = Quaternion.LookRotation(moveVector);
+                if (moveVector == Vector3.zero)
+                {
+                    transform.rotation = Quaternion.identity;
+
+                }
+                else
+                {
+                    transform.rotation = Quaternion.LookRotation(moveVector);
+                }
 
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
                                             rigi.velocity.y,
@@ -316,6 +362,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Ground:
                             {
+                                artificialGravity = 0;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
@@ -328,15 +375,20 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Slide:
                             {
+                                artificialGravity = 0;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
+                                rigi.velocity = new Vector3(transform.forward.x * 50,
+                                                             Vector3.down.y * 100,
+                                                             transform.forward.z);
                                 currentSlideTime = slideTime;
                                 sliding = true;
                                 break;
                             }
                         case Stances.Attack:
                             {
+                                artificialGravity = 0;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
@@ -479,7 +531,7 @@ public class PlayerControllerBenni : MonoBehaviour
                         case Stances.Parry:
                             {
                                 anim.SetTrigger("parry");
-                                if(!airParry)
+                                if (!airParry)
                                 {
                                     lastStance = currentStance;
                                     currentStance = Stances.Ground;
@@ -549,5 +601,6 @@ public class PlayerControllerBenni : MonoBehaviour
         GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHight, style);
         GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
         GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHighestPoint, style);
+        GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
     }
 }
