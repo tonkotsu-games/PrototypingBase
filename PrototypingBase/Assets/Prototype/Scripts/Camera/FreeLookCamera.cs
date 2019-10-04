@@ -12,7 +12,7 @@ public class FreeLookCamera : MonoBehaviour
     [Range(0,20)]
     [SerializeField]
     private float offSetY;
-    [Range(-20,0)]
+    [Range(-20,20)]
     [SerializeField]
     private float offSetZ;
     [Range(0,20)]

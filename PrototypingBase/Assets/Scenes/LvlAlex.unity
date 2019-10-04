@@ -12753,12 +12753,12 @@ PrefabInstance:
     - target: {fileID: 7282317251167531896, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -51.42
+      value: -77.32
       objectReference: {fileID: 0}
     - target: {fileID: 7282317251167531896, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 231.3
+      value: 224.07
       objectReference: {fileID: 0}
     - target: {fileID: 7282317251167531896, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
@@ -13011,7 +13011,7 @@ MonoBehaviour:
   playerTarget: {fileID: 2086100490}
   enemyTarget: {fileID: 0}
   offSetY: 0
-  offSetZ: -14
+  offSetZ: 14
   highSet: 1.51
   turnSpeed: 8
 --- !u!45 &7459470389186305473
