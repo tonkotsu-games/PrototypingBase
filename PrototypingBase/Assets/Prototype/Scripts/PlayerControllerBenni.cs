@@ -41,14 +41,14 @@ public class PlayerControllerBenni : MonoBehaviour
 
     [Header("New Jump Parable")]
     [SerializeField]
-    private float jumpHight;
+    private float jumpHeight;
     [SerializeField]
-    private float timeToHight;
+    private float timeToHeight;
     [Header("Air Jump")]
     [SerializeField]
-    private float airJumpHight;
+    private float airJumpHeight;
     [SerializeField]
-    private float timeToAirJumpHight;
+    private float timeToAirJumpHeight;
     private float gravity;
     private float jumpVelocity;
     private float airJumpVelocity;
@@ -56,14 +56,14 @@ public class PlayerControllerBenni : MonoBehaviour
     private float airJumpGravity;
     private float jumpTime;
     private float jumpParable;
-    private float currentJumpHight;
-    private float highestJumpHight;
+    private float currentJumpHeight;
+    private float highestJumpHeight;
 
     private bool grounded = true;
     private bool jump = false;
     private bool airJumping = false;
-    private bool reachedHighestPoint = false;
-    private bool overJumpHight = false;
+    private bool reachedHeighestPoint = false;
+    private bool overJumpHeight = false;
     private bool airJumpingGravity = false;
     #endregion
 
@@ -285,10 +285,10 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void CalculateJump()
     {
-        jumpGravity = -(2 * jumpHight) / Mathf.Pow(timeToHight, 2);
-        airJumpGravity = -(2 * airJumpHight) / Mathf.Pow(timeToAirJumpHight, 2);
-        jumpVelocity = Mathf.Abs(jumpGravity) * timeToHight;
-        airJumpVelocity = Mathf.Abs(airJumpGravity) * timeToAirJumpHight;
+        jumpGravity = -(2 * jumpHeight) / Mathf.Pow(timeToHeight, 2);
+        airJumpGravity = -(2 * airJumpHeight) / Mathf.Pow(timeToAirJumpHeight, 2);
+        jumpVelocity = Mathf.Abs(jumpGravity) * timeToHeight;
+        airJumpVelocity = Mathf.Abs(airJumpGravity) * timeToAirJumpHeight;
     }
 
     /// <summary>
@@ -297,35 +297,35 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     public void CalculateJumpHight()
     {
-        currentJumpHight = transform.position.y;
+        currentJumpHeight = transform.position.y;
 
-        if (currentJumpHight > highestJumpHight)
+        if (currentJumpHeight > highestJumpHeight)
         {
-            overJumpHight = true;
+            overJumpHeight = true;
         }
 
-        if (!reachedHighestPoint)
+        if (!reachedHeighestPoint)
         {
-            if (currentJumpHight >= highestJumpHight)
+            if (currentJumpHeight >= highestJumpHeight)
             {
-                highestJumpHight = currentJumpHight;
+                highestJumpHeight = currentJumpHeight;
             }
             else
             {
                 airJumping = true;
-                reachedHighestPoint = true;
+                reachedHeighestPoint = true;
             }
         }
         else
         {
-            if (currentJumpHight <= highestJumpHight && overJumpHight)
+            if (currentJumpHeight <= highestJumpHeight && overJumpHeight)
             {
-                overJumpHight = false;
+                overJumpHeight = false;
                 airJumping = true;
             }
-            if (currentJumpHight < highestJumpHight - 10)
+            if (currentJumpHeight < highestJumpHeight - 10)
             {
-                highestJumpHight = currentJumpHight;
+                highestJumpHeight = currentJumpHeight;
             }
         }
     }
@@ -402,9 +402,9 @@ public class PlayerControllerBenni : MonoBehaviour
                             {
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHighestPoint = false;
+                                reachedHeighestPoint = false;
                                 airJumping = false;
-                                highestJumpHight = 0;
+                                highestJumpHeight = 0;
                                 gravity = 0;
                                 break;
                             }
@@ -419,9 +419,9 @@ public class PlayerControllerBenni : MonoBehaviour
                             {
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHighestPoint = false;
+                                reachedHeighestPoint = false;
                                 airJumping = false;
-                                highestJumpHight = 0;
+                                highestJumpHeight = 0;
                                 rigi.velocity = new Vector3(transform.forward.x * 50,
                                                              Vector3.down.y * 100,
                                                              transform.forward.z);
@@ -434,9 +434,9 @@ public class PlayerControllerBenni : MonoBehaviour
                             {
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHighestPoint = false;
+                                reachedHeighestPoint = false;
                                 airJumping = false;
-                                highestJumpHight = 0;
+                                highestJumpHeight = 0;
                                 airAttack = true;
                                 rigi.velocity = Vector3.down * 50;
                                 Attack();
@@ -568,9 +568,9 @@ public class PlayerControllerBenni : MonoBehaviour
 
         GUI.Label(new Rect(10, 10, 400, 40), "Current Stance: " + currentStance, style);
         GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
-        GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHight, style);
+        GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHeight, style);
         GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
-        GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHighestPoint, style);
+        GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
         GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
     }
 }
