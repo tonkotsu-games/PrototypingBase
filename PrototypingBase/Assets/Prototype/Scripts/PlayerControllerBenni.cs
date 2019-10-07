@@ -400,6 +400,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Ground:
                             {
+                                airJumpingGravity = false;
                                 slideJump = false;
                                 reachedHighestPoint = false;
                                 airJumping = false;
@@ -416,6 +417,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Slide:
                             {
+                                airJumpingGravity = false;
                                 slideJump = false;
                                 reachedHighestPoint = false;
                                 airJumping = false;
@@ -430,6 +432,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Attack:
                             {
+                                airJumpingGravity = false;
                                 slideJump = false;
                                 reachedHighestPoint = false;
                                 airJumping = false;

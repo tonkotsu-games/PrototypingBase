@@ -250,12 +250,13 @@ MonoBehaviour:
   movementSpeed: 30
   cam: {fileID: 0}
   jumpTest: 0
-  jumpHight: 10
+  jumpHight: 6
   timeToHight: 0.3
   airJumpHight: 7
   timeToAirJumpHight: 0.3
   slideTime: 1
   slidingSpeed: 50
+  slidingJumpSpeed: 55
 --- !u!95 &7282317251167531897
 Animator:
   serializedVersion: 3
