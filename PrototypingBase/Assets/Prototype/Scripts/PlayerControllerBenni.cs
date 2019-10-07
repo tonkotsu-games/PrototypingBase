@@ -10,7 +10,7 @@ public class PlayerControllerBenni : MonoBehaviour
         Jump,
         Slide,
         Attack,
-        Parry
+        Gun
     }
 
     #region Player
@@ -89,6 +89,20 @@ public class PlayerControllerBenni : MonoBehaviour
 
     #endregion
 
+    #region Gun
+    [Header("Gun Gameobjects")]
+    [SerializeField]
+    private GameObject gun;
+    [SerializeField]
+    private GameObject bullet;
+    private GameObject instanceBullet;
+
+    [SerializeField]
+    private float bulletSpeed;
+
+    private bool airGun = false;
+    #endregion
+
     #endregion
 
     #region System
@@ -142,7 +156,15 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance = Stances.Attack;
             SubStancesCheck();
         }
-        if (currentStance == Stances.Jump)
+        if (Input.GetButtonDown("Gun"))
+        {
+            lastStance = currentStance;
+            currentStance = Stances.Gun;
+            anim.SetTrigger("gun");
+
+            SubStancesCheck();
+        }
+        if (currentStance == Stances.Jump || airGun)
         {
             CalculateJumpHight();
         }
@@ -150,13 +172,9 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (currentStance == Stances.Ground)
-        {
-            MovementCalculation();
-            Heading();
-            Move();
-        }
-        else if (currentStance == Stances.Jump)
+        if (currentStance == Stances.Ground ||
+            currentStance == Stances.Jump ||
+            currentStance == Stances.Gun)
         {
             MovementCalculation();
             Heading();
@@ -391,6 +409,11 @@ public class PlayerControllerBenni : MonoBehaviour
                                 Attack();
                                 break;
                             }
+                        case Stances.Gun:
+                            {
+
+                                break;
+                            }
                     }
                     break;
                 }
@@ -400,6 +423,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Ground:
                             {
+                                airGun = false;
                                 airJumpingGravity = false;
                                 slideJump = false;
                                 reachedHeighestPoint = false;
@@ -442,6 +466,11 @@ public class PlayerControllerBenni : MonoBehaviour
                                 Attack();
                                 break;
                             }
+                        case Stances.Gun:
+                            {
+                                airGun = true;
+                                break;
+                            }
                     }
                     break;
                 }
@@ -477,6 +506,10 @@ public class PlayerControllerBenni : MonoBehaviour
                                 Attack();
                                 break;
                             }
+                        case Stances.Gun:
+                            {
+                                break;
+                            }
                     }
                     break;
                 }
@@ -508,13 +541,43 @@ public class PlayerControllerBenni : MonoBehaviour
                                 Attack();
                                 break;
                             }
+                        case Stances.Gun:
+                            {
+                                break;
+                            }
+                    }
+                    break;
+                }
+            case Stances.Gun:
+                {
+                    switch (currentStance)
+                    {
+                        case Stances.Ground:
+                            {
+                                gravity = 0;
+                                airGun = false;
+                                break;
+                            }
+                        case Stances.Jump:
+                            {
+                                airGun = false;
+                                break;
+                            }
+                        case Stances.Slide:
+                            {
+                                break;
+                            }
+                        case Stances.Attack:
+                            {
+                                break;
+                            }
                     }
                     break;
                 }
         }
     }
 
-    public void Attack()
+    private void Attack()
     {
         if (groundAttack)
         {
@@ -534,9 +597,16 @@ public class PlayerControllerBenni : MonoBehaviour
         SubStancesCheck();
     }
 
+    public void Shoot()
+    {
+        instanceBullet = Instantiate(bullet, gun.transform.position, Quaternion.LookRotation(haeding));
+        instanceBullet.GetComponent<Rigidbody>().AddForce(transform.forward * bulletSpeed);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (currentStance == Stances.Jump)
+        if (currentStance == Stances.Jump || 
+            currentStance == Stances.Gun)
         {
             lastStance = currentStance;
             currentStance = Stances.Ground;
