@@ -75,8 +75,12 @@ public class PlayerControllerBenni : MonoBehaviour
     [Header("Value for Sliding Speed")]
     [SerializeField]
     private float slidingSpeed;
+    [Header("Value for Sliding Jump Speed")]
+    [SerializeField]
+    private float slidingJumpSpeed;
 
     private bool sliding = false;
+    private bool slideJump = false;
     #endregion
 
     #region Attack
@@ -161,6 +165,7 @@ public class PlayerControllerBenni : MonoBehaviour
         else if (currentStance == Stances.Slide)
         {
             MovementCalculation();
+            Heading();
             Slide();
         }
         else if (currentStance == Stances.Attack)
@@ -248,24 +253,30 @@ public class PlayerControllerBenni : MonoBehaviour
             }
         }
 
-        rigi.velocity = new Vector3(moveVector.x,
-                            gravity,
-                            moveVector.z);
-
+        if (!slideJump)
+        {
+            rigi.velocity = new Vector3(moveVector.x,
+                                gravity,
+                                moveVector.z);
+        }
+        else
+        {
+            rigi.velocity = new Vector3(transform.forward.x * slidingJumpSpeed,
+                                        gravity,
+                                        transform.forward.z * slidingJumpSpeed);
+        }
     }
 
     private void Jump()
     {
         if (jump)
         {
-            Debug.Log("Jump");
             gravity = jumpVelocity;
 
             jump = false;
         }
         else if (airJumping)
         {
-            Debug.Log("Airjump");
             gravity = airJumpVelocity;
 
             airJumping = false;
@@ -326,14 +337,14 @@ public class PlayerControllerBenni : MonoBehaviour
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
-                if (moveVector == Vector3.zero)
+                if (haeding == Vector3.zero)
                 {
                     transform.rotation = Quaternion.identity;
 
                 }
                 else
                 {
-                    transform.rotation = Quaternion.LookRotation(moveVector);
+                    transform.rotation = Quaternion.LookRotation(haeding);
                 }
 
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
@@ -389,6 +400,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Ground:
                             {
+                                slideJump = false;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
@@ -397,12 +409,14 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Jump:
                             {
+                                slideJump = false;
                                 airJumpingGravity = true;
                                 Jump();
                                 break;
                             }
                         case Stances.Slide:
                             {
+                                slideJump = false;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
@@ -416,6 +430,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Attack:
                             {
+                                slideJump = false;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
@@ -440,6 +455,7 @@ public class PlayerControllerBenni : MonoBehaviour
                                 sliding = false;
                                 if (grounded)
                                 {
+                                    slideJump = true;
                                     jump = true;
                                 }
                                 Jump();
