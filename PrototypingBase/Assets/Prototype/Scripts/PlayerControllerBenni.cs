@@ -348,7 +348,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 }
 
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
-                                            rigi.velocity.y,
+                                            gravity,
                                             transform.forward.z * slidingSpeed);
             }
             else
