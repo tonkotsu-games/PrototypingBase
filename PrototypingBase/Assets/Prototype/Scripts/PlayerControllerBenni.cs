@@ -31,18 +31,8 @@ public class PlayerControllerBenni : MonoBehaviour
     #endregion
 
     #region Jumping
-    [Header("Value for Jump")]
-    [SerializeField]
-    private float jumpForce;
-    [SerializeField]
-    private float airJumpForce;
-    [SerializeField]
-    private float fallingSpeed;
-    [SerializeField]
-    private float artificialGravitySpeed;
     private float currentJumpHight;
     private float highestJumpHight;
-    public float artificialGravity;
 
     private bool grounded = true;
     private bool jump = false;
@@ -50,6 +40,18 @@ public class PlayerControllerBenni : MonoBehaviour
     private bool reachedHighestPoint = false;
     private bool overJumpHight = false;
     private bool airParry = false;
+
+    [Header("New Jump Parable")]
+    [SerializeField]
+    private float jumpHight;
+    [SerializeField]
+    private float timeToHight;
+
+    public float gravity;
+    private float jumpVelocity;
+    private float jumpGravity;
+    private float jumpTime;
+    private float jumpParable;
     #endregion
 
     #region Slide
@@ -88,10 +90,13 @@ public class PlayerControllerBenni : MonoBehaviour
         jump = false;
         rigi = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
+        //CalculateJump();
     }
 
     void Update()
     {
+        CalculateJump();
+
         moveHorizontal = Input.GetAxisRaw("Horizontal");
         moveVertical = Input.GetAxisRaw("Vertical");
 
@@ -200,9 +205,9 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             move = 1;
         }
-            moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
-            moveVector = moveVector.normalized * move * movementSpeed;
-            moveVector.y = 0;
+        moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
+        moveVector = moveVector.normalized * move * movementSpeed;
+        moveVector.y = 0;
     }
 
     /// <summary>
@@ -210,41 +215,37 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     void Move()
     {
-        if (!grounded && rigi.velocity.y < 0)
+        if(!grounded)
         {
-            rigi.velocity = new Vector3(moveVector.x,
-                                        Vector3.up.y * Physics.gravity.y * fallingSpeed,
-                                        moveVector.z);
+            gravity += jumpGravity * Time.deltaTime;
         }
-        else if (rigi.velocity.y > 0)
-        {
-            artificialGravity -= artificialGravitySpeed;
 
-            rigi.velocity = new Vector3(moveVector.x,
-                                        rigi.velocity.y + artificialGravity,
-                                        moveVector.z);
-        }
-        else
-        {
-            rigi.velocity = new Vector3(moveVector.x,
-                                        rigi.velocity.y,
-                                        moveVector.z);
-        }
+        rigi.velocity = new Vector3(moveVector.x,
+                            gravity,
+                            moveVector.z);
+
     }
 
     private void Jump()
     {
+        Debug.Log("Jump Function");
         if (jump)
         {
-            rigi.velocity = Vector3.up * jumpForce;
+            Debug.Log("Jump Bool");
+            gravity = jumpVelocity;
+
             jump = false;
         }
         else if (airJumping)
         {
-            artificialGravity = 0;
-            rigi.velocity = Vector3.up * airJumpForce;
             airJumping = false;
         }
+    }
+
+    private void CalculateJump()
+    {
+        jumpGravity = -(2 * jumpHight) / Mathf.Pow(timeToHight, 2);
+        jumpVelocity = Mathf.Abs(jumpGravity) * timeToHight;
     }
 
     /// <summary>
@@ -331,6 +332,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Jump:
                             {
+                                Debug.Log("Jump");
                                 jump = true;
                                 Jump();
                                 break;
@@ -362,10 +364,10 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Ground:
                             {
-                                artificialGravity = 0;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
+                                gravity = 0;
                                 break;
                             }
                         case Stances.Jump:
@@ -375,7 +377,6 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Slide:
                             {
-                                artificialGravity = 0;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;
@@ -384,11 +385,11 @@ public class PlayerControllerBenni : MonoBehaviour
                                                              transform.forward.z);
                                 currentSlideTime = slideTime;
                                 sliding = true;
+                                gravity = 0;
                                 break;
                             }
                         case Stances.Attack:
                             {
-                                artificialGravity = 0;
                                 reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHight = 0;

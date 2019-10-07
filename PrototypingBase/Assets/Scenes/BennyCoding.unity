@@ -901,10 +901,30 @@ PrefabInstance:
       propertyPath: cam
       value: 
       objectReference: {fileID: 7459470389186305469}
+    - target: {fileID: 3664721806686315993, guid: 2b2e50066648fc04298e78714229f6ba,
+        type: 3}
+      propertyPath: jumpHight
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3664721806686315993, guid: 2b2e50066648fc04298e78714229f6ba,
+        type: 3}
+      propertyPath: timeToHight
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6268617855949771067, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7282317251167531892, guid: 2b2e50066648fc04298e78714229f6ba,
+        type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7282317251167531892, guid: 2b2e50066648fc04298e78714229f6ba,
+        type: 3}
+      propertyPath: m_Mass
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2b2e50066648fc04298e78714229f6ba, type: 3}
