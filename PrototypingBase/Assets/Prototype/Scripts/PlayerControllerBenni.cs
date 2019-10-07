@@ -16,6 +16,10 @@ public class PlayerControllerBenni : MonoBehaviour
     #region Player
 
     #region Movement
+    [Header("Movement Stick DeadZone")]
+    [SerializeField]
+    [Range(0, 1)]
+    private float deadZone;
     [Header("Value for the Movement")]
     [SerializeField]
     private float movementSpeed;
@@ -31,6 +35,27 @@ public class PlayerControllerBenni : MonoBehaviour
     #endregion
 
     #region Jumping
+    [Header("If true Jump Values can changed while playing")]
+    [SerializeField]
+    bool jumpTest = false;
+
+    [Header("New Jump Parable")]
+    [SerializeField]
+    private float jumpHight;
+    [SerializeField]
+    private float timeToHight;
+    [Header("Air Jump")]
+    [SerializeField]
+    private float airJumpHight;
+    [SerializeField]
+    private float timeToAirJumpHight;
+    private float gravity;
+    private float jumpVelocity;
+    private float airJumpVelocity;
+    private float jumpGravity;
+    private float airJumpGravity;
+    private float jumpTime;
+    private float jumpParable;
     private float currentJumpHight;
     private float highestJumpHight;
 
@@ -39,19 +64,7 @@ public class PlayerControllerBenni : MonoBehaviour
     private bool airJumping = false;
     private bool reachedHighestPoint = false;
     private bool overJumpHight = false;
-    private bool airParry = false;
-
-    [Header("New Jump Parable")]
-    [SerializeField]
-    private float jumpHight;
-    [SerializeField]
-    private float timeToHight;
-
-    public float gravity;
-    private float jumpVelocity;
-    private float jumpGravity;
-    private float jumpTime;
-    private float jumpParable;
+    private bool airJumpingGravity = false;
     #endregion
 
     #region Slide
@@ -90,12 +103,19 @@ public class PlayerControllerBenni : MonoBehaviour
         jump = false;
         rigi = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
-        //CalculateJump();
+        if (!jumpTest)
+        {
+            CalculateJump();
+
+        }
     }
 
     void Update()
     {
-        CalculateJump();
+        if (jumpTest)
+        {
+            CalculateJump();
+        }
 
         moveHorizontal = Input.GetAxisRaw("Horizontal");
         moveVertical = Input.GetAxisRaw("Vertical");
@@ -116,12 +136,6 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             lastStance = currentStance;
             currentStance = Stances.Attack;
-            SubStancesCheck();
-        }
-        if (Input.GetButtonDown("Parry"))
-        {
-            lastStance = currentStance;
-            currentStance = Stances.Parry;
             SubStancesCheck();
         }
         if (currentStance == Stances.Jump)
@@ -163,10 +177,6 @@ public class PlayerControllerBenni : MonoBehaviour
                 }
             }
         }
-        else if (currentStance == Stances.Parry)
-        {
-
-        }
         else
         {
             Debug.LogError("WARNING NO STANCE");
@@ -200,14 +210,25 @@ public class PlayerControllerBenni : MonoBehaviour
 
     void MovementCalculation()
     {
-        move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
-        if (move > 1)
+        if (moveHorizontal < -deadZone ||
+            moveHorizontal > deadZone ||
+            moveVertical < -deadZone ||
+            moveVertical > deadZone)
         {
-            move = 1;
+            move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
+            if (move > 1)
+            {
+                move = 1;
+            }
+            moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
+            moveVector = moveVector.normalized * move * movementSpeed;
+            moveVector.y = 0;
         }
-        moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
-        moveVector = moveVector.normalized * move * movementSpeed;
-        moveVector.y = 0;
+        else
+        {
+            moveVector = Vector3.zero;
+
+        }
     }
 
     /// <summary>
@@ -215,9 +236,16 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     void Move()
     {
-        if(!grounded)
+        if (!grounded)
         {
-            gravity += jumpGravity * Time.deltaTime;
+            if (!airJumpingGravity)
+            {
+                gravity += jumpGravity * Time.deltaTime;
+            }
+            else
+            {
+                gravity += airJumpGravity * Time.deltaTime;
+            }
         }
 
         rigi.velocity = new Vector3(moveVector.x,
@@ -228,16 +256,18 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Jump()
     {
-        Debug.Log("Jump Function");
         if (jump)
         {
-            Debug.Log("Jump Bool");
+            Debug.Log("Jump");
             gravity = jumpVelocity;
 
             jump = false;
         }
         else if (airJumping)
         {
+            Debug.Log("Airjump");
+            gravity = airJumpVelocity;
+
             airJumping = false;
         }
     }
@@ -245,7 +275,9 @@ public class PlayerControllerBenni : MonoBehaviour
     private void CalculateJump()
     {
         jumpGravity = -(2 * jumpHight) / Mathf.Pow(timeToHight, 2);
+        airJumpGravity = -(2 * airJumpHight) / Mathf.Pow(timeToAirJumpHight, 2);
         jumpVelocity = Mathf.Abs(jumpGravity) * timeToHight;
+        airJumpVelocity = Mathf.Abs(airJumpGravity) * timeToAirJumpHight;
     }
 
     /// <summary>
@@ -332,7 +364,6 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Jump:
                             {
-                                Debug.Log("Jump");
                                 jump = true;
                                 Jump();
                                 break;
@@ -347,12 +378,6 @@ public class PlayerControllerBenni : MonoBehaviour
                             {
                                 groundAttack = true;
                                 Attack();
-                                break;
-                            }
-                        case Stances.Parry:
-                            {
-                                anim.SetTrigger("parry");
-                                AttackReset();
                                 break;
                             }
                     }
@@ -372,6 +397,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Jump:
                             {
+                                airJumpingGravity = true;
                                 Jump();
                                 break;
                             }
@@ -396,12 +422,6 @@ public class PlayerControllerBenni : MonoBehaviour
                                 airAttack = true;
                                 rigi.velocity = Vector3.down * 50;
                                 Attack();
-                                break;
-                            }
-                        case Stances.Parry:
-                            {
-                                airParry = true;
-                                anim.SetTrigger("parry");
                                 break;
                             }
                     }
@@ -438,11 +458,6 @@ public class PlayerControllerBenni : MonoBehaviour
                                 Attack();
                                 break;
                             }
-                        case Stances.Parry:
-                            {
-                                anim.SetTrigger("parry");
-                                break;
-                            }
                     }
                     break;
                 }
@@ -474,71 +489,6 @@ public class PlayerControllerBenni : MonoBehaviour
                                 Attack();
                                 break;
                             }
-                        case Stances.Parry:
-                            {
-                                anim.SetTrigger("parry");
-                                break;
-                            }
-                    }
-                    break;
-                }
-            case Stances.Parry:
-                {
-                    switch (currentStance)
-                    {
-                        case Stances.Ground:
-                            {
-                                if (airParry)
-                                {
-                                    reachedHighestPoint = false;
-                                    airJumping = false;
-                                    highestJumpHight = 0;
-                                }
-                                break;
-                            }
-                        case Stances.Jump:
-                            {
-                                if (!airParry)
-                                {
-                                    jump = true;
-                                }
-                                airParry = false;
-                                Jump();
-                                break;
-                            }
-                        case Stances.Slide:
-                            {
-                                currentSlideTime = slideTime;
-                                break;
-                            }
-                        case Stances.Attack:
-                            {
-                                if (airParry)
-                                {
-                                    reachedHighestPoint = false;
-                                    airJumping = false;
-                                    highestJumpHight = 0;
-                                    airAttack = true;
-                                    rigi.velocity = Vector3.down * 50;
-                                    airParry = false;
-                                }
-                                else
-                                {
-                                    groundAttack = true;
-                                }
-                                Attack();
-                                break;
-                            }
-                        case Stances.Parry:
-                            {
-                                anim.SetTrigger("parry");
-                                if (!airParry)
-                                {
-                                    lastStance = currentStance;
-                                    currentStance = Stances.Ground;
-                                }
-                                break;
-                            }
                     }
                     break;
                 }
@@ -567,7 +517,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (currentStance == Stances.Jump || airParry)
+        if (currentStance == Stances.Jump)
         {
             lastStance = currentStance;
             currentStance = Stances.Ground;
