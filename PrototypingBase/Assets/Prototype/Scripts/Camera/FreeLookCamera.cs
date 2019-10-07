@@ -9,6 +9,11 @@ public class FreeLookCamera : MonoBehaviour
     [SerializeField] private GameObject enemyTarget;
     private GameObject lookAt;
 
+    [Header("Camera Stick Dead Zone")]
+    [SerializeField]
+    [Range(0, 1)]
+    private float deadZone;
+    [Header("Offset for the Camera")]
     [Range(0,20)]
     [SerializeField]
     private float offSetY;
@@ -61,8 +66,8 @@ public class FreeLookCamera : MonoBehaviour
     {
         if (lookAt == playerTarget)
         {
-            if (Input.GetAxisRaw("CameraHorizontal") > 0.3f ||
-               Input.GetAxisRaw("CameraHorizontal") < -0.3f)
+            if (Input.GetAxisRaw("CameraHorizontal") > deadZone ||
+               Input.GetAxisRaw("CameraHorizontal") < -deadZone)
             {
                 rotationX = Quaternion.AngleAxis(Input.GetAxisRaw("CameraHorizontal") * turnSpeed, Vector3.up);
                 //rotationY = Quaternion.AngleAxis(inputPackage.CameraVertical, Vector3.right);
