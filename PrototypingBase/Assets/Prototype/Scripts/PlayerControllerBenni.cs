@@ -612,6 +612,7 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance = Stances.Ground;
             SubStancesCheck();
         }
+        gravity = 0;
     }
 
     private void OnTriggerStay(Collider other)
@@ -642,5 +643,6 @@ public class PlayerControllerBenni : MonoBehaviour
         GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
         GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
         GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
+        GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
     }
 }
