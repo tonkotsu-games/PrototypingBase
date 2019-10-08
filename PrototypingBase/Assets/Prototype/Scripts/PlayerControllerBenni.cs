@@ -183,6 +183,7 @@ public class PlayerControllerBenni : MonoBehaviour
         else if (currentStance == Stances.Slide)
         {
             MovementCalculation();
+            Gravity();
             Heading();
             Slide();
         }
@@ -350,7 +351,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && grounded)
+        if (sliding && (grounded || lastStance == Stances.Ground))
         {
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
@@ -364,7 +365,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     transform.rotation = Quaternion.LookRotation(haeding);
                 }
-
+                
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
                                             gravity,
                                             transform.forward.z * slidingSpeed);
@@ -603,9 +604,17 @@ public class PlayerControllerBenni : MonoBehaviour
         instanceBullet.GetComponent<Rigidbody>().AddForce(transform.forward * bulletSpeed);
     }
 
+    private void Gravity()
+    {
+        if (!grounded)
+        {
+            gravity += jumpGravity * Time.deltaTime;
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (currentStance == Stances.Jump || 
+        if (currentStance == Stances.Jump ||
             currentStance == Stances.Gun)
         {
             lastStance = currentStance;
@@ -644,5 +653,7 @@ public class PlayerControllerBenni : MonoBehaviour
         GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
         GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
         GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
+        GUI.Label(new Rect(10, 220, 400, 40), "Slide Time: " + currentSlideTime, style);
+
     }
 }

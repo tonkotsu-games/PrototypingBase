@@ -7,7 +7,6 @@ public class Bullet : MonoBehaviour
     [SerializeField]
     private float bulletLifeTime;
 
-    // Update is called once per frame
     void Update()
     {
         bulletLifeTime -= Time.deltaTime;
