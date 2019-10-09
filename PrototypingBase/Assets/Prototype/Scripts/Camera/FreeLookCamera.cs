@@ -51,7 +51,7 @@ public class FreeLookCamera : MonoBehaviour
     {
         offSetNew = new Vector3(0, offSetY, offSetZ);
         cam = Camera.main.transform;
-        offSetOld = offSetNew;
+        offSetOld = new Vector3(0,0,0);
         pivot = cam.parent;
     }
 
