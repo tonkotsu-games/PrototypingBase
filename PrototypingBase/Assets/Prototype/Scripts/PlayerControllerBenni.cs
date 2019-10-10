@@ -112,6 +112,8 @@ public class PlayerControllerBenni : MonoBehaviour
     private Stances currentStance;
     private Stances lastStance;
 
+    [SerializeField]
+    private FreeLookCamera target;
     #endregion
 
     void Start()
@@ -210,10 +212,10 @@ public class PlayerControllerBenni : MonoBehaviour
     private void Heading()
     {
 
-        if (moveHorizontal < -0.3f ||
+        if ((moveHorizontal < -0.3f ||
            moveHorizontal > 0.3f ||
            moveVertical < -0.3 ||
-           moveVertical > 0.3)
+           moveVertical > 0.3) && !target.lockOn)
         {
             haeding = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
             haeding = haeding.normalized;
@@ -229,6 +231,11 @@ public class PlayerControllerBenni : MonoBehaviour
             {
                 transform.rotation = Quaternion.LookRotation(haeding);
             }
+        }
+        else if(target.lockOn)
+        {
+            target.lookAt.y = 0;
+            transform.rotation = Quaternion.LookRotation(target.lookAt);
         }
     }
 
