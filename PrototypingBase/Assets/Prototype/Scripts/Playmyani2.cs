@@ -12,7 +12,7 @@ public class Playmyani2 : MonoBehaviour
         if(other.CompareTag("Player"))
         {
             NewArena.SetBool("ArenaChange", true);
-        
+            SkyboxChanger.instance.ChangeTexture(1);
         }
 
     }
