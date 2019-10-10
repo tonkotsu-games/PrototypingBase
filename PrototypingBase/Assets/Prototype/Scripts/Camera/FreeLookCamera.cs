@@ -124,7 +124,6 @@ public class FreeLookCamera : MonoBehaviour
             }
             Quaternion lookAtRot = Quaternion.LookRotation(lookAt);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRot, lookAtSpeed);
-            rotationX = lookAt.x;
         }
     }
 }

@@ -234,6 +234,7 @@ public class PlayerControllerBenni : MonoBehaviour
         }
         else if(target.lockOn)
         {
+            target.lookAt.y = 0;
             transform.rotation = Quaternion.LookRotation(target.lookAt);
         }
     }
