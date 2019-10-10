@@ -7811,6 +7811,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 327850419}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &336634803 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
+    type: 3}
+  m_PrefabInstance: {fileID: 1529996240}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25c0f2fc73578e408a4be43655cb73c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &348552069
 GameObject:
   m_ObjectHideFlags: 0
@@ -32200,6 +32212,16 @@ PrefabInstance:
       propertyPath: senitivity
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
+        type: 3}
+      propertyPath: enemyTarget
+      value: 
+      objectReference: {fileID: 2100934470}
+    - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
+        type: 3}
+      propertyPath: lookAtSpeed
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8174719870527866005, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
         type: 3}
       propertyPath: far clip plane
@@ -34967,6 +34989,11 @@ PrefabInstance:
       propertyPath: deadZone
       value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 3664721806686315993, guid: 2b2e50066648fc04298e78714229f6ba,
+        type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 336634803}
     - target: {fileID: 7282317251167531894, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -45043,6 +45070,12 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!4 &2100934470 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8926093129155572703, guid: 80bf45ca28385aa47a9c88e771401788,
+    type: 3}
+  m_PrefabInstance: {fileID: 2181023506041629228}
+  m_PrefabAsset: {fileID: 0}
 --- !u!65 &2100934471
 BoxCollider:
   m_ObjectHideFlags: 0
