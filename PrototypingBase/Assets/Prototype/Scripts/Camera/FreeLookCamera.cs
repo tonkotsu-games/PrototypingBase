@@ -4,48 +4,61 @@ using UnityEngine;
 
 public class FreeLookCamera : MonoBehaviour
 {
-
-    [SerializeField] private GameObject playerTarget;
-    [SerializeField] private GameObject enemyTarget;
-    private GameObject lookAt;
+    [SerializeField]
+    private Transform playerTarget;
+    //[SerializeField]
+    private Transform enemyTarget;
+    private Transform pivot;
+    private Transform cam;
 
     [Header("Camera Stick Dead Zone")]
     [SerializeField]
     [Range(0, 1)]
     private float deadZone;
+
     [Header("Offset for the Camera")]
-    [Range(0,20)]
+    [Range(0, 20)]
     [SerializeField]
     private float offSetY;
-    [Range(-20,20)]
+    [Range(-20, 0)]
     [SerializeField]
     private float offSetZ;
-    [Range(0,20)]
     [SerializeField]
-    private float highSet;
+    private float followSpeed;
+    [Header("Camera movement")]
+    [Range(1, 10)]
     [SerializeField]
-    private float turnSpeed;
+    private float senitivity;
+    [Range(-90, 0)]
+    [SerializeField]
+    private float minAngle;
+    [Range(0, 90)]
+    [SerializeField]
+    private float maxAngle;
+
+    private float rotationX;
+    private float rotationY;
+
+    private Vector3 offSet;
+    private Vector3 offSetNew;
+    private Vector3 offSetOld;
+    private Vector3 lookAt;
 
 
-    Quaternion rotationX;
-    Quaternion rotationY;
-
-    Vector3 offSet;
-    Vector3 offSetNew;
-    Vector3 offSetOld;
-
+    private bool lockOn = false;
 
     private void Start()
     {
-        offSet = new Vector3(0, offSetY, offSetZ);
-        offSetNew = offSet;
-        offSetOld = offSet;
-        lookAt = playerTarget;
+        offSetNew = new Vector3(0, offSetY, offSetZ);
+        cam = Camera.main.transform;
+        offSetOld = offSetNew;
+        pivot = cam.parent;
     }
 
     private void Update()
     {
         CameraMove();
+        CameraRotation();
     }
 
     private void FixedUpdate()
@@ -54,43 +67,37 @@ public class FreeLookCamera : MonoBehaviour
 
         if (offSetOld != offSetNew)
         {
-            offSet = offSetNew;
+            cam.localPosition = new Vector3(pivot.localPosition.x, pivot.localPosition.y + offSetY, pivot.localPosition.z + offSetZ);
             offSetOld = offSetNew;
         }
-        if(lookAt == playerTarget)
-        {
-            lookAt.transform.position = new Vector3(playerTarget.transform.position.x, playerTarget.transform.position.y, playerTarget.transform.position.z);
-        }
     }
+
     public void CameraMove()
     {
-        if (lookAt == playerTarget)
-        {
-            if (Input.GetAxisRaw("CameraHorizontal") > deadZone ||
-               Input.GetAxisRaw("CameraHorizontal") < -deadZone)
-            {
-                rotationX = Quaternion.AngleAxis(Input.GetAxisRaw("CameraHorizontal") * turnSpeed, Vector3.up);
-                //rotationY = Quaternion.AngleAxis(inputPackage.CameraVertical, Vector3.right);
-                offSet = rotationX * offSet;
-            }
-                transform.position = playerTarget.transform.position + offSet;
-            
-        }
-        else
-        {
-            transform.position = (playerTarget.transform.position + offSet) - enemyTarget.transform.position;
-        }
-        transform.LookAt(lookAt.transform);
+            Vector3 targetPosition = Vector3.Lerp(transform.position, playerTarget.transform.position, followSpeed);
+            transform.position = targetPosition;
     }
-    public void ChangeState()
+
+    private void CameraRotation()
     {
-        if(lookAt == playerTarget)
+        if (Input.GetAxisRaw("CameraHorizontal") > deadZone ||
+            Input.GetAxisRaw("CameraHorizontal") < -deadZone ||
+            Input.GetAxisRaw("CameraVertical") > deadZone ||
+            Input.GetAxisRaw("CameraVertical") < -deadZone)
         {
-            lookAt = enemyTarget;
-        }
-        else
-        {
-            lookAt = playerTarget;
+
+            rotationY -= Input.GetAxisRaw("CameraVertical") * senitivity;
+            rotationY = Mathf.Clamp(rotationY, minAngle, maxAngle);
+            pivot.localRotation = Quaternion.Euler(rotationY, 0, 0);
+
+            if(lockOn)
+            {
+                lookAt = enemyTarget.position;
+            }
+
+            rotationX += Input.GetAxisRaw("CameraHorizontal") * senitivity;
+            transform.rotation = Quaternion.Euler(0, rotationX, 0);
+
         }
     }
 }
