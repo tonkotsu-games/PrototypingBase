@@ -62,7 +62,7 @@ public class PlayerControllerBenni : MonoBehaviour
     private bool grounded = true;
     private bool jump = false;
     private bool airJumping = false;
-    private bool reachedHeighestPoint = false;
+    private bool reachedHighestPoint = false;
     private bool overJumpHeight = false;
     private bool airJumpingGravity = false;
     #endregion
@@ -126,7 +126,6 @@ public class PlayerControllerBenni : MonoBehaviour
         if (!jumpTest)
         {
             CalculateJump();
-
         }
     }
 
@@ -168,7 +167,7 @@ public class PlayerControllerBenni : MonoBehaviour
         }
         if (currentStance == Stances.Jump || airGun)
         {
-            CalculateJumpHight();
+            CalculateJumpHeight();
         }
     }
 
@@ -318,10 +317,10 @@ public class PlayerControllerBenni : MonoBehaviour
     }
 
     /// <summary>
-    /// Calculating the Jump Hight for the Air jump.
+    /// Calculating the Jump Height for the Air jump.
     /// Maybe in the Update for better results.
     /// </summary>
-    public void CalculateJumpHight()
+    public void CalculateJumpHeight()
     {
         currentJumpHeight = transform.position.y;
 
@@ -330,7 +329,7 @@ public class PlayerControllerBenni : MonoBehaviour
             overJumpHeight = true;
         }
 
-        if (!reachedHeighestPoint)
+        if (!reachedHighestPoint)
         {
             if (currentJumpHeight >= highestJumpHeight)
             {
@@ -339,7 +338,7 @@ public class PlayerControllerBenni : MonoBehaviour
             else
             {
                 airJumping = true;
-                reachedHeighestPoint = true;
+                reachedHighestPoint = true;
             }
         }
         else
@@ -419,7 +418,6 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Gun:
                             {
-
                                 break;
                             }
                     }
@@ -434,7 +432,7 @@ public class PlayerControllerBenni : MonoBehaviour
                                 airGun = false;
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHeighestPoint = false;
+                                reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHeight = 0;
                                 gravity = 0;
@@ -451,7 +449,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             {
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHeighestPoint = false;
+                                reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHeight = 0;
                                 rigi.velocity = new Vector3(transform.forward.x * 50,
@@ -466,7 +464,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             {
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHeighestPoint = false;
+                                reachedHighestPoint = false;
                                 airJumping = false;
                                 highestJumpHeight = 0;
                                 airAttack = true;
@@ -657,9 +655,9 @@ public class PlayerControllerBenni : MonoBehaviour
         GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
         GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHeight, style);
         GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
-        GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
+        GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHighestPoint, style);
         GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
-        GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
+        GUI.Label(new Rect(10, 190, 400, 40), "Jump Gravity: " + gravity, style);
         GUI.Label(new Rect(10, 220, 400, 40), "Slide Time: " + currentSlideTime, style);
 
     }
