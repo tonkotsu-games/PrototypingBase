@@ -13,7 +13,7 @@ public class Playmyani2 : MonoBehaviour
    {
         if(other.CompareTag("Player"))
         {
-            NewArena.SetBool("ArenaChange", true);
+            NewArena.SetTrigger("ArenaChange");
 
             if(!playedArenaShake)
             {
