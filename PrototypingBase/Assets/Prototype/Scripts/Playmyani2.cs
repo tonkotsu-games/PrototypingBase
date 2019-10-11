@@ -17,7 +17,7 @@ public class Playmyani2 : MonoBehaviour
 
             if(!playedArenaShake)
             {
-                Camera.main.GetComponent<Animator>().SetBool("ArenaShake", true);
+                Camera.main.GetComponent<Animator>().SetTrigger("ArenaShake");
                 playedArenaShake = true;
             }        
         }
