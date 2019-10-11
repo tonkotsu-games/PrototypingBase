@@ -41174,22 +41174,22 @@ PrefabInstance:
     - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
         type: 3}
       propertyPath: offSetZ
-      value: -8
+      value: -12
       objectReference: {fileID: 0}
     - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
         type: 3}
       propertyPath: maxAngle
-      value: 10
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
         type: 3}
       propertyPath: offSetY
-      value: 2
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
         type: 3}
       propertyPath: senitivity
-      value: 2
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
         type: 3}
@@ -44578,12 +44578,12 @@ PrefabInstance:
     - target: {fileID: 7282317251167531896, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -45.077
+      value: -83.81
       objectReference: {fileID: 0}
     - target: {fileID: 7282317251167531896, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 28.7
+      value: 393.9
       objectReference: {fileID: 0}
     - target: {fileID: 7282317251167531896, guid: 2b2e50066648fc04298e78714229f6ba,
         type: 3}
