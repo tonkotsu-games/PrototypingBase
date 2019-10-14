@@ -58,6 +58,7 @@ public class PlayerControllerBenni : MonoBehaviour
     private float jumpParable;
     private float currentJumpHeight;
     private float highestJumpHeight;
+    private float jumpForce = 0;
 
     private bool grounded = true;
     private bool jump = false;
@@ -108,6 +109,7 @@ public class PlayerControllerBenni : MonoBehaviour
     #region System
     private Animator anim;
     private Rigidbody rigi;
+    private BeatAnalyse beat;
 
     private Stances currentStance;
     private Stances lastStance;
@@ -118,11 +120,12 @@ public class PlayerControllerBenni : MonoBehaviour
 
     void Start()
     {
+        beat = GameObject.FindWithTag("Beat").GetComponent<BeatAnalyse>();
+        anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
         currentStance = Stances.Ground;
         lastStance = currentStance;
         jump = false;
         rigi = GetComponent<Rigidbody>();
-        anim = GetComponent<Animator>();
         if (!jumpTest)
         {
             CalculateJump();
@@ -170,6 +173,7 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             CalculateJumpHight();
         }
+
     }
 
     private void FixedUpdate()
@@ -184,9 +188,7 @@ public class PlayerControllerBenni : MonoBehaviour
         }
         else if (currentStance == Stances.Slide)
         {
-            MovementCalculation();
             Gravity();
-            Heading();
             Slide();
         }
         else if (currentStance == Stances.Attack)
@@ -207,15 +209,16 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             Debug.LogError("WARNING NO STANCE");
         }
+
     }
 
     private void Heading()
     {
 
-        if ((moveHorizontal < -0.3f ||
-           moveHorizontal > 0.3f ||
-           moveVertical < -0.3 ||
-           moveVertical > 0.3) && !target.lockOn)
+        if ((moveHorizontal < -deadZone ||
+           moveHorizontal > deadZone ||
+           moveVertical < -deadZone ||
+           moveVertical > deadZone) && !target.lockOn)
         {
             haeding = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
             haeding = haeding.normalized;
@@ -298,13 +301,14 @@ public class PlayerControllerBenni : MonoBehaviour
         if (jump)
         {
             gravity = jumpVelocity;
-
+            jumpForce = jumpVelocity;
+            anim.SetTrigger("jumpFlip");
             jump = false;
         }
         else if (airJumping)
         {
             gravity = airJumpVelocity;
-
+            jumpForce = airJumpVelocity;
             airJumping = false;
         }
     }
@@ -504,6 +508,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Slide:
                             {
+                                Heading();
                                 currentSlideTime = slideTime;
                                 break;
                             }
@@ -710,7 +715,7 @@ public class PlayerControllerBenni : MonoBehaviour
         GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
         GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
         GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
-        GUI.Label(new Rect(10, 220, 400, 40), "Slide Time: " + currentSlideTime, style);
-
+        GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jumpForce, style);
+        GUI.Label(new Rect(10, 250, 400, 40), "Slide Time: " + currentSlideTime, style);
     }
 }

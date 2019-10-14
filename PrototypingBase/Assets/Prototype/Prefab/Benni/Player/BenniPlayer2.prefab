@@ -291,6 +291,7 @@ MonoBehaviour:
   gun: {fileID: 1951953019}
   bullet: {fileID: 2479534135271187459, guid: dd1e56fc54cb8494fa32c3f60a8e7470, type: 3}
   bulletSpeed: 3000
+  target: {fileID: 0}
 --- !u!95 &7282317251167531897
 Animator:
   serializedVersion: 3
