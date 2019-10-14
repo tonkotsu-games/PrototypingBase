@@ -158,7 +158,7 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance = Stances.Attack;
             SubStancesCheck();
         }
-        if (Input.GetButtonDown("Gun"))
+        if (Input.GetButtonDown("Gun") && !airAttack)
         {
             lastStance = currentStance;
             currentStance = Stances.Gun;
@@ -358,7 +358,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && (grounded || lastStance == Stances.Ground))
+        if (sliding && (grounded || lastStance==Stances.Ground || lastStance == Stances.Slide || lastStance == Stances.Gun))
         {
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
@@ -488,6 +488,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     {
                         case Stances.Ground:
                             {
+                                gravity = 0;
                                 break;
                             }
                         case Stances.Jump:
@@ -568,15 +569,60 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Jump:
                             {
-                                airGun = false;
+                                if(grounded)
+                                {
+                                    jump = true;
+                                    Jump();
+                                    airGun = false;
+                                }
+                                else
+                                {
+                                    airJumpingGravity = true;
+                                    Jump();
+                                }
                                 break;
                             }
                         case Stances.Slide:
                             {
+                                if(!grounded)
+                                {
+                                    airJumpingGravity = false;
+                                    slideJump = false;
+                                    reachedHeighestPoint = false;
+                                    airJumping = false;
+                                    highestJumpHeight = 0;
+                                    rigi.velocity = new Vector3(transform.forward.x * 50,
+                                                                 Vector3.down.y * 100,
+                                                                 transform.forward.z);
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                    gravity = 0;
+                                }
+                                else
+                                {
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                }
                                 break;
                             }
                         case Stances.Attack:
                             {
+                                if(!grounded)
+                                {
+                                    airJumpingGravity = false;
+                                    slideJump = false;
+                                    reachedHeighestPoint = false;
+                                    airJumping = false;
+                                    highestJumpHeight = 0;
+                                    airAttack = true;
+                                    rigi.velocity = Vector3.down * 50;
+                                    Attack();
+                                }
+                            else
+                                {
+                                    groundAttack = true;
+                                    Attack();
+                                }
                                 break;
                             }
                     }
@@ -616,6 +662,10 @@ public class PlayerControllerBenni : MonoBehaviour
         if (!grounded)
         {
             gravity += jumpGravity * Time.deltaTime;
+            if(gravity <= -20)
+            {
+                gravity = -20;
+            }
         }
     }
 
