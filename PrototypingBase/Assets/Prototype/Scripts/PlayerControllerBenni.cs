@@ -358,7 +358,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && (grounded || lastStance==Stances.Ground || lastStance == Stances.Slide))
+        if (sliding && (grounded || lastStance==Stances.Ground || lastStance == Stances.Slide || lastStance == Stances.Gun))
         {
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
@@ -569,11 +569,40 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Jump:
                             {
-                                airGun = false;
+                                if(grounded)
+                                {
+                                    jump = true;
+                                    Jump();
+                                    airGun = false;
+                                }
+                                else
+                                {
+                                    airJumpingGravity = true;
+                                    Jump();
+                                }
                                 break;
                             }
                         case Stances.Slide:
                             {
+                                if(!grounded)
+                                {
+                                    airJumpingGravity = false;
+                                    slideJump = false;
+                                    reachedHeighestPoint = false;
+                                    airJumping = false;
+                                    highestJumpHeight = 0;
+                                    rigi.velocity = new Vector3(transform.forward.x * 50,
+                                                                 Vector3.down.y * 100,
+                                                                 transform.forward.z);
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                    gravity = 0;
+                                }
+                                else
+                                {
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                }
                                 break;
                             }
                         case Stances.Attack:
