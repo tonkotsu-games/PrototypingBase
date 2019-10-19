@@ -756,7 +756,8 @@ AnimationClip:
   - time: 1
     functionName: AttackReset
     data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11500000, guid: cc00f1e53838fb040900ffae24d3055d,
+      type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

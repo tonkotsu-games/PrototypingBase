@@ -6,7 +6,7 @@ public class PlayerControllerBenni : MonoBehaviour
 {
     private enum Stances
     {
-        Ground,
+        Idle,
         Jump,
         Slide,
         Attack,
@@ -44,11 +44,13 @@ public class PlayerControllerBenni : MonoBehaviour
     private float jumpHeight;
     [SerializeField]
     private float timeToHeight;
+
     [Header("Air Jump")]
     [SerializeField]
     private float airJumpHeight;
     [SerializeField]
     private float timeToAirJumpHeight;
+
     private float gravity;
     private float jumpVelocity;
     private float airJumpVelocity;
@@ -58,6 +60,8 @@ public class PlayerControllerBenni : MonoBehaviour
     private float jumpParable;
     private float currentJumpHeight;
     private float highestJumpHeight;
+    private float jumpForce = 0;
+    private float startPosition = 0;
 
     private bool grounded = true;
     private bool jump = false;
@@ -108,6 +112,11 @@ public class PlayerControllerBenni : MonoBehaviour
     #region System
     private Animator anim;
     private Rigidbody rigi;
+    private BeatAnalyse beat;
+
+    [Header("Reaction time for Player")]
+    [SerializeField]
+    private int reactionTime = 0;
 
     private Stances currentStance;
     private Stances lastStance;
@@ -118,11 +127,12 @@ public class PlayerControllerBenni : MonoBehaviour
 
     void Start()
     {
-        currentStance = Stances.Ground;
+        beat = GameObject.FindWithTag("Beat").GetComponent<BeatAnalyse>();
+        anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
+        currentStance = Stances.Idle;
         lastStance = currentStance;
         jump = false;
         rigi = GetComponent<Rigidbody>();
-        anim = GetComponent<Animator>();
         if (!jumpTest)
         {
             CalculateJump();
@@ -144,6 +154,10 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             lastStance = currentStance;
             currentStance = Stances.Jump;
+            if(grounded)
+            {
+                startPosition = transform.position.y;
+            }
             SubStancesCheck();
         }
         if (Input.GetButtonDown("Slide"))
@@ -162,7 +176,6 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             lastStance = currentStance;
             currentStance = Stances.Gun;
-            anim.SetTrigger("gun");
 
             SubStancesCheck();
         }
@@ -170,11 +183,12 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             CalculateJumpHight();
         }
+
     }
 
     private void FixedUpdate()
     {
-        if (currentStance == Stances.Ground ||
+        if (currentStance == Stances.Idle ||
             currentStance == Stances.Jump ||
             currentStance == Stances.Gun)
         {
@@ -184,9 +198,7 @@ public class PlayerControllerBenni : MonoBehaviour
         }
         else if (currentStance == Stances.Slide)
         {
-            MovementCalculation();
             Gravity();
-            Heading();
             Slide();
         }
         else if (currentStance == Stances.Attack)
@@ -198,7 +210,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     anim.SetTrigger("meteor");
                     airAttack = false;
                     lastStance = currentStance;
-                    currentStance = Stances.Ground;
+                    currentStance = Stances.Idle;
                     SubStancesCheck();
                 }
             }
@@ -207,15 +219,16 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             Debug.LogError("WARNING NO STANCE");
         }
+
     }
 
     private void Heading()
     {
 
-        if ((moveHorizontal < -0.3f ||
-           moveHorizontal > 0.3f ||
-           moveVertical < -0.3 ||
-           moveVertical > 0.3) && !target.lockOn)
+        if ((moveHorizontal < -deadZone ||
+           moveHorizontal > deadZone ||
+           moveVertical < -deadZone ||
+           moveVertical > deadZone) && !target.lockOn)
         {
             haeding = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
             haeding = haeding.normalized;
@@ -232,7 +245,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 transform.rotation = Quaternion.LookRotation(haeding);
             }
         }
-        else if(target.lockOn)
+        else if (target.lockOn)
         {
             target.lookAt.y = 0;
             transform.rotation = Quaternion.LookRotation(target.lookAt);
@@ -298,13 +311,14 @@ public class PlayerControllerBenni : MonoBehaviour
         if (jump)
         {
             gravity = jumpVelocity;
-
+            jumpForce = jumpVelocity;
+            anim.SetTrigger("jumpFlip");
             jump = false;
         }
         else if (airJumping)
         {
             gravity = airJumpVelocity;
-
+            jumpForce = airJumpVelocity;
             airJumping = false;
         }
     }
@@ -323,7 +337,8 @@ public class PlayerControllerBenni : MonoBehaviour
     /// </summary>
     public void CalculateJumpHight()
     {
-        currentJumpHeight = transform.position.y;
+        currentJumpHeight = startPosition - transform.position.y;
+        currentJumpHeight = Mathf.Abs(currentJumpHeight);
 
         if (currentJumpHeight > highestJumpHeight)
         {
@@ -358,7 +373,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && (grounded || lastStance==Stances.Ground || lastStance == Stances.Slide || lastStance == Stances.Gun))
+        if (sliding && (grounded || lastStance == Stances.Idle || lastStance == Stances.Slide || lastStance == Stances.Gun))
         {
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
@@ -372,7 +387,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     transform.rotation = Quaternion.LookRotation(haeding);
                 }
-                
+
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
                                             gravity,
                                             transform.forward.z * slidingSpeed);
@@ -381,7 +396,7 @@ public class PlayerControllerBenni : MonoBehaviour
             {
                 sliding = false;
                 lastStance = currentStance;
-                currentStance = Stances.Ground;
+                currentStance = Stances.Idle;
             }
         }
     }
@@ -395,31 +410,62 @@ public class PlayerControllerBenni : MonoBehaviour
     {
         switch (lastStance)
         {
-            case Stances.Ground:
+            case Stances.Idle:
                 {
                     switch (currentStance)
                     {
                         case Stances.Jump:
                             {
-                                jump = true;
-                                Jump();
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    jump = true;
+                                    Jump();
+                                }
+                                else
+                                {
+                                    jump = true;
+                                    Jump();
+                                }
                                 break;
                             }
                         case Stances.Slide:
                             {
-                                currentSlideTime = slideTime;
-                                sliding = true;
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                }
+                                else
+                                {
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                }
                                 break;
                             }
                         case Stances.Attack:
                             {
-                                groundAttack = true;
-                                Attack();
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    groundAttack = true;
+                                    Attack();
+                                }
+                                else
+                                {
+                                    groundAttack = true;
+                                    Attack();
+                                }
                                 break;
                             }
                         case Stances.Gun:
                             {
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    anim.SetTrigger("gun");
+                                }
+                                else
+                                {
 
+                                }
                                 break;
                             }
                     }
@@ -429,7 +475,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 airGun = false;
                                 airJumpingGravity = false;
@@ -486,7 +532,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 gravity = 0;
                                 break;
@@ -504,6 +550,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Slide:
                             {
+                                Heading();
                                 currentSlideTime = slideTime;
                                 break;
                             }
@@ -526,7 +573,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 break;
                             }
@@ -561,7 +608,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 gravity = 0;
                                 airGun = false;
@@ -569,7 +616,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Jump:
                             {
-                                if(grounded)
+                                if (grounded)
                                 {
                                     jump = true;
                                     Jump();
@@ -584,7 +631,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Slide:
                             {
-                                if(!grounded)
+                                if (!grounded)
                                 {
                                     airJumpingGravity = false;
                                     slideJump = false;
@@ -607,7 +654,7 @@ public class PlayerControllerBenni : MonoBehaviour
                             }
                         case Stances.Attack:
                             {
-                                if(!grounded)
+                                if (!grounded)
                                 {
                                     airJumpingGravity = false;
                                     slideJump = false;
@@ -618,7 +665,7 @@ public class PlayerControllerBenni : MonoBehaviour
                                     rigi.velocity = Vector3.down * 50;
                                     Attack();
                                 }
-                            else
+                                else
                                 {
                                     groundAttack = true;
                                     Attack();
@@ -647,7 +694,7 @@ public class PlayerControllerBenni : MonoBehaviour
     public void AttackReset()
     {
         lastStance = currentStance;
-        currentStance = Stances.Ground;
+        currentStance = Stances.Idle;
         SubStancesCheck();
     }
 
@@ -662,7 +709,7 @@ public class PlayerControllerBenni : MonoBehaviour
         if (!grounded)
         {
             gravity += jumpGravity * Time.deltaTime;
-            if(gravity <= -20)
+            if (gravity <= -20)
             {
                 gravity = -20;
             }
@@ -675,7 +722,7 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance == Stances.Gun)
         {
             lastStance = currentStance;
-            currentStance = Stances.Ground;
+            currentStance = Stances.Idle;
             SubStancesCheck();
         }
         gravity = 0;
@@ -710,7 +757,7 @@ public class PlayerControllerBenni : MonoBehaviour
         GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
         GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
         GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
-        GUI.Label(new Rect(10, 220, 400, 40), "Slide Time: " + currentSlideTime, style);
-
+        GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jumpForce, style);
+        GUI.Label(new Rect(10, 250, 400, 40), "Slide Time: " + currentSlideTime, style);
     }
 }
