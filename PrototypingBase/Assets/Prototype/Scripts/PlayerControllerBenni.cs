@@ -6,7 +6,7 @@ public class PlayerControllerBenni : MonoBehaviour
 {
     private enum Stances
     {
-        Ground,
+        Idle,
         Jump,
         Slide,
         Attack,
@@ -114,6 +114,10 @@ public class PlayerControllerBenni : MonoBehaviour
     private Rigidbody rigi;
     private BeatAnalyse beat;
 
+    [Header("Reaction time for Player")]
+    [SerializeField]
+    private int reactionTime = 0;
+
     private Stances currentStance;
     private Stances lastStance;
 
@@ -125,7 +129,7 @@ public class PlayerControllerBenni : MonoBehaviour
     {
         beat = GameObject.FindWithTag("Beat").GetComponent<BeatAnalyse>();
         anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
-        currentStance = Stances.Ground;
+        currentStance = Stances.Idle;
         lastStance = currentStance;
         jump = false;
         rigi = GetComponent<Rigidbody>();
@@ -172,7 +176,6 @@ public class PlayerControllerBenni : MonoBehaviour
         {
             lastStance = currentStance;
             currentStance = Stances.Gun;
-            anim.SetTrigger("gun");
 
             SubStancesCheck();
         }
@@ -185,7 +188,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (currentStance == Stances.Ground ||
+        if (currentStance == Stances.Idle ||
             currentStance == Stances.Jump ||
             currentStance == Stances.Gun)
         {
@@ -207,7 +210,7 @@ public class PlayerControllerBenni : MonoBehaviour
                     anim.SetTrigger("meteor");
                     airAttack = false;
                     lastStance = currentStance;
-                    currentStance = Stances.Ground;
+                    currentStance = Stances.Idle;
                     SubStancesCheck();
                 }
             }
@@ -370,7 +373,7 @@ public class PlayerControllerBenni : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && (grounded || lastStance == Stances.Ground || lastStance == Stances.Slide || lastStance == Stances.Gun))
+        if (sliding && (grounded || lastStance == Stances.Idle || lastStance == Stances.Slide || lastStance == Stances.Gun))
         {
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
@@ -393,7 +396,7 @@ public class PlayerControllerBenni : MonoBehaviour
             {
                 sliding = false;
                 lastStance = currentStance;
-                currentStance = Stances.Ground;
+                currentStance = Stances.Idle;
             }
         }
     }
@@ -407,31 +410,62 @@ public class PlayerControllerBenni : MonoBehaviour
     {
         switch (lastStance)
         {
-            case Stances.Ground:
+            case Stances.Idle:
                 {
                     switch (currentStance)
                     {
                         case Stances.Jump:
                             {
-                                jump = true;
-                                Jump();
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    jump = true;
+                                    Jump();
+                                }
+                                else
+                                {
+                                    jump = true;
+                                    Jump();
+                                }
                                 break;
                             }
                         case Stances.Slide:
                             {
-                                currentSlideTime = slideTime;
-                                sliding = true;
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                }
+                                else
+                                {
+                                    currentSlideTime = slideTime;
+                                    sliding = true;
+                                }
                                 break;
                             }
                         case Stances.Attack:
                             {
-                                groundAttack = true;
-                                Attack();
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    groundAttack = true;
+                                    Attack();
+                                }
+                                else
+                                {
+                                    groundAttack = true;
+                                    Attack();
+                                }
                                 break;
                             }
                         case Stances.Gun:
                             {
+                                if(beat.IsOnBeat(reactionTime))
+                                {
+                                    anim.SetTrigger("gun");
+                                }
+                                else
+                                {
 
+                                }
                                 break;
                             }
                     }
@@ -441,7 +475,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 airGun = false;
                                 airJumpingGravity = false;
@@ -498,7 +532,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 gravity = 0;
                                 break;
@@ -539,7 +573,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 break;
                             }
@@ -574,7 +608,7 @@ public class PlayerControllerBenni : MonoBehaviour
                 {
                     switch (currentStance)
                     {
-                        case Stances.Ground:
+                        case Stances.Idle:
                             {
                                 gravity = 0;
                                 airGun = false;
@@ -660,7 +694,7 @@ public class PlayerControllerBenni : MonoBehaviour
     public void AttackReset()
     {
         lastStance = currentStance;
-        currentStance = Stances.Ground;
+        currentStance = Stances.Idle;
         SubStancesCheck();
     }
 
@@ -688,7 +722,7 @@ public class PlayerControllerBenni : MonoBehaviour
             currentStance == Stances.Gun)
         {
             lastStance = currentStance;
-            currentStance = Stances.Ground;
+            currentStance = Stances.Idle;
             SubStancesCheck();
         }
         gravity = 0;

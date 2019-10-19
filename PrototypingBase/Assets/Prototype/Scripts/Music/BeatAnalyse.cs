@@ -20,6 +20,8 @@ public class BeatAnalyse : MonoBehaviour
     private AudioClip wave;
     private AudioSource sourceWave;
 
+    private bool debugMode = false;
+
     void Start()
     {
         sourceWave = GetComponent<AudioSource>();
@@ -45,6 +47,14 @@ public class BeatAnalyse : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F4))
+        {
+            debugMode = !debugMode;
+        }
+    }
+
     public bool IsOnBeat(int preStart)
     {
         timeSample = sourceWave.timeSamples - preStart;
@@ -61,30 +71,32 @@ public class BeatAnalyse : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (spectrum == null)
+        if (debugMode)
         {
-            return;
+            if (spectrum == null)
+            {
+                return;
+            }
+            Vector3 displacement = Camera.main.ScreenToWorldPoint(new Vector3(100, 100, 5));
+            float heightMulti = 1;
+            float widthMulti = 0.000005f;
+            Gizmos.color = new Color(0.5f, 0, 0.5f, 1);
+
+            for (int i = 0; i < spectrum.Length; i += 100)
+            {
+                Gizmos.DrawLine(displacement + new Vector3(i * widthMulti, 0, 0),
+                                displacement + new Vector3(i * widthMulti, heightMulti * spectrum[i], 0));
+            }
+
+            Gizmos.color = Color.green;
+            for (int i = 0; i < beatStarts.Count; i++)
+            {
+                Gizmos.DrawLine(displacement + new Vector3((beatStarts[i] - windowTrigger + reactionTime) * widthMulti, 0, 0),
+                                displacement + new Vector3((beatStarts[i] + windowTrigger + reactionTime) * widthMulti, 0, 0));
+            }
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(displacement + new Vector3(sourceWave.timeSamples * widthMulti, 0, 0), displacement + new Vector3(sourceWave.timeSamples * widthMulti, heightMulti, 0));
         }
-        Vector3 displacement = Camera.main.ScreenToWorldPoint(new Vector3(100, 100, 5));
-        float heightMulti = 1;
-        float widthMulti = 0.000005f;
-        Gizmos.color = new Color(0.5f, 0, 0.5f, 1);
-
-        for (int i = 0; i < spectrum.Length; i += 100)
-        {
-            Gizmos.DrawLine(displacement + new Vector3(i * widthMulti, 0, 0),
-                            displacement + new Vector3(i * widthMulti, heightMulti * spectrum[i], 0));
-        }
-
-        Gizmos.color = Color.green;
-        for (int i = 0; i < beatStarts.Count; i++)
-        {
-            Gizmos.DrawLine(displacement + new Vector3((beatStarts[i] - windowTrigger + reactionTime) * widthMulti, 0, 0),
-                            displacement + new Vector3((beatStarts[i] + windowTrigger + reactionTime) * widthMulti, 0, 0));
-        }
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(displacement + new Vector3(sourceWave.timeSamples * widthMulti, 0, 0), displacement + new Vector3(sourceWave.timeSamples * widthMulti, heightMulti, 0));
-
     }
 }
