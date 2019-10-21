@@ -112,6 +112,18 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &251484213 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6190815258394146230, guid: 17157578d13b3a44b91c3b658f0f29ba,
+    type: 3}
+  m_PrefabInstance: {fileID: 6190815257790510088}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9e32ce6fb6e15a48a9ef672139247bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &317957795 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1654840476925272797, guid: 73e428b2ec4b1fb4584a0928ec8597a1,
@@ -1227,6 +1239,11 @@ PrefabInstance:
       propertyPath: gravityMax
       value: -40
       objectReference: {fileID: 0}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: beat
+      value: 
+      objectReference: {fileID: 251484213}
     - target: {fileID: 9167410380006807473, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_Center.y
