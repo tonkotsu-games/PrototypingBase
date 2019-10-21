@@ -29,8 +29,10 @@ Transform:
   m_Children:
   - {fileID: 9206983501020949570}
   - {fileID: 9206983501020949572}
+  - {fileID: 9206983501020949940}
+  - {fileID: 9206983501020949942}
   m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 14
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9206983501020917760
 GameObject:
@@ -620,8 +622,6 @@ Transform:
   - {fileID: 9206983501020949948}
   - {fileID: 9206983501020949950}
   - {fileID: 9206983501020949938}
-  - {fileID: 9206983501020949940}
-  - {fileID: 9206983501020949942}
   - {fileID: 9206983501020949928}
   - {fileID: 9206983501020949930}
   - {fileID: 9206983501020949932}
@@ -3362,7 +3362,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 10
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9206983501017525666
 MeshFilter:
@@ -3441,7 +3441,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 11
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9206983501017525668
 MeshFilter:
@@ -3520,7 +3520,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 12
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9206983501017525670
 MeshFilter:
@@ -3599,7 +3599,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 13
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9206983501017525656
 MeshFilter:
@@ -3739,7 +3739,7 @@ GameObject:
   - component: {fileID: 9206983501017525678}
   - component: {fileID: 9206983501018656366}
   m_Layer: 0
-  m_Name: polySurface161
+  m_Name: EnemyPf1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3752,12 +3752,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9206983501020918164}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.05459393, y: 0.0011999371, z: -0.21847391}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.05459392, y: 0.0011999421, z: -0.21847394}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 8
+  m_Father: {fileID: 5598759269635597551}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9206983501017525678
 MeshFilter:
@@ -3818,7 +3818,7 @@ GameObject:
   - component: {fileID: 9206983501017525664}
   - component: {fileID: 9206983501018656352}
   m_Layer: 0
-  m_Name: polySurface162
+  m_Name: EnemyPf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3831,12 +3831,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9206983501020918166}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.054593943, y: 0.0011916293, z: -0.21847391}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.05459395, y: 0.0011916384, z: -0.21847394}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 9206983501020949552}
-  m_RootOrder: 9
+  m_Father: {fileID: 5598759269635597551}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9206983501017525664
 MeshFilter:
@@ -5793,7 +5793,7 @@ GameObject:
   - component: {fileID: 9206983501017525644}
   - component: {fileID: 9206983501018656332}
   m_Layer: 0
-  m_Name: polySurface61
+  m_Name: polsurf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5872,7 +5872,7 @@ GameObject:
   - component: {fileID: 9206983501017525646}
   - component: {fileID: 9206983501018656334}
   m_Layer: 0
-  m_Name: polySurface62
+  m_Name: polyfurff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
