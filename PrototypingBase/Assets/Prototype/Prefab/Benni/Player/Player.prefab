@@ -324,22 +324,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 9167410380006807475}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc00f1e53838fb040900ffae24d3055d, type: 3}
+  m_Script: {fileID: 11500000, guid: 346ae0b749537f1488f66af1ff2d3d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deadZone: 0.15
-  movementSpeed: 30
-  cam: {fileID: 0}
+  deadZone: 0.1
+  movementSpeed: 0
   jumpTest: 0
-  jumpHeight: 6
-  timeToHeight: 0.3
-  airJumpHeight: 14
-  timeToAirJumpHeight: 0.6
-  slideTime: 1
-  slidingSpeed: 50
-  slidingJumpSpeed: 55
+  jumpHeight: 0
+  timeToHeight: 0
+  airJumpHeight: 0
+  timeToAirJumpHeight: 0
+  slideJumpHeight: 0
+  timeToSlideJumpHeight: 0
+  gravityMax: 0
+  slideTime: 0
+  slideAttackTime: 0
+  slidingSpeed: 0
+  beat: {fileID: 0}
   reactionTime: 0
   timeWindow: 0
+  cam: {fileID: 0}
   target: {fileID: 0}
 --- !u!135 &9167410380006807473
 SphereCollider:
