@@ -53,6 +53,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float timeToSlideJumpHeight = 0;
 
+    [Header("Max. Jump Height")]
+    [SerializeField]
+    private float maxJumpHeight = 0;
+
     [Header("Max. gravity. Negative value needed")]
     [SerializeField]
     private float gravityMax = 0;
@@ -65,15 +69,15 @@ public class PlayerController : MonoBehaviour
     private float airJumpGravity = 0;
     private float slideJumpGravity = 0;
     private float currentJumpHeight = 0;
-    private float highestJumpHeight = 0;
+    //private float highestJumpHeight = 0;
     private float jumpForce = 0;
     private float startPosition = 0;
 
     private bool grounded = true;
     private bool jump = false;
     private bool airJumping = false;
-    private bool reachedHeighestPoint = false;
-    private bool overJumpHeight = false;
+    //private bool reachedHeighestPoint = false;
+    //private bool overJumpHeight = false;
     private bool airJumpingGravity = false;
     #endregion
 
@@ -109,6 +113,17 @@ public class PlayerController : MonoBehaviour
     private Animator anim = null;
     private Rigidbody rigi = null;
     private CapsuleCollider bodyCollider = null;
+    private Timer lockTimer = new Timer();
+    [SerializeField]
+    private GameObject cam = null;
+    [SerializeField]
+    private FreeLookCamera target = null;
+
+    [Range(0, 100)]
+    [SerializeField]
+    private float beatTimeLockPercent = 0;
+    private float beatTimeLockPercentOld = 0;
+    private float lockTime = 0;
 
     [Header("Reaction time for Player")]
     [SerializeField]
@@ -119,12 +134,6 @@ public class PlayerController : MonoBehaviour
 
     private Stances currentStance = Stances.Idle;
     private Stances lastStance = Stances.Idle;
-
-    [SerializeField]
-    private GameObject cam = null;
-
-    [SerializeField]
-    private FreeLookCamera target = null;
 
     private bool debugMode = false;
     #endregion
@@ -138,47 +147,74 @@ public class PlayerController : MonoBehaviour
         {
             CalculateJump();
         }
+        lockTimer.CountingDown = true;
+        LockTimeCalculate(beatTimeLockPercent);
     }
 
     void Update()
     {
+        if(beatTimeLockPercentOld != beatTimeLockPercent)
+        {
+            beatTimeLockPercentOld = beatTimeLockPercent;
+            LockTimeCalculate(beatTimeLockPercent);
+        }
+
         if (jumpTest)
         {
             CalculateJump();
         }
-
         moveHorizontal = Input.GetAxisRaw("Horizontal");
         moveVertical = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetButtonDown("Jump"))
+        if(lockTimer.timeCurrent <= 0)
         {
-            lastStance = currentStance;
-            currentStance = Stances.Jump;
-            if (grounded)
+            if (Input.GetButtonDown("Jump"))
             {
-                startPosition = transform.position.y;
+                lastStance = currentStance;
+                currentStance = Stances.Jump;
+                if (grounded)
+                {
+                    startPosition = transform.position.y;
+                }
+                else
+                {
+                    airJumping = true;
+                }
+                SubStancesCheck(lastStance, currentStance);
+                lockTimer.ResetTimer();
+
             }
-            SubStancesCheck(lastStance, currentStance);
+
+            if (Input.GetButtonDown("Attack"))
+            {
+                lastStance = currentStance;
+                currentStance = Stances.Attack;
+                SubStancesCheck(lastStance, currentStance);
+                lockTimer.ResetTimer();
+
+            }
+
+            if (Input.GetButtonDown("Gun") && !airAttack)
+            {
+                lastStance = currentStance;
+                currentStance = Stances.Gun;
+
+                SubStancesCheck(lastStance, currentStance);
+                lockTimer.ResetTimer();
+            }
         }
+        else
+        {
+            lockTimer.Tick();
+        }
+
         if (Input.GetButtonDown("Slide"))
         {
             lastStance = currentStance;
             currentStance = Stances.Slide;
             SubStancesCheck(lastStance, currentStance);
         }
-        if (Input.GetButtonDown("Attack"))
-        {
-            lastStance = currentStance;
-            currentStance = Stances.Attack;
-            SubStancesCheck(lastStance, currentStance);
-        }
-        if (Input.GetButtonDown("Gun") && !airAttack)
-        {
-            lastStance = currentStance;
-            currentStance = Stances.Gun;
 
-            SubStancesCheck(lastStance, currentStance);
-        }
         if (currentStance == Stances.Jump || airGun)
         {
             CalculateJumpHight();
@@ -346,35 +382,44 @@ public class PlayerController : MonoBehaviour
         currentJumpHeight = startPosition - transform.position.y;
         currentJumpHeight = Mathf.Abs(currentJumpHeight);
 
-        if (currentJumpHeight > highestJumpHeight)
+        if(currentJumpHeight > maxJumpHeight)
         {
-            overJumpHeight = true;
+            rigi.transform.position = new Vector3(transform.position.x, startPosition + maxJumpHeight, transform.position.z);
         }
 
-        if (!reachedHeighestPoint)
-        {
-            if (currentJumpHeight >= highestJumpHeight)
-            {
-                highestJumpHeight = currentJumpHeight;
-            }
-            else
-            {
-                airJumping = true;
-                reachedHeighestPoint = true;
-            }
-        }
-        else
-        {
-            if (currentJumpHeight <= highestJumpHeight && overJumpHeight)
-            {
-                overJumpHeight = false;
-                airJumping = true;
-            }
-            if (currentJumpHeight < highestJumpHeight - 10)
-            {
-                highestJumpHeight = currentJumpHeight;
-            }
-        }
+        ///<summary>
+        /// Old Calculation for the double jump
+        /// 
+        /// if (currentJumpHeight > highestJumpHeight)
+        /// {
+        ///     overJumpHeight = true;
+        /// }
+        /// 
+        /// if (!reachedHeighestPoint)
+        /// {
+        ///     if (currentJumpHeight >= highestJumpHeight)
+        ///     {
+        ///         highestJumpHeight = currentJumpHeight;
+        ///     }
+        ///     else
+        ///     {
+        ///         airJumping = true;
+        ///         reachedHeighestPoint = true;
+        ///     }
+        /// }
+        /// else
+        /// {
+        ///     if (currentJumpHeight <= highestJumpHeight && overJumpHeight)
+        ///     {
+        ///         overJumpHeight = false;
+        ///         airJumping = true;
+        ///     }
+        ///     if (currentJumpHeight < highestJumpHeight - 10)
+        ///     {
+        ///         highestJumpHeight = currentJumpHeight;
+        ///     }
+        /// }
+        ///</ summary >
     }
 
     private void Slide()
@@ -495,9 +540,9 @@ public class PlayerController : MonoBehaviour
                                 airGun = false;
                                 airJumpingGravity = false;
                                 slideJump = false;
-                                reachedHeighestPoint = false;
+                                //reachedHeighestPoint = false;
                                 airJumping = false;
-                                highestJumpHeight = 0;
+                                //highestJumpHeight = 0;
                                 gravity = 0;
                                 break;
                             }
@@ -525,9 +570,9 @@ public class PlayerController : MonoBehaviour
                                 {
                                     airJumpingGravity = false;
                                     slideJump = false;
-                                    reachedHeighestPoint = false;
+                                    //reachedHeighestPoint = false;
                                     airJumping = false;
-                                    highestJumpHeight = 0;
+                                    //highestJumpHeight = 0;
                                     rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                  gravityMax,
                                                                  transform.forward.z);
@@ -540,9 +585,9 @@ public class PlayerController : MonoBehaviour
                                 {
                                     airJumpingGravity = false;
                                     slideJump = false;
-                                    reachedHeighestPoint = false;
+                                    //reachedHeighestPoint = false;
                                     airJumping = false;
-                                    highestJumpHeight = 0;
+                                    //highestJumpHeight = 0;
                                     rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                  gravityMax,
                                                                  transform.forward.z);
@@ -559,9 +604,9 @@ public class PlayerController : MonoBehaviour
                                 {
                                     airJumpingGravity = false;
                                     slideJump = false;
-                                    reachedHeighestPoint = false;
+                                    //reachedHeighestPoint = false;
                                     airJumping = false;
-                                    highestJumpHeight = 0;
+                                    //highestJumpHeight = 0;
                                     airAttack = true;
                                     rigi.velocity = new Vector3(0,
                                                                 gravityMax,
@@ -572,9 +617,9 @@ public class PlayerController : MonoBehaviour
                                 {
                                     airJumpingGravity = false;
                                     slideJump = false;
-                                    reachedHeighestPoint = false;
+                                    //reachedHeighestPoint = false;
                                     airJumping = false;
-                                    highestJumpHeight = 0;
+                                    //highestJumpHeight = 0;
                                     airAttack = true;
                                     rigi.velocity = new Vector3(0,
                                                                 gravityMax,
@@ -597,9 +642,9 @@ public class PlayerController : MonoBehaviour
                                     airGun = true;
                                     airJumpingGravity = false;
                                     slideJump = false;
-                                    reachedHeighestPoint = false;
+                                    //reachedHeighestPoint = false;
                                     airJumping = false;
-                                    highestJumpHeight = 0;
+                                    //highestJumpHeight = 0;
                                     rigi.velocity = new Vector3(0,
                                                                 gravityMax,
                                                                 0);
@@ -810,9 +855,9 @@ public class PlayerController : MonoBehaviour
                                         bodyCollider.enabled = false;
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        reachedHeighestPoint = false;
+                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        highestJumpHeight = 0;
+                                        //highestJumpHeight = 0;
                                         rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                      Vector3.down.y * 100,
                                                                      transform.forward.z);
@@ -835,9 +880,9 @@ public class PlayerController : MonoBehaviour
                                         bodyCollider.enabled = true;
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        reachedHeighestPoint = false;
+                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        highestJumpHeight = 0;
+                                        //highestJumpHeight = 0;
                                         rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                      Vector3.down.y * 100,
                                                                      transform.forward.z);
@@ -862,9 +907,9 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        reachedHeighestPoint = false;
+                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        highestJumpHeight = 0;
+                                        //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
                                         Attack();
@@ -881,9 +926,9 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        reachedHeighestPoint = false;
+                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        highestJumpHeight = 0;
+                                        //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
                                         Attack();
@@ -937,6 +982,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void LockTimeCalculate(float percent)
+    {
+        lockTime = (beat.sampleTimeInSec * percent) / 100;
+        lockTimer.Set(lockTime);
+        lockTimer.timeCurrent = 0;
+        //Debug.Log(lockTime);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (currentStance == Stances.Jump)
@@ -981,9 +1034,9 @@ public class PlayerController : MonoBehaviour
 
             GUI.Label(new Rect(10, 10, 400, 40), "Current Stance: " + currentStance, style);
             GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
-            GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHeight, style);
+            //GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHeight, style);
             GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
-            GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
+            //GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
             GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
             GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
             GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jumpForce, style);
