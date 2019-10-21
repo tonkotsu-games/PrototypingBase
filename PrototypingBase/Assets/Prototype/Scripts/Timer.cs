@@ -12,7 +12,7 @@ public class Timer
 
     public bool CountingDown { get => countingDown; set => countingDown = value; }
 
-    public void Start(float max)
+    public void Set(float max)
     {
         timeMax = max;
         timeCurrent = timeMax;
