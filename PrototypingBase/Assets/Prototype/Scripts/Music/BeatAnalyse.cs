@@ -4,21 +4,19 @@ using UnityEngine;
 public class BeatAnalyse : MonoBehaviour
 {
     [SerializeField]
-    private int windowTrigger;
+    private int timeWindow = 0;
     [SerializeField]
-    private int reactionTime;
+    private int reactionTime = 0;
     private List<int> beatStarts = new List<int>();
 
     [SerializeField]
-    private float drawWidth;
-    [SerializeField]
-    private float limit, waitSamples;
-    private float timeSample;
-    private float[] spectrum;
+    private float limit = 0, waitSamples = 0;
+    private float timeSample = 0;
+    private float[] spectrum = null;
 
     [SerializeField]
-    private AudioClip wave;
-    private AudioSource sourceWave;
+    private AudioClip wave = null;
+    private AudioSource sourceWave = null;
 
     private bool debugMode = false;
 
@@ -55,13 +53,13 @@ public class BeatAnalyse : MonoBehaviour
         }
     }
 
-    public bool IsOnBeat(int preStart)
+    public bool IsOnBeat(int reactionTime, int timeWindow)
     {
-        timeSample = sourceWave.timeSamples - preStart;
+        timeSample = sourceWave.timeSamples - reactionTime;
         for (int i = 0; i < beatStarts.Count; i++)
         {
-            if (timeSample >= (beatStarts[i] - windowTrigger) &&
-                timeSample <= (beatStarts[i] + windowTrigger))
+            if (timeSample >= (beatStarts[i] - timeWindow) &&
+                timeSample <= (beatStarts[i] + timeWindow))
             {
                 return true;
             }
@@ -91,8 +89,8 @@ public class BeatAnalyse : MonoBehaviour
             Gizmos.color = Color.green;
             for (int i = 0; i < beatStarts.Count; i++)
             {
-                Gizmos.DrawLine(displacement + new Vector3((beatStarts[i] - windowTrigger + reactionTime) * widthMulti, 0, 0),
-                                displacement + new Vector3((beatStarts[i] + windowTrigger + reactionTime) * widthMulti, 0, 0));
+                Gizmos.DrawLine(displacement + new Vector3((beatStarts[i] - timeWindow + reactionTime) * widthMulti, 0, 0),
+                                displacement + new Vector3((beatStarts[i] + timeWindow + reactionTime) * widthMulti, 0, 0));
             }
 
             Gizmos.color = Color.red;
