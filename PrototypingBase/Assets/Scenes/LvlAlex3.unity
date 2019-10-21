@@ -10696,6 +10696,16 @@ PrefabInstance:
       propertyPath: cam
       value: 
       objectReference: {fileID: 1991322486}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: beatTimeLockPercent
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: maxJumpHeight
+      value: 40
+      objectReference: {fileID: 0}
     - target: {fileID: 3120173935960887305, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_Materials.Array.data[0]

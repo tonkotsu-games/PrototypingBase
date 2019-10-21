@@ -23,4 +23,5 @@ public class Playmyani2 : MonoBehaviour
             playedArenaShake = true;
         }
     }
+}
 
