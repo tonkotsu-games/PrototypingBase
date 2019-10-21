@@ -11,15 +11,11 @@ public class Playmyani2 : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
    {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-<<<<<<< HEAD
+
             NewArena.SetTrigger("ArenaChange");
-=======
-            NewArena.SetBool("ArenaChange", true);
-            SkyboxChanger.instance.ChangeTexture(1);
         }
->>>>>>> Niklas
 
             if(!playedArenaShake)
             {
@@ -28,4 +24,4 @@ public class Playmyani2 : MonoBehaviour
             }        
         }
     }
-}
+
