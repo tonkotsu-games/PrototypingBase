@@ -28,9 +28,6 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 haeding = new Vector3(0, 0, 0);
     private Vector3 moveVector = new Vector3(0, 0, 0);
-
-    [SerializeField]
-    private GameObject cam = null;
     #endregion
 
     #region Jumping
@@ -122,6 +119,9 @@ public class PlayerController : MonoBehaviour
 
     private Stances currentStance = Stances.Idle;
     private Stances lastStance = Stances.Idle;
+
+    [SerializeField]
+    private GameObject cam = null;
 
     [SerializeField]
     private FreeLookCamera target = null;
