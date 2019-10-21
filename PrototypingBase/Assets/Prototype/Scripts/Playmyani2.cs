@@ -13,7 +13,13 @@ public class Playmyani2 : MonoBehaviour
    {
         if(other.CompareTag("Player"))
         {
+<<<<<<< HEAD
             NewArena.SetTrigger("ArenaChange");
+=======
+            NewArena.SetBool("ArenaChange", true);
+            SkyboxChanger.instance.ChangeTexture(1);
+        }
+>>>>>>> Niklas
 
             if(!playedArenaShake)
             {
