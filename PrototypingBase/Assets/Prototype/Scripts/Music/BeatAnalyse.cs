@@ -7,12 +7,16 @@ public class BeatAnalyse : MonoBehaviour
     private int timeWindow = 0;
     [SerializeField]
     private int reactionTime = 0;
-    private List<int> beatStarts = new List<int>();
+
+    public List<int> beatStarts = new List<int>();
 
     [SerializeField]
     private float limit = 0, waitSamples = 0;
     private float timeSample = 0;
     private float[] spectrum = null;
+    private float sampleBeat = 0;
+    [HideInInspector]
+    public float sampleTimeInSec = 0;
 
     [SerializeField]
     private AudioClip wave = null;
@@ -43,7 +47,14 @@ public class BeatAnalyse : MonoBehaviour
                 }
             }
         }
+
+        sampleBeat = Mathf.Abs(beatStarts[0] - beatStarts[1]);
+
+        sampleTimeInSec = sampleBeat / 44100;
+
+        Debug.Log(sampleTimeInSec);
     }
+
 
     private void Update()
     {

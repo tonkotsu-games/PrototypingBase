@@ -7,7 +7,7 @@ public class Playmyani2 : MonoBehaviour
     [SerializeField] private Animator NewArena;
 
     bool playedArenaShake = false;
-    
+
 
     private void OnTriggerEnter(Collider other)
    {
@@ -17,11 +17,10 @@ public class Playmyani2 : MonoBehaviour
             NewArena.SetTrigger("ArenaChange");
         }
 
-            if(!playedArenaShake)
-            {
-                Camera.main.GetComponent<Animator>().SetTrigger("ArenaShake");
-                playedArenaShake = true;
-            }        
+        if (!playedArenaShake)
+        {
+            Camera.main.GetComponent<Animator>().SetTrigger("ArenaShake");
+            playedArenaShake = true;
         }
     }
 
