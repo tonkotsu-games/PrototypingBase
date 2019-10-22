@@ -22,7 +22,7 @@ public class BeatOptimizationTest : MonoBehaviour
     {
         beatListCopy = new List<float>(60);
 
-        timeTracker.Start(0f);
+        timeTracker.Set(0f);
         timeTracker.CountingDown = false;
         timeTracker.paused = false;
 
