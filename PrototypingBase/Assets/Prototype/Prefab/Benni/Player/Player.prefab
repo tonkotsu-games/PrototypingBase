@@ -27,8 +27,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1782426988697694788}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.67, y: 0, z: 0.4}
-  m_LocalScale: {x: 1, y: 0.151315, z: 0.35211}
+  m_LocalPosition: {x: 0.408, y: 0, z: 0.86}
+  m_LocalScale: {x: 1, y: 0.102205426, z: 0.32956794}
   m_Children:
   - {fileID: 5639326270265479939}
   m_Father: {fileID: 3120173935960887303}
@@ -184,7 +184,7 @@ Animator:
   m_GameObject: {fileID: 3120173935960887309}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 9b4e5ca4fb842204cb1bf9bdbb56beaf, type: 2}
+  m_Controller: {fileID: 9100000, guid: f7e24f620c50dc142a51f01545aa2224, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -334,13 +334,14 @@ MonoBehaviour:
   timeToHeight: 0.35
   airJumpHeight: 14
   timeToAirJumpHeight: 0.35
-  slideJumpHeight: 16
-  timeToSlideJumpHeight: 0.35
-  maxJumpHeight: 0
+  slideJumpHeight: 14
+  timeToSlideJumpHeight: 0.3
+  maxJumpHeight: 12
   gravityMax: -40
   slideTime: 0.3
   slideAttackTime: 0
   slidingSpeed: 60
+  attackChain: 0
   beat: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
@@ -359,7 +360,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.2
-  m_Center: {x: 0, y: 0.19, z: 0}
+  m_Center: {x: 0, y: 0.18, z: 0}
 --- !u!54 &9167410380006807476
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -375,7 +376,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!136 &9167410380006807479
 CapsuleCollider:
   m_ObjectHideFlags: 0
