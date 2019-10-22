@@ -163,6 +163,7 @@ public class PlayerController : MonoBehaviour
         {
             CalculateJump();
         }
+
         moveHorizontal = Input.GetAxisRaw("Horizontal");
         moveVertical = Input.GetAxisRaw("Vertical");
 
@@ -182,7 +183,6 @@ public class PlayerController : MonoBehaviour
                 }
                 SubStancesCheck(lastStance, currentStance);
                 lockTimer.ResetTimer();
-
             }
 
             if (Input.GetButtonDown("Attack"))
@@ -198,7 +198,6 @@ public class PlayerController : MonoBehaviour
             {
                 lastStance = currentStance;
                 currentStance = Stances.Gun;
-
                 SubStancesCheck(lastStance, currentStance);
                 lockTimer.ResetTimer();
             }
