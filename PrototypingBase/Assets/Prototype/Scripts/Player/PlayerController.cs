@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviour
     private float jumpForce = 0;
     private float startPosition = 0;
 
-    private bool grounded = true;
+    private bool grounded = false;
     private bool jump = false;
     private bool airJumping = false;
     private bool airJumpingGravity = false;
@@ -253,7 +253,6 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("WARNING NO STANCE");
         }
-
     }
 
     private void Heading()
@@ -643,6 +642,7 @@ public class PlayerController : MonoBehaviour
                     {
                         case Stances.Idle:
                             {
+                                attackChain = 0;
                                 break;
                             }
                         case Stances.Jump:
