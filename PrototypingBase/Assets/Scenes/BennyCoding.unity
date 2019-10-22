@@ -1244,6 +1244,11 @@ PrefabInstance:
       propertyPath: beat
       value: 
       objectReference: {fileID: 251484213}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: maxJumpHeight
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 9167410380006807473, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_Center.y

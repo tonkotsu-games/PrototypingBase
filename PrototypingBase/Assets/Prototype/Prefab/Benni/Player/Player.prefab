@@ -26,14 +26,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1782426988697694788}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0.67, y: 0, z: 0.4}
   m_LocalScale: {x: 1, y: 0.151315, z: 0.35211}
   m_Children:
   - {fileID: 5639326270265479939}
   m_Father: {fileID: 3120173935960887303}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!33 &1782426988697694792
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -336,15 +336,17 @@ MonoBehaviour:
   timeToAirJumpHeight: 0.35
   slideJumpHeight: 16
   timeToSlideJumpHeight: 0.35
+  maxJumpHeight: 0
   gravityMax: -40
   slideTime: 0.3
   slideAttackTime: 0
   slidingSpeed: 60
   beat: {fileID: 0}
-  reactionTime: 1000
-  timeWindow: 5000
   cam: {fileID: 0}
   target: {fileID: 0}
+  beatTimeLockPercent: 0
+  reactionTime: 1000
+  timeWindow: 5000
 --- !u!135 &9167410380006807473
 SphereCollider:
   m_ObjectHideFlags: 0
