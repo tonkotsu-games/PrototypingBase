@@ -10,9 +10,10 @@ public class Playmyani2 : MonoBehaviour
 
 
     private void OnTriggerEnter(Collider other)
-    {
+   {
         if (other.CompareTag("Player"))
         {
+
             NewArena.SetTrigger("ArenaChange");
         }
 
@@ -23,5 +24,4 @@ public class Playmyani2 : MonoBehaviour
         }
     }
 }
-        
 
