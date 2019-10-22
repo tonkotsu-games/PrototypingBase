@@ -97,7 +97,9 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Attack
-    private bool groundAttack = false;
+    [HideInInspector]
+    public int attackChain = 0;
+
     private bool airAttack = false;
     #endregion
 
@@ -179,6 +181,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
+
                     airJumping = true;
                 }
                 SubStancesCheck(lastStance, currentStance);
@@ -344,7 +347,6 @@ public class PlayerController : MonoBehaviour
         {
             gravity = airJumpVelocity;
             jumpForce = airJumpVelocity;
-            anim.SetTrigger("jumpFlip");
             airJumping = false;
         }
         else if (slideJump)
@@ -358,7 +360,6 @@ public class PlayerController : MonoBehaviour
             rigi.velocity = new Vector3(0,
                                         0,
                                         0);
-            anim.SetTrigger("gun");
         }
     }
 
@@ -474,12 +475,14 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
+                                    anim.SetTrigger("jumping");
                                     jump = true;
                                     Jump();
                                     bodyCollider.enabled = false;
                                 }
                                 else
                                 {
+                                    anim.SetTrigger("jumping");
                                     jump = true;
                                     Jump();
                                 }
@@ -489,12 +492,14 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
+                                    anim.SetTrigger("slide");
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                     bodyCollider.enabled = false;
                                 }
                                 else
                                 {
+                                    anim.SetTrigger("slide");
                                     bodyCollider.enabled = true;
                                     currentSlideTime = slideTime;
                                     sliding = true;
@@ -505,13 +510,13 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    groundAttack = true;
-                                    Attack();
+                                    anim.SetTrigger("swordAttack(onB)1");
+                                    attackChain++;
                                 }
                                 else
                                 {
-                                    groundAttack = true;
-                                    Attack();
+                                    anim.SetTrigger("swordAttack");
+                                    attackChain = 0;
                                 }
                                 break;
                             }
@@ -519,11 +524,11 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    anim.SetTrigger("gun");
+                                    anim.SetTrigger("gunAttack(onB)");
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("gun");
+                                    anim.SetTrigger("gunAttack");
                                 }
                                 break;
                             }
@@ -536,6 +541,7 @@ public class PlayerController : MonoBehaviour
                     {
                         case Stances.Idle:
                             {
+                                anim.SetTrigger("landing");
                                 airGun = false;
                                 airJumpingGravity = false;
                                 slideJump = false;
@@ -549,6 +555,7 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
+                                    anim.SetTrigger("airJump");
                                     bodyCollider.enabled = false;
                                     slideJump = false;
                                     airJumpingGravity = true;
@@ -556,6 +563,7 @@ public class PlayerController : MonoBehaviour
                                 }
                                 else
                                 {
+                                    anim.SetTrigger("airJump");
                                     bodyCollider.enabled = true;
                                     slideJump = false;
                                     airJumpingGravity = true;
@@ -567,6 +575,7 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
+                                    anim.SetTrigger("slide");
                                     airJumpingGravity = false;
                                     slideJump = false;
                                     //reachedHeighestPoint = false;
@@ -582,6 +591,7 @@ public class PlayerController : MonoBehaviour
                                 }
                                 else
                                 {
+                                    anim.SetTrigger("slide");
                                     airJumpingGravity = false;
                                     slideJump = false;
                                     //reachedHeighestPoint = false;
@@ -606,11 +616,11 @@ public class PlayerController : MonoBehaviour
                                     //reachedHeighestPoint = false;
                                     airJumping = false;
                                     //highestJumpHeight = 0;
-                                    airAttack = true;
                                     rigi.velocity = new Vector3(0,
                                                                 gravityMax,
                                                                 0);
-                                    Attack();
+                                    airAttack = true;
+                                    anim.SetTrigger("airSwordAttack(onB)");
                                 }
                                 else
                                 {
@@ -619,11 +629,11 @@ public class PlayerController : MonoBehaviour
                                     //reachedHeighestPoint = false;
                                     airJumping = false;
                                     //highestJumpHeight = 0;
-                                    airAttack = true;
                                     rigi.velocity = new Vector3(0,
                                                                 gravityMax,
                                                                 0);
-                                    Attack();
+                                    airAttack = true;
+                                    anim.SetTrigger("airSwordAttack");
                                 }
                                 break;
                             }
@@ -631,13 +641,15 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    Debug.Log("Gun on beat");
+                                    //Debug.Log("Gun on beat");
                                     airGun = true;
+                                    anim.SetTrigger("airGunAttack(onB)");
                                     Jump();
                                 }
                                 else
                                 {
-                                    Debug.Log("Gun off beat");
+                                    anim.SetTrigger("airGunAttack");
+                                    //Debug.Log("Gun off beat");
                                     airGun = true;
                                     airJumpingGravity = false;
                                     slideJump = false;
@@ -668,6 +680,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (grounded)
                                     {
+                                        anim.SetTrigger("jumping");
                                         sliding = false;
                                         slideJump = true;
                                         Jump();
@@ -677,6 +690,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (grounded)
                                     {
+                                        anim.SetTrigger("jumping");
                                         sliding = false;
                                         jump = true;
                                         Jump();
@@ -688,12 +702,14 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
+                                    anim.SetTrigger("slide");
                                     bodyCollider.enabled = false;
                                     Heading();
                                     currentSlideTime = slideTime;
                                 }
                                 else
                                 {
+                                    anim.SetTrigger("slide");
                                     bodyCollider.enabled = true;
                                     Heading();
                                     currentSlideTime = slideTime;
@@ -704,16 +720,14 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
+                                    anim.SetTrigger("slideSwordAttack(onB)");
                                     slideAttackTime = currentSlideTime;
-                                    groundAttack = true;
-                                    Attack();
                                 }
                                 else
                                 {
+                                    anim.SetTrigger("slideSwordAttack");
                                     sliding = false;
                                     rigi.velocity = Vector3.zero;
-                                    groundAttack = true;
-                                    Attack();
                                 }
                                 break;
                             }
@@ -721,11 +735,11 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    anim.SetTrigger("gun");
+                                    anim.SetTrigger("slideGunAttack(onB)");
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("gun");
+                                    anim.SetTrigger("slideGunAttack");
                                 }
                                 break;
                             }
@@ -775,13 +789,26 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    groundAttack = true;
-                                    Attack();
+                                    switch(attackChain)
+                                    {
+                                        case 1:
+                                            {
+                                                anim.SetTrigger("swordAttack(onB)2");
+                                                attackChain++;
+                                                break;
+                                            }
+                                        case 2:
+                                            {
+                                                anim.SetTrigger("swordAttack(onB)3");
+                                                attackChain = 0;
+                                                break;
+                                            }
+                                    }
                                 }
                                 else
                                 {
-                                    groundAttack = true;
-                                    Attack();
+                                    anim.SetTrigger("swordAttack");
+                                    attackChain = 0;
                                 }
                                 break;
                             }
@@ -789,11 +816,11 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    anim.SetTrigger("gun");
+                                    anim.SetTrigger("gunAttack(onB)");
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("gun");
+                                    anim.SetTrigger("gunAttack");
                                 }
                                 break;
                             }
@@ -911,12 +938,12 @@ public class PlayerController : MonoBehaviour
                                         //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
-                                        Attack();
+                                        anim.SetTrigger("airSwordAttack(onB)");
                                     }
                                     else
                                     {
-                                        groundAttack = true;
-                                        Attack();
+                                        anim.SetTrigger("swordAttack(onB)1");
+                                        attackChain++;
                                     }
                                 }
                                 else
@@ -930,32 +957,31 @@ public class PlayerController : MonoBehaviour
                                         //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
-                                        Attack();
+                                        anim.SetTrigger("airSwordAttack");
                                     }
                                     else
                                     {
-                                        groundAttack = true;
-                                        Attack();
+                                        anim.SetTrigger("swordAttack");
+                                        attackChain = 0;
                                     }
+                                }
+                                break;
+                            }
+                        case Stances.Gun:
+                            {
+                                if (beat.IsOnBeat(reactionTime, timeWindow))
+                                {
+                                    anim.SetTrigger("gunAttack(onB)");
+                                }
+                                else
+                                {
+                                    anim.SetTrigger("gunAttack");
                                 }
                                 break;
                             }
                     }
                     break;
                 }
-        }
-    }
-
-    private void Attack()
-    {
-        if (groundAttack)
-        {
-            anim.SetTrigger("groundAttack");
-            groundAttack = false;
-        }
-        else if (airAttack)
-        {
-            anim.SetTrigger("airAttack");
         }
     }
 
