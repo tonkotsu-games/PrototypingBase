@@ -9,6 +9,6 @@ public class SpawnNameAdjust : MonoBehaviour
     private void Update()
     {
         gameObject.name = gameObject.GetComponent<EnemySpawner>().Wave.ToString() + "-EnemySpawner";
-        gameObject.GetComponentInChildren<TextMeshPro>().text = gameObject.GetComponent<EnemySpawner>().Wave.ToString() + " - " + gameObject.GetComponentInChildren<EnemySpawner>().amountOfEnemiesToSpawn;
+        gameObject.GetComponentInChildren<TextMeshPro>().text = gameObject.GetComponent<EnemySpawner>().Wave.ToString();
     }
 }
