@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Beat
+  - Enemy
   layers:
   - Default
   - TransparentFX
