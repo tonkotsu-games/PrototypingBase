@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
     private BeatAnalyse beat = null;
     private Animator anim = null;
     private Rigidbody rigi = null;
-    private CapsuleCollider bodyCollider = null;
+    //private CapsuleCollider bodyCollider = null;
     private Timer lockTimer = new Timer();
     private MovementCalculation calculate = new MovementCalculation();
     [SerializeField]
@@ -128,7 +128,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
-        ///bodyCollider = GetComponent<CapsuleCollider>();
+        //bodyCollider = GetComponent<CapsuleCollider>();
         rigi = GetComponent<Rigidbody>();
         if (!jumpTest)
         {
@@ -651,7 +651,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     jump = true;
                                     Jump();
-                                    bodyCollider.enabled = false;
+                                    //bodyCollider.enabled = false;
                                 }
                                 else
                                 {
