@@ -231,8 +231,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (currentStance == Stances.Slide)
         {
-            Gravity();
             Slide();
+            Debug.Log("slide done");
         }
         else if (currentStance == Stances.Attack)
         {
@@ -314,8 +314,12 @@ public class PlayerController : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && (grounded || lastStance == Stances.Idle || lastStance == Stances.Slide || lastStance == Stances.Gun))
+        if (sliding && (grounded || 
+                        lastStance == Stances.Idle || 
+                        lastStance == Stances.Slide || 
+                        lastStance == Stances.Gun))
         {
+            Debug.Log("Grounded");
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
@@ -338,6 +342,14 @@ public class PlayerController : MonoBehaviour
                 lastStance = currentStance;
                 currentStance = Stances.Idle;
             }
+        }
+        else
+        {
+            //Debug.Log("not grounded");
+            rigi.velocity = new Vector3(0,
+                                        gravityMax,
+                                        0);
+            //Debug.Log("line read");
         }
     }
 
@@ -465,12 +477,9 @@ public class PlayerController : MonoBehaviour
                                     //reachedHeighestPoint = false;
                                     airJumping = false;
                                     //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(transform.forward.x * 50,
-                                                                 gravityMax,
-                                                                 transform.forward.z);
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    gravity = 0;
+                                    //gravity = 0;
                                 }
                                 else
                                 {
@@ -480,12 +489,9 @@ public class PlayerController : MonoBehaviour
                                     //reachedHeighestPoint = false;
                                     airJumping = false;
                                     //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(transform.forward.x * 50,
-                                                                 gravityMax,
-                                                                 transform.forward.z);
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    gravity = 0;
+                                    //gravity = 0;
                                 }
                                 break;
                             }
@@ -897,6 +903,10 @@ public class PlayerController : MonoBehaviour
         {
             lastStance = currentStance;
         }
+        airJumpingGravity = false;
+        slideJump = false;
+        airJumping = false;
+
         airGun = false;
         gravity = 0;
     }
