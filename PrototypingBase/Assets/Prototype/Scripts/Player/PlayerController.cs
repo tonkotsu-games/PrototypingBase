@@ -205,7 +205,6 @@ public class PlayerController : MonoBehaviour
             calculate.JumpHight(startPosition, transform.position.y);
         }
 
-
         if (Input.GetKeyDown(KeyCode.F4))
         {
             debugMode = !debugMode;
@@ -238,7 +237,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (airAttack)
                 {
-                    anim.SetTrigger("meteor");
+                    anim.SetTrigger("meteorAttack");
                     airAttack = false;
                     lastStance = currentStance;
                     currentStance = Stances.Idle;
@@ -448,7 +447,6 @@ public class PlayerController : MonoBehaviour
                     {
                         case Stances.Idle:
                             {
-                                anim.SetTrigger("landing");
                                 airGun = false;
                                 airJumpingGravity = false;
                                 slideJump = false;
@@ -785,9 +783,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                      Vector3.down.y * 100,
                                                                      transform.forward.z);
@@ -808,9 +804,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                      Vector3.down.y * 100,
                                                                      transform.forward.z);
@@ -834,9 +828,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
                                         anim.SetTrigger("airSwordAttack(onB)");
@@ -853,9 +845,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
                                         anim.SetTrigger("airSwordAttack");
@@ -928,6 +918,8 @@ public class PlayerController : MonoBehaviour
         {
             lastStance = currentStance;
         }
+        anim.SetTrigger("landing");
+        anim.ResetTrigger("jumping");
         airJumpingGravity = false;
         slideJump = false;
         airJumping = false;
@@ -962,9 +954,7 @@ public class PlayerController : MonoBehaviour
 
             GUI.Label(new Rect(10, 10, 400, 40), "Current Stance: " + currentStance, style);
             GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
-            //GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHeight, style);
             GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
-            //GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
             GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
             GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
             GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jumpForce, style);

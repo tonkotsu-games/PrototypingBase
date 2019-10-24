@@ -84,39 +84,5 @@ public class MovementCalculation
     {
         currentJumpHeight = startPosition - positionY;
         currentJumpHeight = Mathf.Abs(currentJumpHeight);
-
-        ///<summary>
-        /// Old Calculation for the double jump
-        /// 
-        /// if (currentJumpHeight > highestJumpHeight)
-        /// {
-        ///     overJumpHeight = true;
-        /// }
-        /// 
-        /// if (!reachedHeighestPoint)
-        /// {
-        ///     if (currentJumpHeight >= highestJumpHeight)
-        ///     {
-        ///         highestJumpHeight = currentJumpHeight;
-        ///     }
-        ///     else
-        ///     {
-        ///         airJumping = true;
-        ///         reachedHeighestPoint = true;
-        ///     }
-        /// }
-        /// else
-        /// {
-        ///     if (currentJumpHeight <= highestJumpHeight && overJumpHeight)
-        ///     {
-        ///         overJumpHeight = false;
-        ///         airJumping = true;
-        ///     }
-        ///     if (currentJumpHeight < highestJumpHeight - 10)
-        ///     {
-        ///         highestJumpHeight = currentJumpHeight;
-        ///     }
-        /// }
-        ///</ summary >
     }
 }
