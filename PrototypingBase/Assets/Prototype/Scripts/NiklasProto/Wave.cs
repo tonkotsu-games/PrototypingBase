@@ -16,6 +16,8 @@ public class Wave
         S2W2,
         S2W3,
         S2W4,
-        S2WB
+        S2WB,
+        S3W1
+            
     }
 }
