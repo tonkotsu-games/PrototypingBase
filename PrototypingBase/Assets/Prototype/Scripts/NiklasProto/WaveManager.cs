@@ -5,11 +5,16 @@ using UnityEngine;
 public class WaveManager : MonoBehaviour
 {
     public static WaveManager instance;
+    [SerializeField]
+    float timeBetweenWaveSpawns = 2;
+
     private HashSet<GameObject> currentEnemies;
     [HideInInspector]
     public Wave.Waves currentWaveState;
     private Wave.Waves nextWaveState;
     private int waveNumber = 1;
+    private bool sceneChanging = false;
+    private Timer waveTimer = new Timer();
 
     private void Awake()
     {
@@ -27,6 +32,7 @@ public class WaveManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        waveTimer.Set(timeBetweenWaveSpawns);
         currentWaveState = Wave.Waves.Init;
         nextWaveState = (Wave.Waves)waveNumber;
     }
@@ -42,9 +48,9 @@ public class WaveManager : MonoBehaviour
         {
             if (currentEnemies.Count == 0)
             {
+                Debug.Log("number of enemies: " + currentEnemies.Count);
+                sceneChanging = true;
                 ChangeWaveState(nextWaveState);
-                waveNumber++;
-                nextWaveState = (Wave.Waves)waveNumber;
             }
         }
     }
@@ -53,8 +59,19 @@ public class WaveManager : MonoBehaviour
     {
         if (nextWave != currentWaveState)
         {
-            currentWaveState = nextWave;
+            if (waveTimer.timeCurrent <= 0)
+            {
+                currentWaveState = nextWave;
+                waveNumber++;
+                nextWaveState = (Wave.Waves)waveNumber;
+                waveTimer.ResetTimer();
+            }
+            else
+            {
+                waveTimer.Tick();
+            }
         }
+            
     }
 
     public void AddToCurrentEnemies(GameObject enemy)

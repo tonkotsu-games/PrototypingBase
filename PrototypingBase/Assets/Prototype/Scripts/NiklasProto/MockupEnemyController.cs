@@ -21,13 +21,17 @@ public class MockupEnemyController : MonoBehaviour
     [SerializeField]
     private EnemyType.EnemyTypes enemyType;
 
+    private void Awake()
+    {
+        WaveManager.instance.AddToCurrentEnemies(gameObject);
+    }
     private void Start()
     {
         player = Locator.instance.GetPlayerGameObject();
         agent = gameObject.GetComponent<NavMeshAgent>();
         anim = gameObject.GetComponent<Animator>();
         agent.speed = Random.Range(minSpd, maxSpd);
-        WaveManager.instance.AddToCurrentEnemies(gameObject);
+       
     }
     void Update()
     {
