@@ -60,9 +60,13 @@ public class PlayerController : MonoBehaviour
     private float startPosition = 0;
 
     private bool grounded = false;
-    private bool jump = false;
+    private bool normalJump = false;
     private bool airJumping = false;
-    private bool airJumpingGravity = false;
+
+    private JumpType currentJumpType;
+    private bool canJump = false;
+
+    private enum JumpType { None, Normal, Air, Slide}
     #endregion
 
     #region Slide
@@ -76,7 +80,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float slidingSpeed = 0;
 
-    private bool sliding = false;
+    private bool inSliding = false;
     private bool slideJump = false;
     #endregion
 
@@ -96,11 +100,10 @@ public class PlayerController : MonoBehaviour
     [Header("Beatanalyse")]
     [SerializeField]
     private BeatAnalyse beat = null;
-    private Animator anim = null;
-    private Rigidbody rigi = null;
-    //private CapsuleCollider bodyCollider = null;
+    private Animator animator = null;
+    private Rigidbody rigidbody = null;
     private Timer lockTimer = new Timer();
-    private MovementCalculation calculate = new MovementCalculation();
+    private MovementCalculation calculator = new MovementCalculation();
     [SerializeField]
     private GameObject cam = null;
     [SerializeField]
@@ -127,63 +130,51 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
-        rigi = GetComponent<Rigidbody>();
+        animator = transform.GetComponentInChildren<Animator>();
+        rigidbody = GetComponent<Rigidbody>();
+
         if (!jumpTest)
         {
-            calculate.Jump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
+            calculator.CalcualteJump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
+
         lockTimer.CountingDown = true;
-        LockTimeCalculate(beatTimeLockPercent);
+        CalculateAndSetLockTime(beatTimeLockPercent);
     }
 
     void Update()
     {
-        if(beatTimeLockPercentOld != beatTimeLockPercent)
+        if (beatTimeLockPercentOld != beatTimeLockPercent)
         {
             beatTimeLockPercentOld = beatTimeLockPercent;
-            LockTimeCalculate(beatTimeLockPercent);
+            CalculateAndSetLockTime(beatTimeLockPercent);
         }
 
         if (jumpTest)
         {
-            calculate.Jump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
+            calculator.CalcualteJump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
 
-        if(lockTimer.timeCurrent <= 0)
+        if (lockTimer.timeCurrent <= 0)
         {
             if (Input.GetButtonDown("Jump"))
             {
-                lastStance = currentStance;
-                currentStance = Stances.Jump;
                 if (grounded)
                 {
                     startPosition = transform.position.y;
                 }
-                else
-                {
 
-                    airJumping = true;
-                }
-                SubStancesCheck(lastStance, currentStance);
-                lockTimer.ResetTimer();
+                ChangeStanceTo(Stances.Jump);
             }
 
             if (Input.GetButtonDown("Attack"))
             {
-                lastStance = currentStance;
-                currentStance = Stances.Attack;
-                SubStancesCheck(lastStance, currentStance);
-                lockTimer.ResetTimer();
-
+                ChangeStanceTo(Stances.Attack);
             }
 
             if (Input.GetButtonDown("Gun") && !airAttack)
             {
-                lastStance = currentStance;
-                currentStance = Stances.Gun;
-                SubStancesCheck(lastStance, currentStance);
-                lockTimer.ResetTimer();
+                ChangeStanceTo(Stances.Gun);
             }
         }
         else
@@ -193,16 +184,12 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Slide"))
         {
-            lastStance = currentStance;
-            currentStance = Stances.Slide;
-            SubStancesCheck(lastStance, currentStance);
-
-            Debug.LogError("Clicked Slide!");
+            ChangeStanceTo(Stances.Slide, resetLockTimer: false);
         }
 
         if (currentStance == Stances.Jump || airGun)
         {
-            calculate.JumpHight(startPosition, transform.position.y);
+            calculator.JumpHight(startPosition, transform.position.y);
         }
 
         if (Input.GetKeyDown(KeyCode.F4))
@@ -211,38 +198,54 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void ChangeStanceTo(Stances newStance, bool resetLockTimer = true)
+    {
+        lastStance = currentStance;
+        currentStance = newStance;
+        RunStanceChangeTransitions(lastStance, currentStance);
+
+        if (resetLockTimer)
+        {
+            lockTimer.ResetTimer();
+        }
+    }
+
     private void FixedUpdate()
     {
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        float verticalInput = Input.GetAxisRaw("Vertical");
+
         if (currentStance == Stances.Idle ||
             currentStance == Stances.Jump ||
             currentStance == Stances.Gun)
         {
-            calculate.Heading(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), deadZone, cam.transform);
-            calculate.Movement(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), deadZone, movementSpeed, cam.transform);
-            Heading();
+            calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
+            calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);
+
+            HeadingUpdate();
             if (!airGun)
             {
-                Move();
-                Gravity();
+                MoveUpdate();
+                GravityUpdate();
             }
         }
         else if (currentStance == Stances.Slide)
         {
-            Slide();
-            Debug.Log("slide done");
+            SlideUpdate();
         }
         else if (currentStance == Stances.Attack)
         {
+            calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
+            HeadingUpdate();
             if (grounded)
             {
                 if (airAttack)
                 {
-                    anim.SetTrigger("meteorAttack");
+                    animator.SetTrigger("meteorAttack");
                     airAttack = false;
-                    lastStance = currentStance;
-                    currentStance = Stances.Idle;
-                    SubStancesCheck(lastStance, currentStance);
+                    ChangeStanceTo(Stances.Idle);
                 }
+                rigidbody.velocity = new Vector3(0, gravity, 0);
             }
         }
         else
@@ -251,17 +254,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Heading()
+    private void HeadingUpdate()
     {
         if (!target.lockOn)
         {
-            if (calculate.Head == Vector3.zero)
+            if (calculator.Head == Vector3.zero)
             {
                 transform.rotation = Quaternion.identity;
             }
             else
             {
-                transform.rotation = Quaternion.LookRotation(calculate.Head);
+                transform.rotation = Quaternion.LookRotation(calculator.Head);
             }
         }
         else if (target.lockOn)
@@ -271,625 +274,574 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Function for the Movement
-    /// </summary>
-    void Move()
+    void MoveUpdate()
     {
-        rigi.velocity = new Vector3(calculate.MoveVector.x,
+        rigidbody.velocity = new Vector3(calculator.MoveVector.x,
                                     gravity,
-                                    calculate.MoveVector.z);
+                                    calculator.MoveVector.z);
     }
 
     private void Jump()
     {
-        if (jump)
+        if (normalJump)
         {
-            gravity = calculate.JumpVelocity;
-            jumpForce = calculate.JumpVelocity;
-            jump = false;
+            gravity = calculator.JumpVelocity;
+            jumpForce = calculator.JumpVelocity;
+            normalJump = false;
         }
         else if (airJumping && !airGun)
         {
-            gravity = calculate.AirJumpVelocity;
-            jumpForce = calculate.AirJumpVelocity;
+            gravity = calculator.AirJumpVelocity;
+            jumpForce = calculator.AirJumpVelocity;
             airJumping = false;
         }
         else if (slideJump)
         {
-            gravity = calculate.SlideJumpVelocity;
-            jumpForce = calculate.SlideJumpVelocity;
+            gravity = calculator.SlideJumpVelocity;
+            jumpForce = calculator.SlideJumpVelocity;
             slideJump = false;
         }
         else if (airGun)
         {
-            rigi.velocity = new Vector3(0,
-                                        0,
-                                        0);
+            rigidbody.velocity = new Vector3(0, 0, 0);
+        }
+    }
+
+    private void SlideUpdate()
+    {
+        if (inSliding && (grounded ||
+                        lastStance == Stances.Idle ||
+                        lastStance == Stances.Slide ||
+                        lastStance == Stances.Gun))
+        {
+            currentSlideTime -= Time.deltaTime;
+            if (currentSlideTime > 0)
+            {
+                Slide();
+            }
+            else
+            {
+                inSliding = false;
+                ChangeStanceTo(Stances.Idle);
+            }
+        }
+        else
+        {
+            rigidbody.velocity = new Vector3(0, gravityMax, 0);
         }
     }
 
     private void Slide()
     {
-        if (sliding && (grounded || 
-                        lastStance == Stances.Idle || 
-                        lastStance == Stances.Slide || 
-                        lastStance == Stances.Gun))
+        if (calculator.Head == Vector3.zero)
         {
-            Debug.Log("Grounded");
-            currentSlideTime -= Time.deltaTime;
-            if (currentSlideTime > 0)
-            {
-                if (calculate.Head == Vector3.zero)
-                {
-                    transform.rotation = Quaternion.identity;
-                    Debug.LogWarning("Zerod");
-                }
-                else
-                {
-                    transform.rotation = Quaternion.LookRotation(calculate.Head);
-                    Debug.LogWarning("Set");
-                }
-
-                Debug.LogWarning("Gravity: " + gravity);
-                rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
-                                            gravity,
-                                            transform.forward.z * slidingSpeed);
-
-                Debug.LogWarning("rigid velocity: " + rigi.velocity);
-            }
-            else
-            {
-
-                Debug.LogError("Stopped Slide");
-                sliding = false;
-                lastStance = currentStance;
-                currentStance = Stances.Idle;
-            }
+            transform.rotation = Quaternion.identity;
         }
         else
         {
-            Debug.LogError("NotGrounded");
-            Debug.LogWarning("gravityMax " + gravityMax);
-            //Debug.Log("not grounded");
-            rigi.velocity = new Vector3(0,
-                                        gravityMax,
-                                        0);
-
-            Debug.LogWarning("rigid velocity: " + rigi.velocity);
-            //Debug.Log("line read");
+            transform.rotation = Quaternion.LookRotation(calculator.Head);
         }
+
+        rigidbody.velocity = new Vector3(transform.forward.x * slidingSpeed,
+                                    gravity,
+                                    transform.forward.z * slidingSpeed);
     }
 
-    /// <summary>
-    /// Checking the Substance for different results when you come in different Stances.
-    /// You check first the Last stance you where then the current stance.
-    /// Every substance brings you to another result.
-    /// </summary>
-    public void SubStancesCheck(Stances lastStanceCheck, Stances currentStanceCheck)
+    public void RunStanceChangeTransitions(Stances lastStanceCheck, Stances currentStanceCheck)
     {
-        if (currentStance != currentStanceCheck)
-        {
-            lastStance = lastStanceCheck;
-            currentStance = currentStanceCheck;
-        }
-
         switch (lastStanceCheck)
         {
             case Stances.Idle:
-                {
-                    switch (currentStanceCheck)
-                    {
-                        case Stances.Jump:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("jumping");
-                                    jump = true;
-                                    Jump();
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("jumping");
-                                    jump = true;
-                                    Jump();
-                                }
-                                break;
-                            }
-                        case Stances.Slide:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("slide");
-                                    currentSlideTime = slideTime;
-                                    sliding = true;
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("slide");
-                                    currentSlideTime = slideTime;
-                                    sliding = true;
-                                }
-                                break;
-                            }
-                        case Stances.Attack:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("swordAttack(onB)1");
-                                    attackChain++;
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("swordAttack");
-                                    attackChain = 0;
-                                }
-                                break;
-                            }
-                        case Stances.Gun:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("gunAttack(onB)");
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("gunAttack");
-                                }
-                                break;
-                            }
-                    }
+                    IdleTransition(currentStanceCheck);
                     break;
-                }
+
+            case Stances.Jump:
+                    JumpTransitions(currentStanceCheck);
+                    break;
+
+            case Stances.Slide:
+                    SlideTransitions(currentStanceCheck);
+                    break;
+
+            case Stances.Attack:
+                    AttackTransition(currentStanceCheck);
+                    break;
+
+            case Stances.Gun:
+                    GunTransitions(currentStanceCheck);
+                    break;
+        }
+    }
+
+    private void IdleTransition(Stances currentStance)
+    {
+        switch (currentStance)
+        {
             case Stances.Jump:
                 {
-                    switch (currentStanceCheck)
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
-                        case Stances.Idle:
-                            {
-                                airGun = false;
-                                airJumpingGravity = false;
-                                slideJump = false;
-                                //reachedHeighestPoint = false;
-                                airJumping = false;
-                                //highestJumpHeight = 0;
-                                gravity = 0;
-                                break;
-                            }
-                        case Stances.Jump:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
-                                    {
-                                        airJumping = false;
-                                        Debug.LogWarning("Capped Max");
-                                    }
-                                    else
-                                    {
-                                        anim.SetTrigger("airJump");
-                                        slideJump = false;
-                                        airJumpingGravity = true;
-                                        Jump();
-                                    }
-                                }
-                                else
-                                {
-                                    if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
-                                    {
-                                        airJumping = false;
-                                        Debug.LogWarning("Capped Max");
-                                    }
-                                    else
-                                    {
-                                        anim.SetTrigger("airJump");
-                                        slideJump = false;
-                                        airJumpingGravity = true;
-                                        Jump();
-                                    }
-                                }
-                                break;
-                            }
-                        case Stances.Slide:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("slide");
-                                    airJumpingGravity = false;
-                                    slideJump = false;
-                                    //reachedHeighestPoint = false;
-                                    airJumping = false;
-                                    //highestJumpHeight = 0;
-                                    currentSlideTime = slideTime;
-                                    sliding = true;
-                                    //gravity = 0;
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("slide");
-                                    airJumpingGravity = false;
-                                    slideJump = false;
-                                    //reachedHeighestPoint = false;
-                                    airJumping = false;
-                                    //highestJumpHeight = 0;
-                                    currentSlideTime = slideTime;
-                                    sliding = true;
-                                    //gravity = 0;
-                                }
-                                break;
-                            }
-                        case Stances.Attack:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    airJumpingGravity = false;
-                                    slideJump = false;
-                                    //reachedHeighestPoint = false;
-                                    airJumping = false;
-                                    //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(0,
-                                                                gravityMax,
-                                                                0);
-                                    airAttack = true;
-                                    anim.SetTrigger("airSwordAttack(onB)");
-                                }
-                                else
-                                {
-                                    airJumpingGravity = false;
-                                    slideJump = false;
-                                    //reachedHeighestPoint = false;
-                                    airJumping = false;
-                                    //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(0,
-                                                                gravityMax,
-                                                                0);
-                                    airAttack = true;
-                                    anim.SetTrigger("airSwordAttack");
-                                }
-                                break;
-                            }
-                        case Stances.Gun:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    //Debug.Log("Gun on beat");
-                                    airGun = true;
-                                    anim.SetTrigger("airGunAttack(onB)");
-                                    Jump();
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("airGunAttack");
-                                    //Debug.Log("Gun off beat");
-                                    airJumpingGravity = false;
-                                    slideJump = false;
-                                    //reachedHeighestPoint = false;
-                                    airJumping = false;
-                                    //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(0,
-                                                                gravityMax,
-                                                                0);
-                                }
-                                break;
-                            }
+                        animator.SetTrigger("jumping");
+                        normalJump = true;
+                        currentJumpType = JumpType.Normal;
+                        Jump();
+                    }
+                    else
+                    {
+                        animator.SetTrigger("jumping");
+                        normalJump = true;
+                        currentJumpType = JumpType.Normal;
+                        Jump();
                     }
                     break;
                 }
             case Stances.Slide:
                 {
-                    switch (currentStanceCheck)
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
-                        case Stances.Idle:
-                            {
-                                gravity = 0;
-                                break;
-                            }
-                        case Stances.Jump:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    if (grounded)
-                                    {
-                                        anim.SetTrigger("jumping");
-                                        sliding = false;
-                                        slideJump = true;
-                                        Jump();
-                                    }
-                                }
-                                else
-                                {
-                                    if (grounded)
-                                    {
-                                        anim.SetTrigger("jumping");
-                                        sliding = false;
-                                        jump = true;
-                                        Jump();
-                                    }
-                                }
-                                break;
-                            }
-                        case Stances.Slide:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("slide");
-                                    Heading();
-                                    currentSlideTime = slideTime;
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("slide");
-                                    Heading();
-                                    currentSlideTime = slideTime;
-                                }
-                                break;
-                            }
-                        case Stances.Attack:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("slideSwordAttack(onB)");
-                                    slideAttackTime = currentSlideTime;
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("swordAttack");
-                                    sliding = false;
-                                    rigi.velocity = Vector3.zero;
-                                }
-                                break;
-                            }
-                        case Stances.Gun:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("slideGunAttack(onB)");
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("gunAttack");
-                                }
-                                break;
-                            }
+                        animator.SetTrigger("slide");
+                        currentSlideTime = slideTime;
+                        inSliding = true;
+                    }
+                    else
+                    {
+                        animator.SetTrigger("slide");
+                        currentSlideTime = slideTime;
+                        inSliding = true;
                     }
                     break;
                 }
             case Stances.Attack:
                 {
-                    switch (currentStanceCheck)
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
-                        case Stances.Idle:
-                            {
-                                attackChain = 0;
-                                break;
-                            }
-                        case Stances.Jump:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    jump = true;
-                                    Jump();
-                                }
-                                else
-                                {
-                                    jump = true;
-                                    Jump();
-                                }
-                                break;
-                            }
-                        case Stances.Slide:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    currentSlideTime = slideTime;
-                                    sliding = true;
-                                }
-                                else
-                                {
-                                    currentSlideTime = slideTime;
-                                    sliding = true;
-                                }
-                                break;
-                            }
-                        case Stances.Attack:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    switch(attackChain)
-                                    {
-                                        case 1:
-                                            {
-                                                anim.SetTrigger("swordAttack(onB)2");
-                                                attackChain++;
-                                                break;
-                                            }
-                                        case 2:
-                                            {
-                                                anim.SetTrigger("swordAttack(onB)3");
-                                                attackChain = 0;
-                                                break;
-                                            }
-                                    }
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("swordAttack");
-                                    attackChain = 0;
-                                }
-                                break;
-                            }
-                        case Stances.Gun:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("gunAttack(onB)");
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("gunAttack");
-                                }
-                                break;
-                            }
+                        animator.SetTrigger("swordAttack(onB)1");
+                        attackChain++;
+                    }
+                    else
+                    {
+                        animator.SetTrigger("swordAttack");
+                        attackChain = 0;
                     }
                     break;
                 }
             case Stances.Gun:
                 {
-                    switch (currentStanceCheck)
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
-                        case Stances.Idle:
-                            {
-                                gravity = 0;
-                                airGun = false;
-                                break;
-                            }
-                        case Stances.Jump:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    if (grounded)
-                                    {
-                                        jump = true;
-                                        Jump();
-                                    }
-                                    else
-                                    {
-                                        airJumpingGravity = true;
-                                        airGun = false;
-                                        Jump();
-                                    }
-                                }
-                                else
-                                {
-                                    if (grounded)
-                                    {
-                                        jump = true;
-                                        Jump();
-                                    }
-                                    else
-                                    {
-                                        airJumpingGravity = true;
-                                        airGun = false;
-                                        Jump();
-                                    }
-                                }
-                                break;
-                            }
-                        case Stances.Slide:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    if (!grounded)
-                                    {
-                                        airJumpingGravity = false;
-                                        slideJump = false;
-                                        airJumping = false;
-                                        rigi.velocity = new Vector3(transform.forward.x * 50,
-                                                                     Vector3.down.y * 100,
-                                                                     transform.forward.z);
-                                        currentSlideTime = slideTime;
-                                        sliding = true;
-                                        gravity = 0;
-                                    }
-                                    else
-                                    {
-                                        currentSlideTime = slideTime;
-                                        sliding = true;
-                                    }
-
-                                }
-                                else
-                                {
-                                    if (!grounded)
-                                    {
-                                        airJumpingGravity = false;
-                                        slideJump = false;
-                                        airJumping = false;
-                                        rigi.velocity = new Vector3(transform.forward.x * 50,
-                                                                     Vector3.down.y * 100,
-                                                                     transform.forward.z);
-                                        currentSlideTime = slideTime;
-                                        sliding = true;
-                                        gravity = 0;
-                                    }
-                                    else
-                                    {
-                                        currentSlideTime = slideTime;
-                                        sliding = true;
-                                    }
-                                }
-                                break;
-                            }
-                        case Stances.Attack:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    if (!grounded)
-                                    {
-                                        airJumpingGravity = false;
-                                        slideJump = false;
-                                        airJumping = false;
-                                        airAttack = true;
-                                        rigi.velocity = Vector3.down * 50;
-                                        anim.SetTrigger("airSwordAttack(onB)");
-                                    }
-                                    else
-                                    {
-                                        anim.SetTrigger("swordAttack(onB)1");
-                                        attackChain++;
-                                    }
-                                }
-                                else
-                                {
-                                    if (!grounded)
-                                    {
-                                        airJumpingGravity = false;
-                                        slideJump = false;
-                                        airJumping = false;
-                                        airAttack = true;
-                                        rigi.velocity = Vector3.down * 50;
-                                        anim.SetTrigger("airSwordAttack");
-                                    }
-                                    else
-                                    {
-                                        anim.SetTrigger("swordAttack");
-                                        attackChain = 0;
-                                    }
-                                }
-                                break;
-                            }
-                        case Stances.Gun:
-                            {
-                                if (beat.IsOnBeat(reactionTime, timeWindow))
-                                {
-                                    anim.SetTrigger("gunAttack(onB)");
-                                }
-                                else
-                                {
-                                    anim.SetTrigger("gunAttack");
-                                }
-                                break;
-                            }
+                        animator.SetTrigger("gunAttack(onB)");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("gunAttack");
                     }
                     break;
                 }
         }
     }
 
-    private void Gravity()
+    private void JumpTransitions(Stances currentStance)
+    {
+        switch (currentStance)
+        {
+            case Stances.Idle:
+                {
+                    airGun = false;
+                    slideJump = false;
+                    airJumping = false;
+                    gravity = 0;
+                    break;
+                }
+            case Stances.Jump:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        if (calculator.CurrentJumpHeight > maxJumpHeight && !inSliding)
+                        {
+                            airJumping = false;
+                        }
+                        else
+                        {
+                            animator.SetTrigger("airJump");
+                            slideJump = false;
+                            airJumping = true;
+                            Jump();
+                        }
+                    }
+                    else
+                    {
+                        if (calculator.CurrentJumpHeight > maxJumpHeight && !inSliding)
+                        {
+                            airJumping = false;
+                        }
+                        else
+                        {
+                            animator.SetTrigger("airJump");
+                            slideJump = false;
+                            Jump();
+                        }
+                    }
+                    break;
+                }
+            case Stances.Slide:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        animator.SetTrigger("slide");
+                        slideJump = false;
+                        airJumping = false;
+                        currentSlideTime = slideTime;
+                        inSliding = true;
+                    }
+                    else
+                    {
+                        animator.SetTrigger("slide");
+                        slideJump = false;
+                        airJumping = false;
+                        currentSlideTime = slideTime;
+                        inSliding = true;
+                    }
+                    break;
+                }
+            case Stances.Attack:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        slideJump = false;
+                        airJumping = false;
+                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
+                        airAttack = true;
+                        animator.SetTrigger("airSwordAttack(onB)");
+                    }
+                    else
+                    {
+                        slideJump = false;
+                        airJumping = false;
+                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
+                        airAttack = true;
+                        animator.SetTrigger("airSwordAttack");
+                    }
+                    break;
+                }
+            case Stances.Gun:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        airGun = true;
+                        animator.SetTrigger("airGunAttack(onB)");
+                        Jump();
+                    }
+                    else
+                    {
+                        animator.SetTrigger("airGunAttack");
+                        slideJump = false;
+                        airJumping = false;
+                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
+                    }
+                    break;
+                }
+        }
+    }
+
+    private void SlideTransitions(Stances currentStance)
+    {
+        switch (currentStance)
+        {
+            case Stances.Idle:
+                {
+                    gravity = 0;
+                    break;
+                }
+            case Stances.Jump:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        if (grounded)
+                        {
+                            animator.SetTrigger("jumping");
+                            inSliding = false;
+                            slideJump = true;
+                            Jump();
+                        }
+                    }
+                    else
+                    {
+                        if (grounded)
+                        {
+                            animator.SetTrigger("jumping");
+                            inSliding = false;
+                            normalJump = true;
+                            Jump();
+                        }
+                    }
+                    break;
+                }
+            case Stances.Slide:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        animator.SetTrigger("slide");
+                        HeadingUpdate();
+                        currentSlideTime = slideTime;
+                    }
+                    else
+                    {
+                        animator.SetTrigger("slide");
+                        HeadingUpdate();
+                        currentSlideTime = slideTime;
+                    }
+                    break;
+                }
+            case Stances.Attack:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        animator.SetTrigger("slideSwordAttack(onB)");
+                        slideAttackTime = currentSlideTime;
+                    }
+                    else
+                    {
+                        animator.SetTrigger("swordAttack");
+                        inSliding = false;
+                        rigidbody.velocity = Vector3.zero;
+                    }
+                    break;
+                }
+            case Stances.Gun:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        animator.SetTrigger("slideGunAttack(onB)");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("gunAttack");
+                    }
+                    break;
+                }
+        }
+    }
+
+    private void AttackTransition(Stances currentStance)
+    {
+        switch (currentStance)
+        {
+            case Stances.Idle:
+                {
+                    attackChain = 0;
+                    break;
+                }
+            case Stances.Jump:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        normalJump = true;
+                        Jump();
+                    }
+                    else
+                    {
+                        normalJump = true;
+                        Jump();
+                    }
+                    break;
+                }
+            case Stances.Slide:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        currentSlideTime = slideTime;
+                        inSliding = true;
+                    }
+                    else
+                    {
+                        currentSlideTime = slideTime;
+                        inSliding = true;
+                    }
+                    break;
+                }
+            case Stances.Attack:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        switch (attackChain)
+                        {
+                            case 1:
+                                {
+                                    animator.SetTrigger("swordAttack(onB)2");
+                                    attackChain++;
+                                    break;
+                                }
+                            case 2:
+                                {
+                                    animator.SetTrigger("swordAttack(onB)3");
+                                    attackChain = 0;
+                                    break;
+                                }
+                        }
+                    }
+                    else
+                    {
+                        animator.SetTrigger("swordAttack");
+                        attackChain = 0;
+                    }
+                    break;
+                }
+            case Stances.Gun:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        animator.SetTrigger("gunAttack(onB)");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("gunAttack");
+                    }
+                    break;
+                }
+        }
+    }
+
+    private void GunTransitions(Stances currentStance)
+    {
+        switch (currentStance)
+        {
+            case Stances.Idle:
+                {
+                    gravity = 0;
+                    airGun = false;
+                    break;
+                }
+            case Stances.Jump:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        if (grounded)
+                        {
+                            normalJump = true;
+                            Jump();
+                        }
+                        else
+                        {
+                            airGun = false;
+                            Jump();
+                        }
+                    }
+                    else
+                    {
+                        if (grounded)
+                        {
+                            normalJump = true;
+                            Jump();
+                        }
+                        else
+                        {
+                            airGun = false;
+                            Jump();
+                        }
+                    }
+                    break;
+                }
+            case Stances.Slide:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        if (!grounded)
+                        {
+                            slideJump = false;
+                            airJumping = false;
+                            rigidbody.velocity = new Vector3(transform.forward.x * 50,
+                                                         Vector3.down.y * 100,
+                                                         transform.forward.z);
+                            currentSlideTime = slideTime;
+                            inSliding = true;
+                            gravity = 0;
+                        }
+                        else
+                        {
+                            currentSlideTime = slideTime;
+                            inSliding = true;
+                        }
+
+                    }
+                    else
+                    {
+                        if (!grounded)
+                        {
+                            slideJump = false;
+                            airJumping = false;
+                            rigidbody.velocity = new Vector3(transform.forward.x * 50,
+                                                         Vector3.down.y * 100,
+                                                         transform.forward.z);
+                            currentSlideTime = slideTime;
+                            inSliding = true;
+                            gravity = 0;
+                        }
+                        else
+                        {
+                            currentSlideTime = slideTime;
+                            inSliding = true;
+                        }
+                    }
+                    break;
+                }
+            case Stances.Attack:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        if (!grounded)
+                        {
+                            slideJump = false;
+                            airJumping = false;
+                            airAttack = true;
+                            rigidbody.velocity = Vector3.down * 50;
+                            animator.SetTrigger("airSwordAttack(onB)");
+                        }
+                        else
+                        {
+                            animator.SetTrigger("swordAttack(onB)1");
+                            attackChain++;
+                        }
+                    }
+                    else
+                    {
+                        if (!grounded)
+                        {
+                            slideJump = false;
+                            airJumping = false;
+                            airAttack = true;
+                            rigidbody.velocity = Vector3.down * 50;
+                            animator.SetTrigger("airSwordAttack");
+                        }
+                        else
+                        {
+                            animator.SetTrigger("swordAttack");
+                            attackChain = 0;
+                        }
+                    }
+                    break;
+                }
+            case Stances.Gun:
+                {
+                    if (beat.IsOnBeat(reactionTime, timeWindow))
+                    {
+                        animator.SetTrigger("gunAttack(onB)");
+                    }
+                    else
+                    {
+                        animator.SetTrigger("gunAttack");
+                    }
+                    break;
+                }
+        }
+    }
+
+    private void GravityUpdate()
     {
         if (!grounded)
         {
             if (gravity > gravityMax)
             {
-                if (!airJumpingGravity)
-                {
-                    gravity += calculate.JumpGravity * Time.deltaTime;
-                }
-                else
-                {
-                    gravity += calculate.AirJumpGravity * Time.deltaTime;
-                }
+                gravity += calculator.JumpGravity * Time.deltaTime;
             }
             else
             {
@@ -898,29 +850,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void LockTimeCalculate(float percent)
+    private void CalculateAndSetLockTime(float percent)
     {
         lockTime = (beat.sampleTimeInSec * percent) / 100;
         lockTimer.Set(lockTime);
         lockTimer.timeCurrent = 0;
-        //Debug.Log(lockTime);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (currentStance == Stances.Jump)
         {
-            lastStance = currentStance;
-            currentStance = Stances.Idle;
-            SubStancesCheck(lastStance, currentStance);
+            ChangeStanceTo(Stances.Idle, resetLockTimer: false);
         }
         else if (currentStance == Stances.Slide)
         {
             lastStance = currentStance;
         }
-        anim.SetTrigger("landing");
-        anim.ResetTrigger("jumping");
-        airJumpingGravity = false;
+        animator.SetTrigger("landing");
+        animator.ResetTrigger("jumping");
         slideJump = false;
         airJumping = false;
 
@@ -961,7 +909,7 @@ public class PlayerController : MonoBehaviour
             GUI.Label(new Rect(10, 250, 400, 40), "Slide Time: " + currentSlideTime, style);
         }
 
-        if(beat == null)
+        if (beat == null)
         {
             GUIStyle style = new GUIStyle();
             style.fontSize = 80;
