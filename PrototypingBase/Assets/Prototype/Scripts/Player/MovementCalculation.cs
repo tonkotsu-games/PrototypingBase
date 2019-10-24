@@ -35,7 +35,7 @@ public class MovementCalculation
     public Vector3 MoveVector { get => moveVector; }
     #endregion
 
-    public void Heading(float moveHorizontal, float moveVertical, float deadZone, Transform cam)
+    public void CalculateHeading(float moveHorizontal, float moveVertical, float deadZone, Transform cam)
     {
         if (moveHorizontal < -deadZone ||
            moveHorizontal > deadZone ||
@@ -48,7 +48,7 @@ public class MovementCalculation
         }
     }
 
-    public void Movement(float moveHorizontal, float moveVertical, float deadZone, float movementSpeed, Transform cam)
+    public void CalcualteMovement(float moveHorizontal, float moveVertical, float deadZone, float movementSpeed, Transform cam)
     {
         if (moveHorizontal < -deadZone ||
             moveHorizontal > deadZone ||
@@ -70,7 +70,7 @@ public class MovementCalculation
         }
     }
 
-    public void Jump(float jumpHeight, float timeToHeight, float airJumpHeight, float timeToAirJumpHeight, float slideJumpHeight, float timeToSlideJumpHeight)
+    public void CalcualteJump(float jumpHeight, float timeToHeight, float airJumpHeight, float timeToAirJumpHeight, float slideJumpHeight, float timeToSlideJumpHeight)
     {
         jumpGravity = -(2 * jumpHeight) / Mathf.Pow(timeToHeight, 2);
         airJumpGravity = -(2 * airJumpHeight) / Mathf.Pow(timeToAirJumpHeight, 2);
