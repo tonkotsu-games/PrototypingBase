@@ -196,6 +196,8 @@ public class PlayerController : MonoBehaviour
             lastStance = currentStance;
             currentStance = Stances.Slide;
             SubStancesCheck(lastStance, currentStance);
+
+            Debug.LogError("Clicked Slide!");
         }
 
         if (currentStance == Stances.Jump || airGun)
@@ -203,9 +205,10 @@ public class PlayerController : MonoBehaviour
             calculate.JumpHight(startPosition, transform.position.y);
         }
 
-        if (calculate.CurrentJumpHeight > maxJumpHeight)
+        if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
         {
             rigi.transform.position = new Vector3(transform.position.x, startPosition + maxJumpHeight, transform.position.z);
+            Debug.LogWarning("Capped Max");
         }
 
         if (Input.GetKeyDown(KeyCode.F4))
@@ -326,18 +329,25 @@ public class PlayerController : MonoBehaviour
                 if (calculate.Head == Vector3.zero)
                 {
                     transform.rotation = Quaternion.identity;
+                    Debug.LogWarning("Zerod");
                 }
                 else
                 {
                     transform.rotation = Quaternion.LookRotation(calculate.Head);
+                    Debug.LogWarning("Set");
                 }
 
+                Debug.LogWarning("Gravity: " + gravity);
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
                                             gravity,
                                             transform.forward.z * slidingSpeed);
+
+                Debug.LogWarning("rigid velocity: " + rigi.velocity);
             }
             else
             {
+
+                Debug.LogError("Stopped Slide");
                 sliding = false;
                 lastStance = currentStance;
                 currentStance = Stances.Idle;
@@ -345,10 +355,14 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            Debug.LogError("NotGrounded");
+            Debug.LogWarning("gravityMax " + gravityMax);
             //Debug.Log("not grounded");
             rigi.velocity = new Vector3(0,
                                         gravityMax,
                                         0);
+
+            Debug.LogWarning("rigid velocity: " + rigi.velocity);
             //Debug.Log("line read");
         }
     }
