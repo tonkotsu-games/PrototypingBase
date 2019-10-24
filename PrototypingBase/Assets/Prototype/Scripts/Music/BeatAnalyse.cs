@@ -8,7 +8,7 @@ public class BeatAnalyse : MonoBehaviour
     [SerializeField]
     private int reactionTime = 0;
 
-    public List<int> beatStarts = new List<int>();
+    public List<int> beatList = new List<int>();
 
     [SerializeField]
     private float limit = 0, waitSamples = 0;
@@ -23,6 +23,8 @@ public class BeatAnalyse : MonoBehaviour
     private AudioSource sourceWave = null;
 
     private bool debugMode = false;
+
+    public List<int> beatListCopy;
 
     void Start()
     {
@@ -42,37 +44,45 @@ public class BeatAnalyse : MonoBehaviour
             {
                 if (spectrum[i] <= spectrum[i - 1] && spectrum[i] >= spectrum[i + 1])
                 {
-                    beatStarts.Add(i);
+                    beatList.Add(i);
                     i += (int)waitSamples;
                 }
             }
         }
 
-        sampleBeat = Mathf.Abs(beatStarts[0] - beatStarts[1]);
+        sampleBeat = Mathf.Abs(beatList[0] - beatList[1]);
 
         sampleTimeInSec = sampleBeat / 44100;
 
         Debug.Log(sampleTimeInSec);
     }
-
-
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F4))
         {
             debugMode = !debugMode;
         }
+       if(sourceWave.timeSamples == 0)
+        {
+            beatListCopy = new List<int>(beatList);
+        }
     }
 
     public bool IsOnBeat(int reactionTime, int timeWindow)
-    {
+    {         
         timeSample = sourceWave.timeSamples - reactionTime;
-        for (int i = 0; i < beatStarts.Count; i++)
+        for (int i = 0; i < beatListCopy.Count; i++)
         {
-            if (timeSample >= (beatStarts[i] - timeWindow) &&
-                timeSample <= (beatStarts[i] + timeWindow))
+            if (timeSample >= (beatListCopy[i] - timeWindow) &&
+                timeSample <= (beatListCopy[i] + timeWindow))
             {
                 return true;
+            }
+            else
+            {
+                beatListCopy.RemoveAt(i);
+                i -= 1;
             }
         }
         return false;
@@ -98,10 +108,10 @@ public class BeatAnalyse : MonoBehaviour
             }
 
             Gizmos.color = Color.green;
-            for (int i = 0; i < beatStarts.Count; i++)
+            for (int i = 0; i < beatList.Count; i++)
             {
-                Gizmos.DrawLine(displacement + new Vector3((beatStarts[i] - timeWindow + reactionTime) * widthMulti, 0, 0),
-                                displacement + new Vector3((beatStarts[i] + timeWindow + reactionTime) * widthMulti, 0, 0));
+                Gizmos.DrawLine(displacement + new Vector3((beatList[i] - timeWindow + reactionTime) * widthMulti, 0, 0),
+                                displacement + new Vector3((beatList[i] + timeWindow + reactionTime) * widthMulti, 0, 0));
             }
 
             Gizmos.color = Color.red;
