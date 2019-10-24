@@ -6,15 +6,18 @@ public class WaveManager : MonoBehaviour
 {
     public static WaveManager instance;
     [SerializeField]
-    float timeBetweenWaveSpawns = 2;
+    public float timeBetweenWaveSpawns = 2;
 
     private HashSet<GameObject> currentEnemies;
     [HideInInspector]
     public Wave.Waves currentWaveState;
     private Wave.Waves nextWaveState;
     private int waveNumber = 1;
-    private bool sceneChanging = false;
-    private Timer waveTimer = new Timer();
+    public Timer waveTimer = new Timer();
+
+    [HideInInspector]
+    public bool waveSpawnPaused = false;
+    public bool modSelected = false;
 
     private void Awake()
     {
@@ -35,22 +38,45 @@ public class WaveManager : MonoBehaviour
         waveTimer.Set(timeBetweenWaveSpawns);
         currentWaveState = Wave.Waves.Init;
         nextWaveState = (Wave.Waves)waveNumber;
+        waveSpawnPaused = true;
+        UIManager.instance.ToggleAugmentSelection(true);
     }
 
     private void LateUpdate()
     {
-        CheckForEnemiesLeftAndChangeWaveState();
+        if (!waveSpawnPaused)
+        {
+            CheckForEnemiesLeftAndChangeWaveState();
+        }
     }
 
     private void CheckForEnemiesLeftAndChangeWaveState()
     {
+
         if (waveNumber != System.Enum.GetValues(typeof(Wave.Waves)).Length)
         {
             if (currentEnemies.Count == 0)
             {
-                Debug.Log("number of enemies: " + currentEnemies.Count);
-                sceneChanging = true;
-                ChangeWaveState(nextWaveState);
+                // end of a bosswave
+                if (waveNumber!=1 && (waveNumber - 1) % 5 == 0)
+                {
+                    if (!modSelected)
+                    {
+                        Debug.Log("Boss Stage");
+                        UIManager.instance.ToggleAugmentSelection(true);
+                        waveSpawnPaused = true;
+                    }
+                    if (modSelected)
+                    {
+                        ChangeWaveState(nextWaveState);
+                    }
+
+                }
+                // normal waves
+                else
+                {
+                    ChangeWaveState(nextWaveState);
+                }
             }
         }
     }
@@ -59,12 +85,15 @@ public class WaveManager : MonoBehaviour
     {
         if (nextWave != currentWaveState)
         {
+            UIManager.instance.ToggleIngameUI(true);       
             if (waveTimer.timeCurrent <= 0)
             {
                 currentWaveState = nextWave;
                 waveNumber++;
                 nextWaveState = (Wave.Waves)waveNumber;
+                UIManager.instance.ToggleIngameUI(false);
                 waveTimer.ResetTimer();
+                modSelected = false;
             }
             else
             {
