@@ -128,7 +128,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
-        //bodyCollider = GetComponent<CapsuleCollider>();
         rigi = GetComponent<Rigidbody>();
         if (!jumpTest)
         {
@@ -336,7 +335,6 @@ public class PlayerController : MonoBehaviour
             else
             {
                 sliding = false;
-                ///bodyCollider.enabled = true;
                 lastStance = currentStance;
                 currentStance = Stances.Idle;
             }
@@ -369,7 +367,6 @@ public class PlayerController : MonoBehaviour
                                     anim.SetTrigger("jumping");
                                     jump = true;
                                     Jump();
-                                   /// bodyCollider.enabled = false;
                                 }
                                 else
                                 {
@@ -386,12 +383,10 @@ public class PlayerController : MonoBehaviour
                                     anim.SetTrigger("slide");
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                   /// bodyCollider.enabled = false;
                                 }
                                 else
                                 {
                                     anim.SetTrigger("slide");
-                                   /// bodyCollider.enabled = true;
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                 }
@@ -447,7 +442,6 @@ public class PlayerController : MonoBehaviour
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
                                     anim.SetTrigger("airJump");
-                                   /// bodyCollider.enabled = false;
                                     slideJump = false;
                                     airJumpingGravity = true;
                                     Jump();
@@ -455,7 +449,6 @@ public class PlayerController : MonoBehaviour
                                 else
                                 {
                                     anim.SetTrigger("airJump");
-                                  ///  bodyCollider.enabled = true;
                                     slideJump = false;
                                     airJumpingGravity = true;
                                     Jump();
@@ -478,7 +471,6 @@ public class PlayerController : MonoBehaviour
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                     gravity = 0;
-                                   /// bodyCollider.enabled = false;
                                 }
                                 else
                                 {
@@ -494,7 +486,6 @@ public class PlayerController : MonoBehaviour
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                     gravity = 0;
-                                   /// bodyCollider.enabled = true;
                                 }
                                 break;
                             }
@@ -593,14 +584,12 @@ public class PlayerController : MonoBehaviour
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
                                     anim.SetTrigger("slide");
-                                   /// bodyCollider.enabled = false;
                                     Heading();
                                     currentSlideTime = slideTime;
                                 }
                                 else
                                 {
                                     anim.SetTrigger("slide");
-                                    ////bodyCollider.enabled = true;
                                     Heading();
                                     currentSlideTime = slideTime;
                                 }
@@ -615,7 +604,7 @@ public class PlayerController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("slideSwordAttack");
+                                    anim.SetTrigger("swordAttack");
                                     sliding = false;
                                     rigi.velocity = Vector3.zero;
                                 }
@@ -629,7 +618,7 @@ public class PlayerController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("slideGunAttack");
+                                    anim.SetTrigger("gunAttack");
                                 }
                                 break;
                             }
@@ -651,7 +640,6 @@ public class PlayerController : MonoBehaviour
                                 {
                                     jump = true;
                                     Jump();
-                                    //bodyCollider.enabled = false;
                                 }
                                 else
                                 {
@@ -666,11 +654,9 @@ public class PlayerController : MonoBehaviour
                                 {
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    ///bodyCollider.enabled = false;
                                 }
                                 else
                                 {
-                                   /// bodyCollider.enabled = true;
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                 }
@@ -734,13 +720,11 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (grounded)
                                     {
-                                        ///bodyCollider.enabled = false;
                                         jump = true;
                                         Jump();
                                     }
                                     else
                                     {
-                                        ///bodyCollider.enabled = false;
                                         airJumpingGravity = true;
                                         airGun = false;
                                         Jump();
@@ -750,7 +734,6 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (grounded)
                                     {
-                                        ///bodyCollider.enabled = true;
                                         jump = true;
                                         Jump();
                                     }
@@ -769,7 +752,6 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (!grounded)
                                     {
-                                       /// bodyCollider.enabled = false;
                                         airJumpingGravity = false;
                                         slideJump = false;
                                         //reachedHeighestPoint = false;
@@ -784,7 +766,6 @@ public class PlayerController : MonoBehaviour
                                     }
                                     else
                                     {
-                                        ///bodyCollider.enabled = false;
                                         currentSlideTime = slideTime;
                                         sliding = true;
                                     }
@@ -794,7 +775,6 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (!grounded)
                                     {
-                                       /// bodyCollider.enabled = true;
                                         airJumpingGravity = false;
                                         slideJump = false;
                                         //reachedHeighestPoint = false;
@@ -809,7 +789,6 @@ public class PlayerController : MonoBehaviour
                                     }
                                     else
                                     {
-                                       /// bodyCollider.enabled = true;
                                         currentSlideTime = slideTime;
                                         sliding = true;
                                     }
@@ -918,7 +897,6 @@ public class PlayerController : MonoBehaviour
         {
             lastStance = currentStance;
         }
-        ///bodyCollider.enabled = true;
         airGun = false;
         gravity = 0;
     }
