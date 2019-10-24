@@ -196,16 +196,13 @@ public class PlayerController : MonoBehaviour
             lastStance = currentStance;
             currentStance = Stances.Slide;
             SubStancesCheck(lastStance, currentStance);
+
+            Debug.LogError("Clicked Slide!");
         }
 
         if (currentStance == Stances.Jump || airGun)
         {
             calculate.JumpHight(startPosition, transform.position.y);
-        }
-
-        if (calculate.CurrentJumpHeight > maxJumpHeight)
-        {
-            rigi.transform.position = new Vector3(transform.position.x, startPosition + maxJumpHeight, transform.position.z);
         }
 
         if (Input.GetKeyDown(KeyCode.F4))
@@ -231,8 +228,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (currentStance == Stances.Slide)
         {
-            Gravity();
             Slide();
+            Debug.Log("slide done");
         }
         else if (currentStance == Stances.Attack)
         {
@@ -240,7 +237,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (airAttack)
                 {
-                    anim.SetTrigger("meteor");
+                    anim.SetTrigger("meteorAttack");
                     airAttack = false;
                     lastStance = currentStance;
                     currentStance = Stances.Idle;
@@ -314,30 +311,53 @@ public class PlayerController : MonoBehaviour
 
     private void Slide()
     {
-        if (sliding && (grounded || lastStance == Stances.Idle || lastStance == Stances.Slide || lastStance == Stances.Gun))
+        if (sliding && (grounded || 
+                        lastStance == Stances.Idle || 
+                        lastStance == Stances.Slide || 
+                        lastStance == Stances.Gun))
         {
+            Debug.Log("Grounded");
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
                 if (calculate.Head == Vector3.zero)
                 {
                     transform.rotation = Quaternion.identity;
+                    Debug.LogWarning("Zerod");
                 }
                 else
                 {
                     transform.rotation = Quaternion.LookRotation(calculate.Head);
+                    Debug.LogWarning("Set");
                 }
 
+                Debug.LogWarning("Gravity: " + gravity);
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
                                             gravity,
                                             transform.forward.z * slidingSpeed);
+
+                Debug.LogWarning("rigid velocity: " + rigi.velocity);
             }
             else
             {
+
+                Debug.LogError("Stopped Slide");
                 sliding = false;
                 lastStance = currentStance;
                 currentStance = Stances.Idle;
             }
+        }
+        else
+        {
+            Debug.LogError("NotGrounded");
+            Debug.LogWarning("gravityMax " + gravityMax);
+            //Debug.Log("not grounded");
+            rigi.velocity = new Vector3(0,
+                                        gravityMax,
+                                        0);
+
+            Debug.LogWarning("rigid velocity: " + rigi.velocity);
+            //Debug.Log("line read");
         }
     }
 
@@ -427,7 +447,6 @@ public class PlayerController : MonoBehaviour
                     {
                         case Stances.Idle:
                             {
-                                anim.SetTrigger("landing");
                                 airGun = false;
                                 airJumpingGravity = false;
                                 slideJump = false;
@@ -441,17 +460,33 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    anim.SetTrigger("airJump");
-                                    slideJump = false;
-                                    airJumpingGravity = true;
-                                    Jump();
+                                    if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
+                                    {
+                                        airJumping = false;
+                                        Debug.LogWarning("Capped Max");
+                                    }
+                                    else
+                                    {
+                                        anim.SetTrigger("airJump");
+                                        slideJump = false;
+                                        airJumpingGravity = true;
+                                        Jump();
+                                    }
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("airJump");
-                                    slideJump = false;
-                                    airJumpingGravity = true;
-                                    Jump();
+                                    if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
+                                    {
+                                        airJumping = false;
+                                        Debug.LogWarning("Capped Max");
+                                    }
+                                    else
+                                    {
+                                        anim.SetTrigger("airJump");
+                                        slideJump = false;
+                                        airJumpingGravity = true;
+                                        Jump();
+                                    }
                                 }
                                 break;
                             }
@@ -465,12 +500,9 @@ public class PlayerController : MonoBehaviour
                                     //reachedHeighestPoint = false;
                                     airJumping = false;
                                     //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(transform.forward.x * 50,
-                                                                 gravityMax,
-                                                                 transform.forward.z);
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    gravity = 0;
+                                    //gravity = 0;
                                 }
                                 else
                                 {
@@ -480,12 +512,9 @@ public class PlayerController : MonoBehaviour
                                     //reachedHeighestPoint = false;
                                     airJumping = false;
                                     //highestJumpHeight = 0;
-                                    rigi.velocity = new Vector3(transform.forward.x * 50,
-                                                                 gravityMax,
-                                                                 transform.forward.z);
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    gravity = 0;
+                                    //gravity = 0;
                                 }
                                 break;
                             }
@@ -754,9 +783,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                      Vector3.down.y * 100,
                                                                      transform.forward.z);
@@ -777,9 +804,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         rigi.velocity = new Vector3(transform.forward.x * 50,
                                                                      Vector3.down.y * 100,
                                                                      transform.forward.z);
@@ -803,9 +828,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
                                         anim.SetTrigger("airSwordAttack(onB)");
@@ -822,9 +845,7 @@ public class PlayerController : MonoBehaviour
                                     {
                                         airJumpingGravity = false;
                                         slideJump = false;
-                                        //reachedHeighestPoint = false;
                                         airJumping = false;
-                                        //highestJumpHeight = 0;
                                         airAttack = true;
                                         rigi.velocity = Vector3.down * 50;
                                         anim.SetTrigger("airSwordAttack");
@@ -897,6 +918,12 @@ public class PlayerController : MonoBehaviour
         {
             lastStance = currentStance;
         }
+        anim.SetTrigger("landing");
+        anim.ResetTrigger("jumping");
+        airJumpingGravity = false;
+        slideJump = false;
+        airJumping = false;
+
         airGun = false;
         gravity = 0;
     }
@@ -927,9 +954,7 @@ public class PlayerController : MonoBehaviour
 
             GUI.Label(new Rect(10, 10, 400, 40), "Current Stance: " + currentStance, style);
             GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
-            //GUI.Label(new Rect(10, 70, 400, 40), "Highest jump: " + highestJumpHeight, style);
             GUI.Label(new Rect(10, 100, 400, 40), "Air Jump: " + airJumping, style);
-            //GUI.Label(new Rect(10, 130, 400, 40), "Reached Highest Point: " + reachedHeighestPoint, style);
             GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
             GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
             GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jumpForce, style);
