@@ -3,52 +3,52 @@
 public class FreeLookCamera : MonoBehaviour
 {
     [SerializeField]
-    private Transform playerTarget;
+    private Transform playerTarget = null;
     [SerializeField]
-    private Transform enemyTarget;
-    private Transform pivot;
-    private Transform cam;
+    private Transform enemyTarget = null;
+    private Transform pivot = null;
+    private Transform cam = null;
 
     [Header("Camera Stick Dead Zone")]
     [SerializeField]
     [Range(0, 1)]
-    private float deadZone;
+    private float deadZone = 0.1f;
 
     [Header("Offset for the Camera")]
     [Range(0, 20)]
     [SerializeField]
-    private float offSetY;
+    private float offSetY = 0;
     [Range(-20, 0)]
     [SerializeField]
-    private float offSetZ;
+    private float offSetZ = 0;
     [SerializeField]
-    private float followSpeed;
+    private float followSpeed = 0.1f;
 
     [Header("Camera movement")]
     [Range(1, 10)]
     [SerializeField]
-    private float senitivity;
+    private float senitivity = 1;
     [Range(-90, 0)]
     [SerializeField]
-    private float minAngle;
+    private float minAngle = 0;
     [Range(0, 90)]
     [SerializeField]
-    private float maxAngle;
+    private float maxAngle = 0;
 
     [Header("Camera LockOn")]
     [Range(0, 1)]
     [SerializeField]
-    private float lookAtSpeed;
+    private float lookAtSpeed = 0.1f;
     [Range(0, 10)]
     [SerializeField]
-    private float lockOnOffSetY;
+    private float lockOnOffSetY = 0;
 
-    private float rotationX;
-    private float rotationY;
+    private float rotationX = 0;
+    private float rotationY = 0;
 
-    private Vector3 offSet;
-    private Vector3 offSetNew;
-    private Vector3 offSetOld;
+    private Vector3 offSet = new Vector3(0, 0, 0);
+    private Vector3 offSetNew = new Vector3(0, 0, 0);
+    private Vector3 offSetOld = new Vector3(0, 0, 0);
 
     [HideInInspector]
     public Vector3 lookAt;
@@ -99,24 +99,27 @@ public class FreeLookCamera : MonoBehaviour
 
     private void CameraRotation()
     {
-        if ((Input.GetAxisRaw("CameraHorizontal") > deadZone ||
-            Input.GetAxisRaw("CameraHorizontal") < -deadZone ||
-            Input.GetAxisRaw("CameraVertical") > deadZone ||
-            Input.GetAxisRaw("CameraVertical") < -deadZone) && !lockOn)
+        if ((Input.GetAxisRaw("CameraVertical") > deadZone ||
+            Input.GetAxisRaw("CameraVertical") < -deadZone) && 
+            !lockOn)
         {
-
             rotationY -= Input.GetAxisRaw("CameraVertical") * senitivity;
             rotationY = Mathf.Clamp(rotationY, minAngle, maxAngle);
             pivot.localRotation = Quaternion.Euler(rotationY, 0, 0);
+        }
 
+        if((Input.GetAxisRaw("CameraHorizontal") > deadZone ||
+           Input.GetAxisRaw("CameraHorizontal") < -deadZone) &&
+           !lockOn)
+        { 
             rotationX += Input.GetAxisRaw("CameraHorizontal") * senitivity;
             transform.rotation = Quaternion.Euler(0, rotationX, 0);
         }
-        else if (lockOn && enemyTarget != null)
+
+        if (lockOn && enemyTarget != null)
         {
             lookAt = enemyTarget.position - transform.position;
             lookAt.Normalize();
-            //lookAt.y = 0
 
             if (lookAt == Vector3.zero)
             {

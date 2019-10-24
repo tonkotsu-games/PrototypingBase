@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Timer
 {
-
     public float timeCurrent = 0;
     public float timeMax = 0;
     public bool paused = false;
@@ -12,7 +9,7 @@ public class Timer
 
     public bool CountingDown { get => countingDown; set => countingDown = value; }
 
-    public void Start(float max)
+    public void Set(float max)
     {
         timeMax = max;
         timeCurrent = timeMax;
