@@ -1274,6 +1274,16 @@ PrefabInstance:
       propertyPath: slideAttackTime
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: randomInput
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: TOFIXPLEASETURNMEOFF
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9167410380006807473, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_LocalPosition.x
