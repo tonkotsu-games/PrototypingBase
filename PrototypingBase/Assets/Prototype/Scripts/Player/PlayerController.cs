@@ -22,12 +22,6 @@ public class PlayerController : MonoBehaviour
     [Header("Value for the Movement")]
     [SerializeField]
     private float movementSpeed = 0;
-    private float moveHorizontal = 0;
-    private float moveVertical = 0;
-    private float move = 0;
-
-    private Vector3 haeding = new Vector3(0, 0, 0);
-    private Vector3 moveVector = new Vector3(0, 0, 0);
     #endregion
 
     #region Jumping
@@ -62,22 +56,12 @@ public class PlayerController : MonoBehaviour
     private float gravityMax = 0;
 
     private float gravity = 0;
-    private float jumpVelocity = 0;
-    private float airJumpVelocity = 0;
-    private float slideJumpVelocity = 0;
-    private float jumpGravity = 0;
-    private float airJumpGravity = 0;
-    private float slideJumpGravity = 0;
-    private float currentJumpHeight = 0;
-    //private float highestJumpHeight = 0;
     private float jumpForce = 0;
     private float startPosition = 0;
 
-    private bool grounded = true;
+    private bool grounded = false;
     private bool jump = false;
     private bool airJumping = false;
-    //private bool reachedHeighestPoint = false;
-    //private bool overJumpHeight = false;
     private bool airJumpingGravity = false;
     #endregion
 
@@ -114,8 +98,9 @@ public class PlayerController : MonoBehaviour
     private BeatAnalyse beat = null;
     private Animator anim = null;
     private Rigidbody rigi = null;
-    private CapsuleCollider bodyCollider = null;
+    //private CapsuleCollider bodyCollider = null;
     private Timer lockTimer = new Timer();
+    private MovementCalculation calculate = new MovementCalculation();
     [SerializeField]
     private GameObject cam = null;
     [SerializeField]
@@ -143,11 +128,11 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         anim = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
-        bodyCollider = GetComponent<CapsuleCollider>();
+        //bodyCollider = GetComponent<CapsuleCollider>();
         rigi = GetComponent<Rigidbody>();
         if (!jumpTest)
         {
-            CalculateJump();
+            calculate.Jump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
         lockTimer.CountingDown = true;
         LockTimeCalculate(beatTimeLockPercent);
@@ -163,11 +148,8 @@ public class PlayerController : MonoBehaviour
 
         if (jumpTest)
         {
-            CalculateJump();
+            calculate.Jump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
-
-        moveHorizontal = Input.GetAxisRaw("Horizontal");
-        moveVertical = Input.GetAxisRaw("Vertical");
 
         if(lockTimer.timeCurrent <= 0)
         {
@@ -219,10 +201,15 @@ public class PlayerController : MonoBehaviour
 
         if (currentStance == Stances.Jump || airGun)
         {
-            CalculateJumpHight();
+            calculate.JumpHight(startPosition, transform.position.y);
         }
 
-        if(Input.GetKeyDown(KeyCode.F4))
+        if (calculate.CurrentJumpHeight > maxJumpHeight)
+        {
+            rigi.transform.position = new Vector3(transform.position.x, startPosition + maxJumpHeight, transform.position.z);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F4))
         {
             debugMode = !debugMode;
         }
@@ -234,17 +221,13 @@ public class PlayerController : MonoBehaviour
             currentStance == Stances.Jump ||
             currentStance == Stances.Gun)
         {
-            MovementCalculation();
+            calculate.Heading(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), deadZone, cam.transform);
+            calculate.Movement(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), deadZone, movementSpeed, cam.transform);
             Heading();
             if (!airGun)
             {
                 Move();
                 Gravity();
-            }
-            else if (airGun && grounded)
-            {
-                anim.SetTrigger("gun");
-                airGun = false;
             }
         }
         else if (currentStance == Stances.Slide)
@@ -270,29 +253,19 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("WARNING NO STANCE");
         }
-
     }
 
     private void Heading()
     {
-        if ((moveHorizontal < -deadZone ||
-           moveHorizontal > deadZone ||
-           moveVertical < -deadZone ||
-           moveVertical > deadZone) &&
-           !target.lockOn)
+        if (!target.lockOn)
         {
-            haeding = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
-            haeding = haeding.normalized;
-            haeding.y = 0;
-
-            if (haeding == Vector3.zero)
+            if (calculate.Head == Vector3.zero)
             {
                 transform.rotation = Quaternion.identity;
-
             }
             else
             {
-                transform.rotation = Quaternion.LookRotation(haeding);
+                transform.rotation = Quaternion.LookRotation(calculate.Head);
             }
         }
         else if (target.lockOn)
@@ -302,57 +275,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void MovementCalculation()
-    {
-        if (moveHorizontal < -deadZone ||
-            moveHorizontal > deadZone ||
-            moveVertical < -deadZone ||
-            moveVertical > deadZone)
-        {
-            move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).magnitude;
-            if (move > 1)
-            {
-                move = 1;
-            }
-            moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
-            moveVector = moveVector.normalized * move * movementSpeed;
-            moveVector.y = 0;
-        }
-        else
-        {
-            moveVector = Vector3.zero;
-
-        }
-    }
-
     /// <summary>
     /// Function for the Movement
     /// </summary>
     void Move()
     {
-        rigi.velocity = new Vector3(moveVector.x,
+        rigi.velocity = new Vector3(calculate.MoveVector.x,
                                     gravity,
-                                    moveVector.z);
+                                    calculate.MoveVector.z);
     }
 
     private void Jump()
     {
         if (jump)
         {
-            gravity = jumpVelocity;
-            jumpForce = jumpVelocity;
+            gravity = calculate.JumpVelocity;
+            jumpForce = calculate.JumpVelocity;
             jump = false;
         }
         else if (airJumping && !airGun)
         {
-            gravity = airJumpVelocity;
-            jumpForce = airJumpVelocity;
+            gravity = calculate.AirJumpVelocity;
+            jumpForce = calculate.AirJumpVelocity;
             airJumping = false;
         }
         else if (slideJump)
         {
-            gravity = slideJumpVelocity;
-            jumpForce = slideJumpVelocity;
+            gravity = calculate.SlideJumpVelocity;
+            jumpForce = calculate.SlideJumpVelocity;
             slideJump = false;
         }
         else if (airGun)
@@ -363,65 +313,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CalculateJump()
-    {
-        jumpGravity = -(2 * jumpHeight) / Mathf.Pow(timeToHeight, 2);
-        airJumpGravity = -(2 * airJumpHeight) / Mathf.Pow(timeToAirJumpHeight, 2);
-        slideJumpGravity = -(2 * slideJumpHeight) / Mathf.Pow(timeToSlideJumpHeight, 2);
-        jumpVelocity = Mathf.Abs(jumpGravity) * timeToHeight;
-        airJumpVelocity = Mathf.Abs(airJumpGravity) * timeToAirJumpHeight;
-        slideJumpVelocity = Mathf.Abs(slideJumpGravity) * timeToSlideJumpHeight;
-    }
-
-    /// <summary>
-    /// Calculating the Jump Hight for the Air jump.
-    /// Maybe in the Update for better results.
-    /// </summary>
-    public void CalculateJumpHight()
-    {
-        currentJumpHeight = startPosition - transform.position.y;
-        currentJumpHeight = Mathf.Abs(currentJumpHeight);
-
-        if(currentJumpHeight > maxJumpHeight)
-        {
-            rigi.transform.position = new Vector3(transform.position.x, startPosition + maxJumpHeight, transform.position.z);
-        }
-
-        ///<summary>
-        /// Old Calculation for the double jump
-        /// 
-        /// if (currentJumpHeight > highestJumpHeight)
-        /// {
-        ///     overJumpHeight = true;
-        /// }
-        /// 
-        /// if (!reachedHeighestPoint)
-        /// {
-        ///     if (currentJumpHeight >= highestJumpHeight)
-        ///     {
-        ///         highestJumpHeight = currentJumpHeight;
-        ///     }
-        ///     else
-        ///     {
-        ///         airJumping = true;
-        ///         reachedHeighestPoint = true;
-        ///     }
-        /// }
-        /// else
-        /// {
-        ///     if (currentJumpHeight <= highestJumpHeight && overJumpHeight)
-        ///     {
-        ///         overJumpHeight = false;
-        ///         airJumping = true;
-        ///     }
-        ///     if (currentJumpHeight < highestJumpHeight - 10)
-        ///     {
-        ///         highestJumpHeight = currentJumpHeight;
-        ///     }
-        /// }
-        ///</ summary >
-    }
-
     private void Slide()
     {
         if (sliding && (grounded || lastStance == Stances.Idle || lastStance == Stances.Slide || lastStance == Stances.Gun))
@@ -429,13 +320,13 @@ public class PlayerController : MonoBehaviour
             currentSlideTime -= Time.deltaTime;
             if (currentSlideTime > 0)
             {
-                if (haeding == Vector3.zero)
+                if (calculate.Head == Vector3.zero)
                 {
                     transform.rotation = Quaternion.identity;
                 }
                 else
                 {
-                    transform.rotation = Quaternion.LookRotation(haeding);
+                    transform.rotation = Quaternion.LookRotation(calculate.Head);
                 }
 
                 rigi.velocity = new Vector3(transform.forward.x * slidingSpeed,
@@ -445,7 +336,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 sliding = false;
-                bodyCollider.enabled = true;
+                ///bodyCollider.enabled = true;
                 lastStance = currentStance;
                 currentStance = Stances.Idle;
             }
@@ -478,7 +369,7 @@ public class PlayerController : MonoBehaviour
                                     anim.SetTrigger("jumping");
                                     jump = true;
                                     Jump();
-                                    bodyCollider.enabled = false;
+                                   /// bodyCollider.enabled = false;
                                 }
                                 else
                                 {
@@ -495,12 +386,12 @@ public class PlayerController : MonoBehaviour
                                     anim.SetTrigger("slide");
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    bodyCollider.enabled = false;
+                                   /// bodyCollider.enabled = false;
                                 }
                                 else
                                 {
                                     anim.SetTrigger("slide");
-                                    bodyCollider.enabled = true;
+                                   /// bodyCollider.enabled = true;
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                 }
@@ -556,7 +447,7 @@ public class PlayerController : MonoBehaviour
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
                                     anim.SetTrigger("airJump");
-                                    bodyCollider.enabled = false;
+                                   /// bodyCollider.enabled = false;
                                     slideJump = false;
                                     airJumpingGravity = true;
                                     Jump();
@@ -564,7 +455,7 @@ public class PlayerController : MonoBehaviour
                                 else
                                 {
                                     anim.SetTrigger("airJump");
-                                    bodyCollider.enabled = true;
+                                  ///  bodyCollider.enabled = true;
                                     slideJump = false;
                                     airJumpingGravity = true;
                                     Jump();
@@ -587,7 +478,7 @@ public class PlayerController : MonoBehaviour
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                     gravity = 0;
-                                    bodyCollider.enabled = false;
+                                   /// bodyCollider.enabled = false;
                                 }
                                 else
                                 {
@@ -603,7 +494,7 @@ public class PlayerController : MonoBehaviour
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                     gravity = 0;
-                                    bodyCollider.enabled = true;
+                                   /// bodyCollider.enabled = true;
                                 }
                                 break;
                             }
@@ -650,7 +541,6 @@ public class PlayerController : MonoBehaviour
                                 {
                                     anim.SetTrigger("airGunAttack");
                                     //Debug.Log("Gun off beat");
-                                    airGun = true;
                                     airJumpingGravity = false;
                                     slideJump = false;
                                     //reachedHeighestPoint = false;
@@ -703,14 +593,14 @@ public class PlayerController : MonoBehaviour
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
                                     anim.SetTrigger("slide");
-                                    bodyCollider.enabled = false;
+                                   /// bodyCollider.enabled = false;
                                     Heading();
                                     currentSlideTime = slideTime;
                                 }
                                 else
                                 {
                                     anim.SetTrigger("slide");
-                                    bodyCollider.enabled = true;
+                                    ////bodyCollider.enabled = true;
                                     Heading();
                                     currentSlideTime = slideTime;
                                 }
@@ -752,6 +642,7 @@ public class PlayerController : MonoBehaviour
                     {
                         case Stances.Idle:
                             {
+                                attackChain = 0;
                                 break;
                             }
                         case Stances.Jump:
@@ -760,7 +651,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     jump = true;
                                     Jump();
-                                    bodyCollider.enabled = false;
+                                    //bodyCollider.enabled = false;
                                 }
                                 else
                                 {
@@ -775,11 +666,11 @@ public class PlayerController : MonoBehaviour
                                 {
                                     currentSlideTime = slideTime;
                                     sliding = true;
-                                    bodyCollider.enabled = false;
+                                    ///bodyCollider.enabled = false;
                                 }
                                 else
                                 {
-                                    bodyCollider.enabled = true;
+                                   /// bodyCollider.enabled = true;
                                     currentSlideTime = slideTime;
                                     sliding = true;
                                 }
@@ -843,13 +734,13 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (grounded)
                                     {
-                                        bodyCollider.enabled = false;
+                                        ///bodyCollider.enabled = false;
                                         jump = true;
                                         Jump();
                                     }
                                     else
                                     {
-                                        bodyCollider.enabled = false;
+                                        ///bodyCollider.enabled = false;
                                         airJumpingGravity = true;
                                         airGun = false;
                                         Jump();
@@ -859,7 +750,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (grounded)
                                     {
-                                        bodyCollider.enabled = true;
+                                        ///bodyCollider.enabled = true;
                                         jump = true;
                                         Jump();
                                     }
@@ -878,7 +769,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (!grounded)
                                     {
-                                        bodyCollider.enabled = false;
+                                       /// bodyCollider.enabled = false;
                                         airJumpingGravity = false;
                                         slideJump = false;
                                         //reachedHeighestPoint = false;
@@ -893,7 +784,7 @@ public class PlayerController : MonoBehaviour
                                     }
                                     else
                                     {
-                                        bodyCollider.enabled = false;
+                                        ///bodyCollider.enabled = false;
                                         currentSlideTime = slideTime;
                                         sliding = true;
                                     }
@@ -903,7 +794,7 @@ public class PlayerController : MonoBehaviour
                                 {
                                     if (!grounded)
                                     {
-                                        bodyCollider.enabled = true;
+                                       /// bodyCollider.enabled = true;
                                         airJumpingGravity = false;
                                         slideJump = false;
                                         //reachedHeighestPoint = false;
@@ -918,7 +809,7 @@ public class PlayerController : MonoBehaviour
                                     }
                                     else
                                     {
-                                        bodyCollider.enabled = true;
+                                       /// bodyCollider.enabled = true;
                                         currentSlideTime = slideTime;
                                         sliding = true;
                                     }
@@ -993,11 +884,11 @@ public class PlayerController : MonoBehaviour
             {
                 if (!airJumpingGravity)
                 {
-                    gravity += jumpGravity * Time.deltaTime;
+                    gravity += calculate.JumpGravity * Time.deltaTime;
                 }
                 else
                 {
-                    gravity += airJumpGravity * Time.deltaTime;
+                    gravity += calculate.AirJumpGravity * Time.deltaTime;
                 }
             }
             else
@@ -1027,7 +918,7 @@ public class PlayerController : MonoBehaviour
         {
             lastStance = currentStance;
         }
-        bodyCollider.enabled = true;
+        ///bodyCollider.enabled = true;
         airGun = false;
         gravity = 0;
     }
@@ -1052,7 +943,6 @@ public class PlayerController : MonoBehaviour
     {
         if (debugMode)
         {
-
             GUIStyle style = new GUIStyle();
             style.fontSize = 20;
             style.normal.textColor = Color.red;
