@@ -205,11 +205,6 @@ public class PlayerController : MonoBehaviour
             calculate.JumpHight(startPosition, transform.position.y);
         }
 
-        if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
-        {
-            rigi.transform.position = new Vector3(transform.position.x, startPosition + maxJumpHeight, transform.position.z);
-            Debug.LogWarning("Capped Max");
-        }
 
         if (Input.GetKeyDown(KeyCode.F4))
         {
@@ -467,17 +462,33 @@ public class PlayerController : MonoBehaviour
                             {
                                 if (beat.IsOnBeat(reactionTime, timeWindow))
                                 {
-                                    anim.SetTrigger("airJump");
-                                    slideJump = false;
-                                    airJumpingGravity = true;
-                                    Jump();
+                                    if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
+                                    {
+                                        airJumping = false;
+                                        Debug.LogWarning("Capped Max");
+                                    }
+                                    else
+                                    {
+                                        anim.SetTrigger("airJump");
+                                        slideJump = false;
+                                        airJumpingGravity = true;
+                                        Jump();
+                                    }
                                 }
                                 else
                                 {
-                                    anim.SetTrigger("airJump");
-                                    slideJump = false;
-                                    airJumpingGravity = true;
-                                    Jump();
+                                    if (calculate.CurrentJumpHeight > maxJumpHeight && !sliding)
+                                    {
+                                        airJumping = false;
+                                        Debug.LogWarning("Capped Max");
+                                    }
+                                    else
+                                    {
+                                        anim.SetTrigger("airJump");
+                                        slideJump = false;
+                                        airJumpingGravity = true;
+                                        Jump();
+                                    }
                                 }
                                 break;
                             }
