@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100000, guid: d37e4352d7d09624f9d31bab335260fb, type: 3}
       propertyPath: m_Name
-      value: stairs
+      value: stairs Variant
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d37e4352d7d09624f9d31bab335260fb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -55,5 +55,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: d37e4352d7d09624f9d31bab335260fb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e8829ef5228b1044aa943d10660f8349, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d37e4352d7d09624f9d31bab335260fb, type: 3}
