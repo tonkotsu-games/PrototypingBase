@@ -21,6 +21,7 @@ public class MoveArena : MonoBehaviour
         {
             if (myWaves.Contains(WaveManager.instance.currentWaveState))
             {
+            
                if(transform.localPosition.y < maxY)
                 {
                     transform.localPosition += (Vector3.up * speed*Time.deltaTime);
@@ -33,7 +34,7 @@ public class MoveArena : MonoBehaviour
             else
             {
                 if(transform.localPosition.y > minY)
-                {
+                {                   
                     transform.localPosition += (Vector3.down * speed*Time.deltaTime);
                 }
                 else
