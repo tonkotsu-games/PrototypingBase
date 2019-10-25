@@ -7,6 +7,7 @@ public class Wave
     public enum Waves
     {
         Init,
+        FirstMod,
         S1W1,
         S1W2,
         S1W3,
