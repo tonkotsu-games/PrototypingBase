@@ -13,12 +13,12 @@ public class AnimationEventCollector : MonoBehaviour
 
     public void AfterShoot()
     {
-        player.SubStancesCheck(PlayerController.Stances.Gun, PlayerController.Stances.Idle);
+        player.ChangeStanceTo(PlayerController.Stances.Idle);
     }
 
     public void AttackReset()
     {
-        player.SubStancesCheck(PlayerController.Stances.Attack, PlayerController.Stances.Idle);
+        player.ChangeStanceTo(PlayerController.Stances.Idle);
     }
 
 }
