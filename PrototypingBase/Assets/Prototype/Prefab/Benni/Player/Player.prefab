@@ -348,6 +348,7 @@ MonoBehaviour:
   beatTimeLockPercent: 0
   reactionTime: 1000
   timeWindow: 5000
+  TURNOFFTOFIX: 1
 --- !u!135 &9167410380006807473
 SphereCollider:
   m_ObjectHideFlags: 0
