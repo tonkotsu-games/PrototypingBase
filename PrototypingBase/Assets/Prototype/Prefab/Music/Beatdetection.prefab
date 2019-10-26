@@ -46,9 +46,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeWindow: 0
   reactionTime: 4000
+  beatList: 
   limit: 0.4
   waitSamples: 5000
+  sampleTimeInSec: 0
   wave: {fileID: 8300000, guid: 02fb8b35bcb6d32439d979ed54f94eb9, type: 3}
+  beatListCopy: 
 --- !u!82 &6190815258394146229
 AudioSource:
   m_ObjectHideFlags: 0
@@ -63,7 +66,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
