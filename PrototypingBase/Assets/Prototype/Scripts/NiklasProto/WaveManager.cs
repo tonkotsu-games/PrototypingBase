@@ -5,11 +5,21 @@ using UnityEngine;
 public class WaveManager : MonoBehaviour
 {
     public static WaveManager instance;
+    [SerializeField]
+    public float timeBetweenWaveSpawns = 2;
+
     private HashSet<GameObject> currentEnemies;
     [HideInInspector]
     public Wave.Waves currentWaveState;
     private Wave.Waves nextWaveState;
     private int waveNumber = 1;
+    public Timer waveTimer = new Timer();
+
+    [HideInInspector]
+    public bool waveSpawnPaused = false;
+    public bool modSelected = false;
+
+    private PlayerController playerScript;
 
     private void Awake()
     {
@@ -23,28 +33,57 @@ public class WaveManager : MonoBehaviour
         }
 
         currentEnemies = new HashSet<GameObject>();
+        
     }
     // Start is called before the first frame update
     void Start()
     {
+        waveTimer.Set(timeBetweenWaveSpawns);
         currentWaveState = Wave.Waves.Init;
         nextWaveState = (Wave.Waves)waveNumber;
+        waveSpawnPaused = true;
+        //UIManager.instance.ToggleAugmentSelection(true);
+        playerScript = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
     }
 
     private void LateUpdate()
     {
-        CheckForEnemiesLeftAndChangeWaveState();
+        if (!waveSpawnPaused)
+        {
+            CheckForEnemiesLeftAndChangeWaveState();
+        }
     }
 
     private void CheckForEnemiesLeftAndChangeWaveState()
     {
+
         if (waveNumber != System.Enum.GetValues(typeof(Wave.Waves)).Length)
         {
             if (currentEnemies.Count == 0)
             {
-                ChangeWaveState(nextWaveState);
-                waveNumber++;
-                nextWaveState = (Wave.Waves)waveNumber;
+                // end of a bosswave
+                if (waveNumber == 2 || waveNumber!=2 && (waveNumber - 2) % 5 == 0)
+                {
+                    if (!modSelected)
+                    {
+                        Debug.Log("Boss Stage");
+                        UIManager.instance.ToggleAugmentSelection(true);
+                        waveSpawnPaused = true;
+                        playerScript.enabled = false;
+                        playerScript.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+                    }
+                    if (modSelected)
+                    {
+                        playerScript.enabled = true;
+                        ChangeWaveState(nextWaveState);
+                    }
+
+                }
+                // normal waves
+                else
+                {
+                    ChangeWaveState(nextWaveState);
+                }
             }
         }
     }
@@ -53,8 +92,22 @@ public class WaveManager : MonoBehaviour
     {
         if (nextWave != currentWaveState)
         {
-            currentWaveState = nextWave;
+            UIManager.instance.ToggleIngameUI(true);       
+            if (waveTimer.timeCurrent <= 0 || waveNumber == 1)
+            {
+                currentWaveState = nextWave;
+                waveNumber++;
+                nextWaveState = (Wave.Waves)waveNumber;
+                UIManager.instance.ToggleIngameUI(false);
+                waveTimer.ResetTimer();
+                modSelected = false;
+            }
+            else
+            {
+                waveTimer.Tick();
+            }
         }
+            
     }
 
     public void AddToCurrentEnemies(GameObject enemy)

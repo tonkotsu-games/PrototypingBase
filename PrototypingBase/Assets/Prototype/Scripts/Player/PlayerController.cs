@@ -208,7 +208,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ChangeStanceTo(Stances newStance, bool resetLockTimer = true)
+    public void ChangeStanceTo(Stances newStance, bool resetLockTimer = true)
     {
         lastStance = currentStance;
         currentStance = newStance;
