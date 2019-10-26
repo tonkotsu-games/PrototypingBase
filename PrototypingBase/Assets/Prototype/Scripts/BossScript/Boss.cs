@@ -8,18 +8,23 @@ public class Boss : MonoBehaviour
     private float adjustSpeed = 0.5f;
     [SerializeField] [Tooltip("The Maximum Range the player has to be in for the boss to initialize an attack")][Range(0,5)]
     private float aggroRange = 1;
+
+    public float minAngle = 0.6f;
+
     [SerializeField] [Tooltip("The layer assigned to the player")]
     private int layerMaskPlayer = 9;
+    [SerializeField]
+    private int life = 0;
+
+    [SerializeField]
+    private List<Collider> cols;
     private GameObject player;
     private Animator bossAnim;
     private Vector3 desiredLookDirection;
+
     private bool attacking;
     private bool facingPlayer = false;
-    public float minAngle = 0.6f;
-    [SerializeField]
-    private List<Collider> cols;
 
-    // Start is called before the first frame update
     void Start()
     {
         layerMaskPlayer = 1 << layerMaskPlayer;
@@ -35,13 +40,10 @@ public class Boss : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-
         RotateTowardsPlayer();
     }
-
     
     private void FixedUpdate()
     {
@@ -95,6 +97,7 @@ public class Boss : MonoBehaviour
             collider.enabled = true;
         }
     }
+
     public void ColliderDisabled()
     {
         foreach (Collider collider in cols)
@@ -102,5 +105,4 @@ public class Boss : MonoBehaviour
             collider.enabled = false;
         }
     }
-
 }

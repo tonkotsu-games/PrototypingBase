@@ -2935,10 +2935,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55e9bcf6fbda8cf458a4eff584317462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyType: 1
   minSpd: 4
   maxSpd: 8
   distance: 1
-  enemyType: 1
+  health: 1
 --- !u!136 &2058644631859542496
 CapsuleCollider:
   m_ObjectHideFlags: 0

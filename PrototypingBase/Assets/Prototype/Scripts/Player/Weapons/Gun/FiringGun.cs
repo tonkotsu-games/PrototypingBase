@@ -12,11 +12,19 @@ public class FiringGun : MonoBehaviour
     private GameObject instanceBullet = null;
 
     [SerializeField]
+    private int damageAmount = 0;
+
+    [SerializeField]
     private float bulletSpeed = 0;
+
+    private void Start()
+    {
+    }
 
     public void Shoot()
     {
         instanceBullet = Instantiate(bullet, gunPoint.transform.position, Quaternion.LookRotation(transform.forward));
+        instanceBullet.GetComponent<Bullet>().DamageAmount = damageAmount;
         instanceBullet.GetComponent<Rigidbody>().AddForce(transform.forward * bulletSpeed);
     }
 

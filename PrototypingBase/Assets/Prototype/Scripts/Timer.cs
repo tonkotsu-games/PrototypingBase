@@ -19,7 +19,7 @@ public class Timer
     {
         if (!paused)
         {
-            if(CountingDown)
+            if (CountingDown)
             {
                 timeCurrent -= Time.deltaTime;
             }
