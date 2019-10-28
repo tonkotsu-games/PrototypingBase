@@ -27,8 +27,7 @@ public class EnemySpawner : MonoBehaviour
     private bool doneSpawning = false;
 
     private void Start()
-    {
-        
+    {        
         gameObject.GetComponent<BoxCollider>().enabled = false;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
     }

@@ -23,6 +23,7 @@ public class BeatAnalyse : MonoBehaviour
     private AudioSource sourceWave = null;
 
     private bool debugMode = false;
+    private bool copy = false;
 
     public List<int> beatListCopy;
 
@@ -55,22 +56,31 @@ public class BeatAnalyse : MonoBehaviour
         sampleTimeInSec = sampleBeat / 44100;
 
         Debug.Log(sampleTimeInSec);
+        beatListCopy = new List<int>(beatList);
+
     }
-    
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F4))
         {
             debugMode = !debugMode;
         }
-       if(sourceWave.timeSamples == 0)
+        if (sourceWave.timeSamples >= beatList[beatList.Count - 1] && copy)
         {
+            copy = false;
             beatListCopy = new List<int>(beatList);
+            Debug.LogWarning("New List created");
+        }
+        if (sourceWave.timeSamples <= beatList[0] && !copy)
+        {
+            copy = true;
+            Debug.LogWarning("Copy now true");
         }
     }
 
     public bool IsOnBeat(int reactionTime, int timeWindow)
-    {         
+    {
         timeSample = sourceWave.timeSamples - reactionTime;
         for (int i = 0; i < beatListCopy.Count; i++)
         {
@@ -78,8 +88,9 @@ public class BeatAnalyse : MonoBehaviour
                 timeSample <= (beatListCopy[i] + timeWindow))
             {
                 return true;
+
             }
-            else
+            else if (timeSample > beatListCopy[i] + timeWindow)
             {
                 beatListCopy.RemoveAt(i);
                 i -= 1;
