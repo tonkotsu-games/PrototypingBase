@@ -325,7 +325,7 @@ Transform:
   m_GameObject: {fileID: 9167410380006807475}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.1716474, y: -3.182165e-17, z: 1.4331197}
-  m_LocalScale: {x: 0.69275, y: 1.7, z: 0.69275}
+  m_LocalScale: {x: 1.7, y: 4.2, z: 1.7}
   m_Children:
   - {fileID: 3120173935960887303}
   m_Father: {fileID: 0}
@@ -343,6 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 346ae0b749537f1488f66af1ff2d3d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 0
   deadZone: 0.35
   movementSpeed: 30
   jumpTest: 0
@@ -359,6 +360,7 @@ MonoBehaviour:
   slidingSpeed: 60
   attackChain: 0
   beat: {fileID: 0}
+  respawner: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
   beatTimeLockPercent: 0
@@ -422,4 +424,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gunPoint: {fileID: 5639326270265479940}
   bullet: {fileID: 2479534135271187459, guid: dd1e56fc54cb8494fa32c3f60a8e7470, type: 3}
+  damageAmount: 0
   bulletSpeed: 3000
