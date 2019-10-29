@@ -18,6 +18,10 @@ public class EnemySpawner : MonoBehaviour
     [Header("RangedEnemies")]
     private int amountOfRangedEnemiesToSpawn;
 
+    [SerializeField]
+    [Header("BossEnemies")]
+    private int amountOfBossEnemiesToSpawn;
+
     [HideInInspector]
     public int amountOfEnemiesToSpawn;
 
@@ -55,6 +59,10 @@ public class EnemySpawner : MonoBehaviour
         for(int i = 0; i < amountOfRangedEnemiesToSpawn; i++)
         {
             Instantiate(mockupEnemyPrefabs[2], transform.position, Quaternion.identity);
+        }
+        for (int i = 0; i < amountOfBossEnemiesToSpawn; i++)
+        {
+            Instantiate(mockupEnemyPrefabs[3], transform.position, Quaternion.identity);
         }
 
         doneSpawning = true;
