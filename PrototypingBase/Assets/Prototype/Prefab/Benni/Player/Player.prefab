@@ -341,7 +341,7 @@ Transform:
   m_GameObject: {fileID: 9167410380006807475}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.1716474, y: -3.182165e-17, z: 1.4331197}
-  m_LocalScale: {x: 0.69275, y: 1.7, z: 0.69275}
+  m_LocalScale: {x: 1.7, y: 4.2, z: 1.7}
   m_Children:
   - {fileID: 3120173935960887303}
   m_Father: {fileID: 0}
@@ -426,3 +426,19 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.52, z: 0}
+--- !u!114 &1941090882624503169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9167410380006807475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee1a1dff8432519428a6733d922efc1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gunPoint: {fileID: 5639326270265479940}
+  bullet: {fileID: 2479534135271187459, guid: dd1e56fc54cb8494fa32c3f60a8e7470, type: 3}
+  damageAmount: 0
+  bulletSpeed: 3000
