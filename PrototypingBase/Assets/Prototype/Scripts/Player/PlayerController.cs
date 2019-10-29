@@ -25,6 +25,10 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [Header("Value for the Movement")]
     [SerializeField]
     private float movementSpeed = 0;
+    [Header("Attackmovement")]
+    [SerializeField]
+    private float attackStrafe = 0;
+    private float attackStrafeUpdate = 0;
     #endregion
 
     #region Jumping
@@ -248,7 +252,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
             calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);
             headingUpdate.Heading(calculator.Head,transform,target);
-            moveUpdate.MoveUpdate(currentStance,rigidbody,sliding.SlideVelocity,calculator.MoveVector,gravityUpdate.Gravity);
+            moveUpdate.MoveUpdate(currentStance,rigidbody,sliding.SlideVelocity,calculator.MoveVector,gravityUpdate.Gravity,attackStrafe);
             gravityUpdate.GravityUpdate(grounded, gravityMax,calculator.JumpGravity);
         }
         else if (currentStance == Stances.Slide)
@@ -261,7 +265,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             {
                 ChangeStanceTo(Stances.Idle);
             }
-            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity);
+            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity,attackStrafe);
         }
         else if (currentStance == Stances.Attack)
         {
@@ -279,7 +283,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     airAttack = false;
                     ChangeStanceTo(Stances.Idle);
                 }
-                rigidbody.velocity = new Vector3(0, gravityUpdate.Gravity, 0);
+                moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafeUpdate);
             }
         }
         else
@@ -342,11 +346,13 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        attackStrafeUpdate = attackStrafe;
                         animator.SetTrigger("swordAttack(onB)1");
                         attackChain++;
                     }
                     else
                     {
+                        attackStrafeUpdate = attackStrafe;
                         animator.SetTrigger("swordAttack");
                         attackChain = 0;
                     }
@@ -536,6 +542,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 }
             case Stances.Attack:
                 {
+                    attackStrafeUpdate = 0;
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         switch (attackChain)
