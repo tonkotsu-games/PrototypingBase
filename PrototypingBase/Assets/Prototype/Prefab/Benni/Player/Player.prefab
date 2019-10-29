@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 3120173935960887305}
   - component: {fileID: 9167410379803542147}
   - component: {fileID: 5095096665289155836}
+  - component: {fileID: 6147980680945710946}
   m_Layer: 10
   m_Name: PlayerBody
   m_TagString: Player
@@ -235,6 +236,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc219e7de4b6c20459e87ed59599ff42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6147980680945710946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3120173935960887309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee1a1dff8432519428a6733d922efc1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gunPoint: {fileID: 5639326270265479940}
+  bullet: {fileID: 2479534135271187459, guid: dd1e56fc54cb8494fa32c3f60a8e7470, type: 3}
+  damageAmount: 0
+  bulletSpeed: 3000
 --- !u!1 &5639326270265479940
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,7 +325,6 @@ GameObject:
   - component: {fileID: 9167410380006807473}
   - component: {fileID: 9167410380006807476}
   - component: {fileID: 9167410380006807479}
-  - component: {fileID: 1941090882624503169}
   m_Layer: 10
   m_Name: Player
   m_TagString: Player
@@ -343,6 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 346ae0b749537f1488f66af1ff2d3d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 0
   deadZone: 0.35
   movementSpeed: 30
   jumpTest: 0
@@ -359,6 +376,7 @@ MonoBehaviour:
   slidingSpeed: 60
   attackChain: 0
   beat: {fileID: 0}
+  respawner: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
   beatTimeLockPercent: 0
@@ -408,18 +426,3 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.52, z: 0}
---- !u!114 &1941090882624503169
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9167410380006807475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee1a1dff8432519428a6733d922efc1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gunPoint: {fileID: 5639326270265479940}
-  bullet: {fileID: 2479534135271187459, guid: dd1e56fc54cb8494fa32c3f60a8e7470, type: 3}
-  bulletSpeed: 3000
