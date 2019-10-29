@@ -13,7 +13,7 @@ public class MoveArena : MonoBehaviour
     [SerializeField]
     private float maxY;
 
-    private float minY = -1;
+    private float minY = -0.15f;
 
     private void Update()
     {

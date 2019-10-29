@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1782426988697694795}
   - component: {fileID: 1782426988697694794}
   - component: {fileID: 5509712580838090186}
-  - component: {fileID: 1372997603655131784}
+  - component: {fileID: 1988703630}
   m_Layer: 10
   m_Name: Weapon
   m_TagString: Weapon
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 1
---- !u!54 &1372997603655131784
+--- !u!54 &1988703630
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,11 +115,11 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1782426988697694788}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 0.0000001
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -341,7 +341,7 @@ Transform:
   m_GameObject: {fileID: 9167410380006807475}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.1716474, y: -3.182165e-17, z: 1.4331197}
-  m_LocalScale: {x: 0.69275, y: 1.7, z: 0.69275}
+  m_LocalScale: {x: 2.1962945, y: 5.38968, z: 2.1962945}
   m_Children:
   - {fileID: 3120173935960887303}
   m_Father: {fileID: 0}
@@ -367,9 +367,9 @@ MonoBehaviour:
   timeToHeight: 0.35
   airJumpHeight: 14
   timeToAirJumpHeight: 0.35
-  slideJumpHeight: 14
-  timeToSlideJumpHeight: 0.3
-  maxJumpHeight: 12
+  slideJumpHeight: 16
+  timeToSlideJumpHeight: 0.35
+  maxJumpHeight: 40
   gravityMax: -40
   slideTime: 0.3
   slideAttackTime: 0
@@ -379,10 +379,10 @@ MonoBehaviour:
   respawner: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
-  beatTimeLockPercent: 0
+  beatTimeLockPercent: 40
   reactionTime: 1000
   timeWindow: 5000
-  TURNOFFTOFIX: 1
+  TURNOFFTOFIX: 0
 --- !u!135 &9167410380006807473
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -411,7 +411,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!136 &9167410380006807479
 CapsuleCollider:
   m_ObjectHideFlags: 0
