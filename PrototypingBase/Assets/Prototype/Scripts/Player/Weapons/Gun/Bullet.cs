@@ -25,10 +25,11 @@ public class Bullet : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
-        else if (collision.gameObject.tag == "Enemy")
+        if (collision.gameObject.tag == "Enemy")
         {
             collision.gameObject.GetComponent<MockupEnemyController>().Damage(damageAmount);
             Destroy(this.gameObject);
+            Debug.Log("Enemy Shot");
         }
     }
 }
