@@ -1287,6 +1287,11 @@ PrefabInstance:
       propertyPath: maxJumpHeight
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
+        type: 3}
+      propertyPath: attackStrafe
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 9167410380006807476, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_UseGravity
