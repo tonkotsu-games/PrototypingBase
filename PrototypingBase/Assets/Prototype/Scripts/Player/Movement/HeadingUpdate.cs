@@ -8,11 +8,7 @@ public class HeadingUpdate
     {
         if (!cam.lockOn)
         {
-            if (head == Vector3.zero)
-            {
-                transform.rotation = Quaternion.identity;
-            }
-            else
+            if (head != Vector3.zero)
             {
                 transform.rotation = Quaternion.LookRotation(head);
             }
