@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [SerializeField]
     private int health = 0;
     private int currentHealth = 0;
+    private Renderer render = null;
     #region Movement
     [Header("Movement Stick DeadZone")]
     [SerializeField]
@@ -92,7 +93,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private BeatAnalyse beat = null;
     private Animator animator = null;
     private Rigidbody rigidbody = null;
-    private Timer lockTimer = new Timer();
+    private Timer lockTimer = new Timer(), materialChangeTimer = new Timer();
     private MovementCalculation calculator = new MovementCalculation();
     private MovementUpdate moveUpdate = new MovementUpdate();
     private Jumping jump = new Jumping();
@@ -127,6 +128,13 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private Stances lastStance = Stances.Idle;
 
     private bool debugMode = false;
+
+    [Header("Material for player beat hit")]
+    [SerializeField]
+    private List<Material> material;
+    [SerializeField]
+    private float materialChangeTime = 0;
+    private bool materialChanged = false;
     #endregion
 
     void Start()
@@ -135,13 +143,12 @@ public class PlayerController : MonoBehaviour, IDamageAble
         weaponCollider.enabled = false;
         animator = transform.GetComponentInChildren<Animator>();
         rigidbody = GetComponent<Rigidbody>();
-
+        render = transform.GetComponentInChildren<Renderer>();
         if (!jumpTest)
         {
             calculator.CalcualteJump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
 
-        lockTimer.CountingDown = true;
         CalculateAndSetLockTime(beatTimeLockPercent);
         currentHealth = health;
         SetSlideValue();
@@ -160,6 +167,21 @@ public class PlayerController : MonoBehaviour, IDamageAble
             attackPressed = Random.value > 0.5f;
             gunPressed = Random.value > 0.5f;
             slidePressed = Random.value > 0.5f;
+        }
+
+        if(materialChangeTimer.timeMax != materialChangeTime)
+        {
+            materialChangeTimer.timeMax = materialChangeTime;
+        }
+
+        if(materialChangeTimer.timeCurrent <= 0 && materialChanged)
+        {
+            materialChanged = false;
+            ChangeMaterial(false);
+        }
+        else
+        {
+            materialChangeTimer.Tick();
         }
 
         if (beatTimeLockPercentOld != beatTimeLockPercent)
@@ -327,6 +349,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         //invulerabilty
+                        ChangeMaterial(true);
                     }
                     animator.SetTrigger("jumping");
                     gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
@@ -337,6 +360,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         //invulnerable
+                        ChangeMaterial(true);
                     }
                     animator.SetTrigger("slide");
                     sliding.CurrentSlideTime = slideTime;
@@ -346,6 +370,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         attackStrafeUpdate = attackStrafe;
                         animator.SetTrigger("swordAttack(onB)1");
                         attackChain++;
@@ -362,6 +387,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("gunAttack(onB)");
                     }
                     else
@@ -389,6 +415,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         if (beat.IsOnBeat(reactionTime, timeWindow))
                         {
+                            ChangeMaterial(true);
                             //invulnerable
                         }
 
@@ -401,6 +428,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     animator.SetTrigger("slide");
@@ -411,6 +439,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         rigidbody.velocity = new Vector3(0, gravityMax, 0);
                         airAttack = true;
                         animator.SetTrigger("airSwordAttack(onB)");
@@ -427,6 +456,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("airGunAttack(onB)");
                         gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
@@ -456,6 +486,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         if (grounded)
                         {
+                            ChangeMaterial(true);
                             animator.SetTrigger("jumping");
                             gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
                         }
@@ -474,6 +505,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
 
@@ -486,6 +518,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("slideSwordAttack(onB)");
                         slideAttackTime = slideTime;
                     }
@@ -501,6 +534,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("slideGunAttack(onB)");
                     }
                     else
@@ -526,6 +560,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
@@ -535,6 +570,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     sliding.CurrentSlideTime = slideTime;
@@ -545,6 +581,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     attackStrafeUpdate = 0;
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         switch (attackChain)
                         {
                             case 1:
@@ -572,6 +609,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("gunAttack(onB)");
                     }
                     else
@@ -597,6 +635,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
 
@@ -614,6 +653,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     if (!grounded)
@@ -634,6 +674,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         if (!grounded)
                         {
                             airAttack = true;
@@ -666,6 +707,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("gunAttack(onB)");
                     }
                     else
@@ -715,6 +757,20 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private void SetSlideValue()
     {
         sliding.SlidingSpeed = slidingSpeed;
+    }
+
+    private void ChangeMaterial(bool beatHit)
+    {
+        if (beatHit)
+        {
+            materialChanged = true;
+            render.material = material[1];
+            materialChangeTimer.ResetTimer();
+        }
+        else
+        {
+            render.material = material[0];
+        }
     }
 
     private void OnTriggerEnter(Collider other)
