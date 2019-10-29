@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Jumping
+﻿public class Jumping
 {
     public enum JumpType { None, Normal, Air, Slide }
     private JumpType jumpTypeDisplay = JumpType.None;

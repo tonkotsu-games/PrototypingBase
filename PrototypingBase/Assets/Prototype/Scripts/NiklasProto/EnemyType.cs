@@ -8,6 +8,7 @@ public class EnemyType : MonoBehaviour
     {
         Quick,
         Heavy,
-        Ranged
+        Ranged,
+        Boss
     } 
 }
