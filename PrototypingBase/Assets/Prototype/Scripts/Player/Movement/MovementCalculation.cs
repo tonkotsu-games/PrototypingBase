@@ -25,10 +25,10 @@ public class MovementCalculation
     #region Move
     private float move = 0;
 
-    private Vector3 head = new Vector3(0, 0, 0);
-    private Vector3 moveVector = new Vector3(0, 0, 0);
+    private Vector3 head;
+    private Vector3 moveVector;
 
-    public Vector3 Head { get => head; }
+    public Vector3 Head { get => head; set => head = value; }
     public Vector3 MoveVector { get => moveVector; }
     #endregion
 
@@ -39,7 +39,7 @@ public class MovementCalculation
            moveVertical < -deadZone ||
            moveVertical > deadZone)
         {
-            head = cam.transform.forward.normalized * moveVertical + cam.transform.right.normalized * moveHorizontal;
+            head = cam.forward.normalized * moveVertical + cam.right.normalized * moveHorizontal;
             head = head.normalized;
             head.y = 0;
         }
@@ -57,7 +57,7 @@ public class MovementCalculation
             {
                 move = 1;
             }
-            moveVector = cam.transform.forward.normalized * Input.GetAxisRaw("Vertical") + cam.transform.right.normalized * Input.GetAxisRaw("Horizontal");
+            moveVector = cam.transform.forward.normalized * moveVertical + cam.transform.right.normalized * moveHorizontal;
             moveVector = moveVector.normalized * move * movementSpeed;
             moveVector.y = 0;
         }

@@ -18,7 +18,7 @@ public class FreeLookCamera : MonoBehaviour
     [Range(0, 20)]
     [SerializeField]
     private float offSetY = 0;
-    [Range(-20, 0)]
+    [Range(-20, 20)]
     [SerializeField]
     private float offSetZ = 0;
     [SerializeField]
@@ -43,12 +43,15 @@ public class FreeLookCamera : MonoBehaviour
     [SerializeField]
     private float lockOnOffSetY = 0;
 
-    private float rotationX = 0;
-    private float rotationY = 0;
+    private float rotationX;
+    private float rotationY;
 
-    private Vector3 offSet = new Vector3(0, 0, 0);
-    private Vector3 offSetNew = new Vector3(0, 0, 0);
-    private Vector3 offSetOld = new Vector3(0, 0, 0);
+    private float inputHorizontal = 0;
+    private float inputVertical = 0;
+
+    private Vector3 offSet;
+    private Vector3 offSetNew;
+    private Vector3 offSetOld;
 
     [HideInInspector]
     public Vector3 lookAt;
@@ -58,10 +61,12 @@ public class FreeLookCamera : MonoBehaviour
 
     private void Start()
     {
+        rotationX = playerTarget.transform.rotation.eulerAngles.y;
         offSetNew = new Vector3(0, offSetY, offSetZ);
         cam = Camera.main.transform;
         offSetOld = new Vector3(0, 0, 0);
         pivot = cam.parent;
+        StartRotation(rotationX);
     }
 
     private void Update()
@@ -76,6 +81,8 @@ public class FreeLookCamera : MonoBehaviour
 
     private void FixedUpdate()
     {
+        inputHorizontal = Input.GetAxisRaw("CameraHorizontal");
+        inputVertical = Input.GetAxisRaw("CameraVertical");
         if (!lockOn)
         {
             offSetNew = new Vector3(0, offSetY, offSetZ);
@@ -99,20 +106,20 @@ public class FreeLookCamera : MonoBehaviour
 
     private void CameraRotation()
     {
-        if ((Input.GetAxisRaw("CameraVertical") > deadZone ||
-            Input.GetAxisRaw("CameraVertical") < -deadZone) && 
+        if ((inputVertical > deadZone ||
+            inputVertical < -deadZone) && 
             !lockOn)
         {
-            rotationY -= Input.GetAxisRaw("CameraVertical") * senitivity;
+            rotationY -= inputVertical * senitivity;
             rotationY = Mathf.Clamp(rotationY, minAngle, maxAngle);
             pivot.localRotation = Quaternion.Euler(rotationY, 0, 0);
         }
 
-        if((Input.GetAxisRaw("CameraHorizontal") > deadZone ||
-           Input.GetAxisRaw("CameraHorizontal") < -deadZone) &&
+        if((inputHorizontal > deadZone ||
+           inputHorizontal < -deadZone) &&
            !lockOn)
         { 
-            rotationX += Input.GetAxisRaw("CameraHorizontal") * senitivity;
+            rotationX += inputHorizontal * senitivity;
             transform.rotation = Quaternion.Euler(0, rotationX, 0);
         }
 
@@ -128,5 +135,9 @@ public class FreeLookCamera : MonoBehaviour
             Quaternion lookAtRot = Quaternion.LookRotation(lookAt);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRot, lookAtSpeed);
         }
+    }
+    private void StartRotation(float yAngle)
+    {
+        transform.rotation = Quaternion.Euler(0, yAngle, 0);
     }
 }

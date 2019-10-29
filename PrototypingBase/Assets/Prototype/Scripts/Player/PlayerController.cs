@@ -135,6 +135,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [SerializeField]
     private float materialChangeTime = 0;
     private bool materialChanged = false;
+
     #endregion
 
     void Start()
@@ -148,7 +149,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
         {
             calculator.CalcualteJump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
-
         CalculateAndSetLockTime(beatTimeLockPercent);
         currentHealth = health;
         SetSlideValue();
@@ -169,12 +169,12 @@ public class PlayerController : MonoBehaviour, IDamageAble
             slidePressed = Random.value > 0.5f;
         }
 
-        if(materialChangeTimer.timeMax != materialChangeTime)
+        if (materialChangeTimer.timeMax != materialChangeTime)
         {
             materialChangeTimer.timeMax = materialChangeTime;
         }
 
-        if(materialChangeTimer.timeCurrent <= 0 && materialChanged)
+        if (materialChangeTimer.timeCurrent <= 0 && materialChanged)
         {
             materialChanged = false;
             ChangeMaterial(false);
@@ -274,8 +274,8 @@ public class PlayerController : MonoBehaviour, IDamageAble
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
             calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);
             headingUpdate.Heading(calculator.Head,transform,target);
-            moveUpdate.MoveUpdate(currentStance,rigidbody,sliding.SlideVelocity,calculator.MoveVector,gravityUpdate.Gravity,attackStrafe);
-            gravityUpdate.GravityUpdate(grounded, gravityMax,calculator.JumpGravity);
+            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
+            gravityUpdate.GravityUpdate(grounded, gravityMax, calculator.JumpGravity);
         }
         else if (currentStance == Stances.Slide)
         {
@@ -287,7 +287,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             {
                 ChangeStanceTo(Stances.Idle);
             }
-            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity,attackStrafe);
+            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
         }
         else if (currentStance == Stances.Attack)
         {
