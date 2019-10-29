@@ -57,7 +57,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [Header("Max. gravity. Negative value needed")]
     [SerializeField]
     private float gravityMax = 0;
-    private float gravity = 0;
 
     private bool grounded = false;
     #endregion
@@ -91,14 +90,19 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private Rigidbody rigidbody = null;
     private Timer lockTimer = new Timer();
     private MovementCalculation calculator = new MovementCalculation();
+    private MovementUpdate moveUpdate = new MovementUpdate();
     private Jumping jump = new Jumping();
     private Sliding sliding = new Sliding();
+    private HeadingUpdate headingUpdate = new HeadingUpdate();
+    private GravityArtificial gravityUpdate = new GravityArtificial();
     [SerializeField]
     private Transform respawner;
     [SerializeField]
     private GameObject cam = null;
     [SerializeField]
     private FreeLookCamera target = null;
+
+    private StateMachine stateMachine = new StateMachine();
 
     [Range(0, 100)]
     [SerializeField]
@@ -243,22 +247,21 @@ public class PlayerController : MonoBehaviour, IDamageAble
         {
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
             calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);
-
-            HeadingUpdate();
-            MoveUpdate();
-            GravityUpdate();
+            headingUpdate.Heading(calculator.Head,transform,target);
+            moveUpdate.MoveUpdate(currentStance,rigidbody,sliding.SlideVelocity,calculator.MoveVector,gravityUpdate.Gravity);
+            gravityUpdate.GravityUpdate(grounded, gravityMax,calculator.JumpGravity);
         }
         else if (currentStance == Stances.Slide)
         {
             if (sliding.CurrentSlideTime >= 0)
             {
-                sliding.SlideUpdate(grounded, lastStance, gravity, gravityMax, calculator.Head, transform);
+                sliding.SlideUpdate(grounded, lastStance, gravityUpdate.Gravity, gravityMax, calculator.Head, transform);
             }
             else
             {
                 ChangeStanceTo(Stances.Idle);
             }
-            MoveUpdate();
+            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity);
         }
         else if (currentStance == Stances.Attack)
         {
@@ -267,7 +270,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 weaponCollider.enabled = true;
             }
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
-            HeadingUpdate();
+            headingUpdate.Heading(calculator.Head, transform, target);
             if (grounded)
             {
                 if (airAttack)
@@ -276,46 +279,12 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     airAttack = false;
                     ChangeStanceTo(Stances.Idle);
                 }
-                rigidbody.velocity = new Vector3(0, gravity, 0);
+                rigidbody.velocity = new Vector3(0, gravityUpdate.Gravity, 0);
             }
         }
         else
         {
             Debug.LogError("WARNING NO STANCE");
-        }
-    }
-
-    private void HeadingUpdate()
-    {
-        if (!target.lockOn)
-        {
-            if (calculator.Head == Vector3.zero)
-            {
-                transform.rotation = Quaternion.identity;
-            }
-            else
-            {
-                transform.rotation = Quaternion.LookRotation(calculator.Head);
-            }
-        }
-        else if (target.lockOn)
-        {
-            target.lookAt.y = 0;
-            transform.rotation = Quaternion.LookRotation(target.lookAt);
-        }
-    }
-
-    void MoveUpdate()
-    {
-        if (currentStance == Stances.Slide)
-        {
-            rigidbody.velocity = sliding.SlideVelocity;
-        }
-        else
-        {
-            rigidbody.velocity = new Vector3(calculator.MoveVector.x,
-                                        gravity,
-                                        calculator.MoveVector.z);
         }
     }
 
@@ -356,7 +325,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         //invulerabilty
                     }
                     animator.SetTrigger("jumping");
-                    gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                    gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     break;
                 }
             case Stances.Slide:
@@ -405,7 +374,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             case Stances.Idle:
                 {
                     TriggerReset();
-                    gravity = 0;
+                    gravityUpdate.Gravity = 0;
                     break;
                 }
             case Stances.Jump:
@@ -418,7 +387,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         }
 
                         animator.SetTrigger("airJump");
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     break;
                 }
@@ -453,7 +422,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         animator.SetTrigger("airGunAttack(onB)");
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     else
                     {
@@ -472,7 +441,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             case Stances.Idle:
                 {
                     TriggerReset();
-                    gravity = 0;
+                    gravityUpdate.Gravity = 0;
                     break;
                 }
             case Stances.Jump:
@@ -482,7 +451,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         if (grounded)
                         {
                             animator.SetTrigger("jumping");
-                            gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
+                            gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
                         }
                     }
                     else
@@ -490,7 +459,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         if (grounded)
                         {
                             animator.SetTrigger("jumping");
-                            gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                            gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                         }
                     }
                     break;
@@ -503,7 +472,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     }
 
                     animator.SetTrigger("slide");
-                    HeadingUpdate();
+                    headingUpdate.Heading(calculator.Head, transform, target);
                     sliding.CurrentSlideTime = slideTime;
                     break;
                 }
@@ -553,7 +522,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         //invulnerable
                     }
-                    gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                    gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     break;
                 }
             case Stances.Slide:
@@ -614,7 +583,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             case Stances.Idle:
                 {
                     TriggerReset();
-                    gravity = 0;
+                    gravityUpdate.Gravity = 0;
                     break;
                 }
             case Stances.Jump:
@@ -626,11 +595,11 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
                     if (grounded)
                     {
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     }
                     else
                     {
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     break;
                 }
@@ -646,7 +615,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                                                      Vector3.down.y * 100,
                                                      transform.forward.z);
                         sliding.CurrentSlideTime = slideTime;
-                        gravity = 0;
+                        gravityUpdate.Gravity = 0;
                     }
                     else
                     {
@@ -701,21 +670,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
         }
     }
 
-    private void GravityUpdate()
-    {
-        if (!grounded)
-        {
-            if (gravity > gravityMax)
-            {
-                gravity += calculator.JumpGravity * Time.deltaTime;
-            }
-            else
-            {
-                gravity = gravityMax;
-            }
-        }
-    }
-
     private void CalculateAndSetLockTime(float percent)
     {
         lockTime = (beat.sampleTimeInSec * percent) / 100;
@@ -767,7 +721,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
         {
             lastStance = currentStance;
         }
-        gravity = 0;
+        gravityUpdate.Gravity = 0;
     }
 
     private void OnTriggerStay(Collider other)
@@ -806,7 +760,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
             GUI.Label(new Rect(10, 100, 400, 40), "Jump State: " + jump.JumpTypeDisplay, style);
             GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
-            GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
+            GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravityUpdate.Gravity, style);
             GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jump.JumpForce, style);
             GUI.Label(new Rect(10, 250, 400, 40), "Slide Time: " + sliding.CurrentSlideTime, style);
         }
