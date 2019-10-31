@@ -379,6 +379,7 @@ MonoBehaviour:
   health: 0
   deadZone: 0.35
   movementSpeed: 30
+  attackStrafe: 0
   jumpTest: 0
   jumpHeight: 10
   timeToHeight: 0.35
@@ -400,6 +401,10 @@ MonoBehaviour:
   reactionTime: 1000
   timeWindow: 5000
   TURNOFFTOFIX: 0
+  material:
+  - {fileID: 2100000, guid: e8829ef5228b1044aa943d10660f8349, type: 2}
+  - {fileID: 2100000, guid: 0da610afd4ae77e4db704057ecae9762, type: 2}
+  materialChangeTime: 1
 --- !u!135 &9167410380006807473
 SphereCollider:
   m_ObjectHideFlags: 0
