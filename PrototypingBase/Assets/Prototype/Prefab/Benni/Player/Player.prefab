@@ -391,7 +391,7 @@ MonoBehaviour:
   gravityMax: -40
   slideTime: 0.3
   slideAttackTime: 0
-  slidingSpeed: 60
+  slidingSpeed: 120
   attackChain: 0
   beat: {fileID: 0}
   respawner: {fileID: 0}

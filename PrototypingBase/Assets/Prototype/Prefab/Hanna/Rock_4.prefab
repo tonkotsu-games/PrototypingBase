@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 4501052186315660065}
   - component: {fileID: 4501052186316462855}
   - component: {fileID: 4501052186317429191}
-  m_Layer: 0
+  - component: {fileID: 8285974296775441031}
+  m_Layer: 9
   m_Name: ZBrush_defualt_group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -77,6 +78,20 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &8285974296775441031
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4501052186315228929}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 14
+  m_Mesh: {fileID: 4300002, guid: 47c03b32e813d444d8492fab6b2ff666, type: 3}
 --- !u!1 &4501052186315228933
 GameObject:
   m_ObjectHideFlags: 0
@@ -88,7 +103,7 @@ GameObject:
   - component: {fileID: 4501052186315660069}
   - component: {fileID: 4501052186316462853}
   - component: {fileID: 4501052186317429189}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Group1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,8 +178,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4501052186315660071}
-  m_Layer: 0
-  m_Name: Rock_4_low
+  m_Layer: 9
+  m_Name: Rock_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,6 +198,54 @@ Transform:
   m_Children:
   - {fileID: 4501052186315660069}
   - {fileID: 4501052186315660065}
+  - {fileID: 7341127463113389769}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -81.809006, y: 52.822002, z: 0}
+--- !u!1 &4882884734985502980
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7341127463113389769}
+  - component: {fileID: 4300132220563051499}
+  m_Layer: 9
+  m_Name: Navmeshobst
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7341127463113389769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4882884734985502980}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.17, y: 0.23, z: 0.07}
+  m_LocalScale: {x: 1.7032, y: 1.9009, z: 1.2944721}
+  m_Children: []
+  m_Father: {fileID: 4501052186315660071}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!208 &4300132220563051499
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4882884734985502980}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5

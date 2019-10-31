@@ -19,7 +19,6 @@ public class MovementUpdate
                 {
                     attackStrafe = 0;
                 }
-                Debug.Log(attackStrafe);
             }
             rigidbody.velocity = new Vector3(moveVector.x * attackStrafe,
                                  0,
