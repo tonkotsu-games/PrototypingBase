@@ -2,16 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
     [SerializeField]
-    GameObject ingameUI;
+    private GameObject ingameUI;
 
     [SerializeField]
-    GameObject augmentSelection;
+    private GameObject augmentSelection;
+
+    [SerializeField]
+    private GameObject styleGrade;
+
+    private PlayerController playerScript;
+
+    private bool endscreen = false;
 
     private void Awake()
     {
@@ -23,6 +31,22 @@ public class UIManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        WaveManager.OnGameEnd += EnableStyleGrade;
+
+        // i know this is horrible but we do a new project tomrrow so dont judge me
+        playerScript = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
+    }
+
+    private void Update()
+    {
+        if (endscreen)
+        {
+            if (Input.GetButton("Slide"))
+            {
+                SceneManager.LoadScene(0);
+            }
+        }
     }
 
     public void ToggleIngameUI(bool state)
@@ -32,6 +56,14 @@ public class UIManager : MonoBehaviour
     public void ToggleAugmentSelection(bool state)
     {
         augmentSelection.SetActive(state);
+    }
+
+   public void EnableStyleGrade()
+    {
+        ToggleIngameUI(false);
+        styleGrade.SetActive(true);
+        playerScript.enabled = false;
+        endscreen = true;
     }
 
 }

@@ -21,6 +21,8 @@ public class WaveManager : MonoBehaviour
 
     private PlayerController playerScript;
 
+    public static event System.Action OnGameEnd = delegate { };
+
     private void Awake()
     {
         if(instance == null)
@@ -85,6 +87,10 @@ public class WaveManager : MonoBehaviour
                     ChangeWaveState(nextWaveState);
                 }
             }
+        }
+        else
+        {
+            OnGameEnd();
         }
     }
 
