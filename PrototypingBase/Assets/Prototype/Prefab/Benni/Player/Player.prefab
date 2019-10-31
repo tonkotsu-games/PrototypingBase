@@ -237,6 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc219e7de4b6c20459e87ed59599ff42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCam: {fileID: 0}
 --- !u!114 &6147980680945710946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,7 +407,7 @@ MonoBehaviour:
   material:
   - {fileID: 2100000, guid: e8829ef5228b1044aa943d10660f8349, type: 2}
   - {fileID: 2100000, guid: 0da610afd4ae77e4db704057ecae9762, type: 2}
-  materialChangeTime: 1
+  materialChangeTime: 0.2
 --- !u!135 &9167410380006807473
 SphereCollider:
   m_ObjectHideFlags: 0
