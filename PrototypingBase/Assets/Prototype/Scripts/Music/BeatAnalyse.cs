@@ -61,9 +61,14 @@ public class BeatAnalyse : MonoBehaviour
         {
             debugMode = !debugMode;
         }
-        if (beatListCopy.Count == 0)
+        if ((sourceWave.timeSamples >= beatList[beatList.Count - 1] && copy) || beatListCopy.Count == 0)
         {
+            copy = false;
             beatListCopy = new List<int>(beatList);
+        }
+        if(sourceWave.timeSamples <= beatList[0] && !copy)
+        {
+            copy = true;
         }
     }
 
