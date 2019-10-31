@@ -84,6 +84,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     public int attackChain = 0;
 
     private bool airAttack = false;
+    private bool airAttackBeat = false;
     #endregion
     #endregion
 
@@ -100,14 +101,24 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private Sliding sliding = new Sliding();
     private HeadingUpdate headingUpdate = new HeadingUpdate();
     private GravityArtificial gravityUpdate = new GravityArtificial();
+    private KnockBack knockback = new KnockBack();
     [SerializeField]
     private Transform respawner;
     [SerializeField]
     private GameObject cam = null;
     [SerializeField]
     private FreeLookCamera target = null;
-
     private StateMachine stateMachine = new StateMachine();
+
+    [Header("Knockback Range")]
+    [SerializeField]
+    [Range(0, 20)]
+    private float knockbackRange = 0;
+    [Header("Knockback")]
+    [SerializeField]
+    [Range(0, 20)]
+    private float enemyKnockbackRange = 0;
+    private List<GameObject> currentenemy = new List<GameObject>();
 
     [Range(0, 100)]
     [SerializeField]
@@ -303,6 +314,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     animator.SetTrigger("meteorAttack");
                     airAttack = false;
+                    knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
                     ChangeStanceTo(Stances.Idle);
                 }
                 moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafeUpdate);
@@ -441,7 +453,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         ChangeMaterial(true);
                         rigidbody.velocity = new Vector3(0, gravityMax, 0);
-                        airAttack = true;
+                        airAttackBeat = true;
                         animator.SetTrigger("airSwordAttack(onB)");
                     }
                     else
@@ -836,5 +848,15 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
             GUI.Label(new Rect(300, 200, 400, 160), "Beatdeatection is null", style);
         }
+    }
+
+    public void EnemyAdd(GameObject enemy)
+    {
+        currentenemy.Add(enemy);
+    }
+
+    public void EnemyRemove(GameObject enemy)
+    {
+        currentenemy.Remove(enemy);
     }
 }
