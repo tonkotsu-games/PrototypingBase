@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [SerializeField]
     private int health = 0;
     private int currentHealth = 0;
+    private Renderer render = null;
     #region Movement
     [Header("Movement Stick DeadZone")]
     [SerializeField]
@@ -25,6 +26,10 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [Header("Value for the Movement")]
     [SerializeField]
     private float movementSpeed = 0;
+    [Header("Attackmovement")]
+    [SerializeField]
+    private float attackStrafe = 0;
+    private float attackStrafeUpdate = 0;
     #endregion
 
     #region Jumping
@@ -57,7 +62,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [Header("Max. gravity. Negative value needed")]
     [SerializeField]
     private float gravityMax = 0;
-    private float gravity = 0;
 
     private bool grounded = false;
     #endregion
@@ -80,6 +84,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     public int attackChain = 0;
 
     private bool airAttack = false;
+    private bool airAttackBeat = false;
     #endregion
     #endregion
 
@@ -89,16 +94,31 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private BeatAnalyse beat = null;
     private Animator animator = null;
     private Rigidbody rigidbody = null;
-    private Timer lockTimer = new Timer();
+    private Timer lockTimer = new Timer(), materialChangeTimer = new Timer();
     private MovementCalculation calculator = new MovementCalculation();
+    private MovementUpdate moveUpdate = new MovementUpdate();
     private Jumping jump = new Jumping();
     private Sliding sliding = new Sliding();
+    private HeadingUpdate headingUpdate = new HeadingUpdate();
+    private GravityArtificial gravityUpdate = new GravityArtificial();
+    private KnockBack knockback = new KnockBack();
     [SerializeField]
     private Transform respawner;
     [SerializeField]
     private GameObject cam = null;
     [SerializeField]
     private FreeLookCamera target = null;
+    private StateMachine stateMachine = new StateMachine();
+
+    [Header("Knockback Range")]
+    [SerializeField]
+    [Range(0, 20)]
+    private float knockbackRange = 0;
+    [Header("Knockback")]
+    [SerializeField]
+    [Range(0, 20)]
+    private float enemyKnockbackRange = 0;
+    private List<GameObject> currentenemy = new List<GameObject>();
 
     [Range(0, 100)]
     [SerializeField]
@@ -119,6 +139,14 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private Stances lastStance = Stances.Idle;
 
     private bool debugMode = false;
+
+    [Header("Material for player beat hit")]
+    [SerializeField]
+    private List<Material> material;
+    [SerializeField]
+    private float materialChangeTime = 0;
+    private bool materialChanged = false;
+
     #endregion
 
     void Start()
@@ -127,13 +155,11 @@ public class PlayerController : MonoBehaviour, IDamageAble
         weaponCollider.enabled = false;
         animator = transform.GetComponentInChildren<Animator>();
         rigidbody = GetComponent<Rigidbody>();
-
+        render = transform.GetComponentInChildren<Renderer>();
         if (!jumpTest)
         {
             calculator.CalcualteJump(jumpHeight, timeToHeight, airJumpHeight, timeToAirJumpHeight, slideJumpHeight, timeToSlideJumpHeight);
         }
-
-        lockTimer.CountingDown = true;
         CalculateAndSetLockTime(beatTimeLockPercent);
         currentHealth = health;
         SetSlideValue();
@@ -152,6 +178,21 @@ public class PlayerController : MonoBehaviour, IDamageAble
             attackPressed = Random.value > 0.5f;
             gunPressed = Random.value > 0.5f;
             slidePressed = Random.value > 0.5f;
+        }
+
+        if (materialChangeTimer.timeMax != materialChangeTime)
+        {
+            materialChangeTimer.timeMax = materialChangeTime;
+        }
+
+        if (materialChangeTimer.timeCurrent <= 0 && materialChanged)
+        {
+            materialChanged = false;
+            ChangeMaterial(false);
+        }
+        else
+        {
+            materialChangeTimer.Tick();
         }
 
         if (beatTimeLockPercentOld != beatTimeLockPercent)
@@ -243,22 +284,21 @@ public class PlayerController : MonoBehaviour, IDamageAble
         {
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
             calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);
-
-            HeadingUpdate();
-            MoveUpdate();
-            GravityUpdate();
+            headingUpdate.Heading(calculator.Head,transform,target);
+            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
+            gravityUpdate.GravityUpdate(grounded, gravityMax, calculator.JumpGravity);
         }
         else if (currentStance == Stances.Slide)
         {
             if (sliding.CurrentSlideTime >= 0)
             {
-                sliding.SlideUpdate(grounded, lastStance, gravity, gravityMax, calculator.Head, transform);
+                sliding.SlideUpdate(grounded, lastStance, gravityUpdate.Gravity, gravityMax, calculator.Head, transform);
             }
             else
             {
                 ChangeStanceTo(Stances.Idle);
             }
-            MoveUpdate();
+            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
         }
         else if (currentStance == Stances.Attack)
         {
@@ -267,55 +307,22 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 weaponCollider.enabled = true;
             }
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
-            HeadingUpdate();
+            headingUpdate.Heading(calculator.Head, transform, target);
             if (grounded)
             {
                 if (airAttack)
                 {
                     animator.SetTrigger("meteorAttack");
                     airAttack = false;
+                    knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
                     ChangeStanceTo(Stances.Idle);
                 }
-                rigidbody.velocity = new Vector3(0, gravity, 0);
+                moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafeUpdate);
             }
         }
         else
         {
             Debug.LogError("WARNING NO STANCE");
-        }
-    }
-
-    private void HeadingUpdate()
-    {
-        if (!target.lockOn)
-        {
-            if (calculator.Head == Vector3.zero)
-            {
-                transform.rotation = Quaternion.identity;
-            }
-            else
-            {
-                transform.rotation = Quaternion.LookRotation(calculator.Head);
-            }
-        }
-        else if (target.lockOn)
-        {
-            target.lookAt.y = 0;
-            transform.rotation = Quaternion.LookRotation(target.lookAt);
-        }
-    }
-
-    void MoveUpdate()
-    {
-        if (currentStance == Stances.Slide)
-        {
-            rigidbody.velocity = sliding.SlideVelocity;
-        }
-        else
-        {
-            rigidbody.velocity = new Vector3(calculator.MoveVector.x,
-                                        gravity,
-                                        calculator.MoveVector.z);
         }
     }
 
@@ -354,9 +361,10 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         //invulerabilty
+                        ChangeMaterial(true);
                     }
                     animator.SetTrigger("jumping");
-                    gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                    gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     break;
                 }
             case Stances.Slide:
@@ -364,6 +372,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         //invulnerable
+                        ChangeMaterial(true);
                     }
                     animator.SetTrigger("slide");
                     sliding.CurrentSlideTime = slideTime;
@@ -373,11 +382,14 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
+                        attackStrafeUpdate = attackStrafe;
                         animator.SetTrigger("swordAttack(onB)1");
                         attackChain++;
                     }
                     else
                     {
+                        attackStrafeUpdate = attackStrafe;
                         animator.SetTrigger("swordAttack");
                         attackChain = 0;
                     }
@@ -387,6 +399,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("gunAttack(onB)");
                     }
                     else
@@ -405,7 +418,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             case Stances.Idle:
                 {
                     TriggerReset();
-                    gravity = 0;
+                    gravityUpdate.Gravity = 0;
                     break;
                 }
             case Stances.Jump:
@@ -414,11 +427,12 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         if (beat.IsOnBeat(reactionTime, timeWindow))
                         {
+                            ChangeMaterial(true);
                             //invulnerable
                         }
 
                         animator.SetTrigger("airJump");
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     break;
                 }
@@ -426,6 +440,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     animator.SetTrigger("slide");
@@ -436,8 +451,9 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         rigidbody.velocity = new Vector3(0, gravityMax, 0);
-                        airAttack = true;
+                        airAttackBeat = true;
                         animator.SetTrigger("airSwordAttack(onB)");
                     }
                     else
@@ -452,8 +468,9 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("airGunAttack(onB)");
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     else
                     {
@@ -472,7 +489,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             case Stances.Idle:
                 {
                     TriggerReset();
-                    gravity = 0;
+                    gravityUpdate.Gravity = 0;
                     break;
                 }
             case Stances.Jump:
@@ -481,8 +498,9 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         if (grounded)
                         {
+                            ChangeMaterial(true);
                             animator.SetTrigger("jumping");
-                            gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
+                            gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
                         }
                     }
                     else
@@ -490,7 +508,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         if (grounded)
                         {
                             animator.SetTrigger("jumping");
-                            gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                            gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                         }
                     }
                     break;
@@ -499,11 +517,12 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
 
                     animator.SetTrigger("slide");
-                    HeadingUpdate();
+                    headingUpdate.Heading(calculator.Head, transform, target);
                     sliding.CurrentSlideTime = slideTime;
                     break;
                 }
@@ -511,6 +530,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("slideSwordAttack(onB)");
                         slideAttackTime = slideTime;
                     }
@@ -526,6 +546,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("slideGunAttack(onB)");
                     }
                     else
@@ -551,15 +572,17 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
-                    gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                    gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     break;
                 }
             case Stances.Slide:
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     sliding.CurrentSlideTime = slideTime;
@@ -567,8 +590,10 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 }
             case Stances.Attack:
                 {
+                    attackStrafeUpdate = 0;
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         switch (attackChain)
                         {
                             case 1:
@@ -596,6 +621,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("gunAttack(onB)");
                     }
                     else
@@ -614,23 +640,24 @@ public class PlayerController : MonoBehaviour, IDamageAble
             case Stances.Idle:
                 {
                     TriggerReset();
-                    gravity = 0;
+                    gravityUpdate.Gravity = 0;
                     break;
                 }
             case Stances.Jump:
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
 
                     if (grounded)
                     {
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     }
                     else
                     {
-                        gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     break;
                 }
@@ -638,6 +665,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         //invulnerable
                     }
                     if (!grounded)
@@ -646,7 +674,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                                                      Vector3.down.y * 100,
                                                      transform.forward.z);
                         sliding.CurrentSlideTime = slideTime;
-                        gravity = 0;
+                        gravityUpdate.Gravity = 0;
                     }
                     else
                     {
@@ -658,6 +686,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         if (!grounded)
                         {
                             airAttack = true;
@@ -690,6 +719,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 {
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
+                        ChangeMaterial(true);
                         animator.SetTrigger("gunAttack(onB)");
                     }
                     else
@@ -698,21 +728,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     }
                     break;
                 }
-        }
-    }
-
-    private void GravityUpdate()
-    {
-        if (!grounded)
-        {
-            if (gravity > gravityMax)
-            {
-                gravity += calculator.JumpGravity * Time.deltaTime;
-            }
-            else
-            {
-                gravity = gravityMax;
-            }
         }
     }
 
@@ -756,6 +771,20 @@ public class PlayerController : MonoBehaviour, IDamageAble
         sliding.SlidingSpeed = slidingSpeed;
     }
 
+    private void ChangeMaterial(bool beatHit)
+    {
+        if (beatHit)
+        {
+            materialChanged = true;
+            render.material = material[1];
+            materialChangeTimer.ResetTimer();
+        }
+        else
+        {
+            render.material = material[0];
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         animator.SetTrigger("landing");
@@ -767,7 +796,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
         {
             lastStance = currentStance;
         }
-        gravity = 0;
+        gravityUpdate.Gravity = 0;
     }
 
     private void OnTriggerStay(Collider other)
@@ -806,7 +835,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
             GUI.Label(new Rect(10, 100, 400, 40), "Jump State: " + jump.JumpTypeDisplay, style);
             GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
-            GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravity, style);
+            GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravityUpdate.Gravity, style);
             GUI.Label(new Rect(10, 220, 400, 40), "JumpForce: " + jump.JumpForce, style);
             GUI.Label(new Rect(10, 250, 400, 40), "Slide Time: " + sliding.CurrentSlideTime, style);
         }
@@ -819,5 +848,15 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
             GUI.Label(new Rect(300, 200, 400, 160), "Beatdeatection is null", style);
         }
+    }
+
+    public void EnemyAdd(GameObject enemy)
+    {
+        currentenemy.Add(enemy);
+    }
+
+    public void EnemyRemove(GameObject enemy)
+    {
+        currentenemy.Remove(enemy);
     }
 }

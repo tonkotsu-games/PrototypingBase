@@ -13,7 +13,7 @@ public class MoveArena : MonoBehaviour
     [SerializeField]
     private float maxY;
 
-    private float minY = -1;
+    private float minY = -0.15f;
 
     private void Update()
     {
@@ -21,7 +21,7 @@ public class MoveArena : MonoBehaviour
         {
             if (myWaves.Contains(WaveManager.instance.currentWaveState))
             {
-            
+               
                if(transform.localPosition.y < maxY)
                 {
                     transform.localPosition += (Vector3.up * speed*Time.deltaTime);

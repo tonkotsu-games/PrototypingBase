@@ -55,7 +55,6 @@ public class BeatAnalyse : MonoBehaviour
 
         sampleTimeInSec = sampleBeat / 44100;
 
-        Debug.Log(sampleTimeInSec);
         beatListCopy = new List<int>(beatList);
 
     }
@@ -70,12 +69,11 @@ public class BeatAnalyse : MonoBehaviour
         {
             copy = false;
             beatListCopy = new List<int>(beatList);
-            Debug.LogWarning("New List created");
         }
         if (sourceWave.timeSamples <= beatList[0] && !copy)
         {
             copy = true;
-            Debug.LogWarning("Copy now true");
+
         }
     }
 
