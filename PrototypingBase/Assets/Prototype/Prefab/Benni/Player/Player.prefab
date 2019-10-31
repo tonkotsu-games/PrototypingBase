@@ -397,6 +397,8 @@ MonoBehaviour:
   respawner: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
+  knockbackRange: 0
+  enemyKnockbackRange: 0
   beatTimeLockPercent: 40
   reactionTime: 1000
   timeWindow: 5000
