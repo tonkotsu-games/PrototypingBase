@@ -33,6 +33,7 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
         agent = gameObject.GetComponent<NavMeshAgent>();
         anim = gameObject.GetComponent<Animator>();
         agent.speed = Random.Range(minSpd, maxSpd);
+        player.GetComponent<PlayerController>().EnemyAdd(gameObject);
     }
 
     void Update()
@@ -64,5 +65,6 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     private void OnDestroy()
     {
         WaveManager.instance.RemoveFromCurrentEnemies(gameObject);
+        player.GetComponent<PlayerController>().EnemyRemove(gameObject);
     }
 }
