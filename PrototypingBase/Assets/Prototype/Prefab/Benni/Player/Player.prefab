@@ -391,12 +391,14 @@ MonoBehaviour:
   gravityMax: -40
   slideTime: 0.3
   slideAttackTime: 0
-  slidingSpeed: 60
+  slidingSpeed: 120
   attackChain: 0
   beat: {fileID: 0}
   respawner: {fileID: 0}
   cam: {fileID: 0}
   target: {fileID: 0}
+  knockbackRange: 0
+  enemyKnockbackRange: 0
   beatTimeLockPercent: 40
   reactionTime: 1000
   timeWindow: 5000
