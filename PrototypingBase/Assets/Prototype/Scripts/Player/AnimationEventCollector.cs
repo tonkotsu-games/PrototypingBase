@@ -5,10 +5,11 @@ using UnityEngine;
 public class AnimationEventCollector : MonoBehaviour
 {
     private PlayerController player;
+    [SerializeField] GameObject mainCam;
 
     private void Start()
     {
-        player = GetComponentInParent<PlayerController>();
+        player = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
     }
 
     public void AfterShoot()
@@ -19,6 +20,12 @@ public class AnimationEventCollector : MonoBehaviour
     public void AttackReset()
     {
         player.ChangeStanceTo(PlayerController.Stances.Idle);
+    }
+    public void IntroDone()
+    {
+        player.enabled = true;       
+        mainCam.SetActive(true);
+        gameObject.SetActive(false);
     }
 
 }

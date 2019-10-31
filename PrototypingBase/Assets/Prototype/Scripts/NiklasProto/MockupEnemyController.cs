@@ -22,9 +22,21 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     [SerializeField]
     private int health = 0;
 
+    bool starting = false;
+
     private void Awake()
     {
         WaveManager.instance.AddToCurrentEnemies(gameObject);
+        if(enemyType == EnemyType.EnemyTypes.Boss)
+        {
+            starting = false;
+            StartCoroutine(Delay());
+            
+        }
+        else
+        {
+            starting = true;
+        }
     }
 
     private void Start()
@@ -38,18 +50,21 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
 
     void Update()
     {
-        target = player.transform.position;
+        if (starting)
+        {
+            target = player.transform.position;
 
-        agent.SetDestination(target);
-        if (Vector3.Distance(transform.position, target) <= distance)
-        {
-            agent.isStopped = true;
-            anim.SetBool("rangedAttk", true);
-        }
-        else
-        {
-            agent.isStopped = false;
-            anim.SetBool("rangedAttk", false);
+            agent.SetDestination(target);
+            if (Vector3.Distance(transform.position, target) <= distance)
+            {
+                agent.isStopped = true;
+                anim.SetBool("rangedAttk", true);
+            }
+            else
+            {
+                agent.isStopped = false;
+                anim.SetBool("rangedAttk", false);
+            }
         }
     }
 
@@ -66,5 +81,11 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     {
         WaveManager.instance.RemoveFromCurrentEnemies(gameObject);
         player.GetComponent<PlayerController>().EnemyRemove(gameObject);
+    }
+
+    IEnumerator Delay()
+    {
+        yield return new WaitForSeconds(5);
+        starting = false;
     }
 }
