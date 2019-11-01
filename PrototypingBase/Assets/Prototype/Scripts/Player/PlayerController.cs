@@ -84,7 +84,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
     public int attackChain = 0;
 
     private bool airAttack = false;
-    private bool airAttackBeat = false;
     #endregion
     #endregion
 
@@ -310,9 +309,11 @@ public class PlayerController : MonoBehaviour, IDamageAble
             headingUpdate.Heading(calculator.Head, transform, target);
             if (grounded)
             {
+                Debug.LogError("in correct part, air attack is " + airAttack);
                 if (airAttack)
                 {
                     animator.SetBool("meteorAttackBool", true);
+                    Debug.LogError("SET METEORATTACK BOOL!");
                    /// animator.SetTrigger("meteorAttack");
                     airAttack = false;
                     knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
@@ -454,7 +455,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         ChangeMaterial(true);
                         rigidbody.velocity = new Vector3(0, gravityMax, 0);
-                        airAttackBeat = true;
+                        airAttack = true;
                         animator.SetTrigger("airSwordAttack(onB)");
                     }
                     else
