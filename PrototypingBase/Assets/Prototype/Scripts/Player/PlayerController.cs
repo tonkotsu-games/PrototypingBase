@@ -84,7 +84,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
     public int attackChain = 0;
 
     private bool airAttack = false;
-    private bool airAttackBeat = false;
     #endregion
     #endregion
 
@@ -454,7 +453,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         ChangeMaterial(true);
                         rigidbody.velocity = new Vector3(0, gravityMax, 0);
-                        airAttackBeat = true;
+                        airAttack = true;
                         animator.SetTrigger("airSwordAttack(onB)");
                     }
                     else
