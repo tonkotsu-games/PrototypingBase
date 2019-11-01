@@ -35,7 +35,7 @@ public class Sliding
         else
         {
             slideVelocity = new Vector3(player.forward.x * slidingSpeed,
-                                        gravityMax,
+                                        gravityMax - 70f,
                                         player.forward.z * slidingSpeed);
         }
     }

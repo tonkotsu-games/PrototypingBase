@@ -9,6 +9,7 @@ public class AnimationEventCollector : MonoBehaviour
 
     private void Start()
     {
+
         player = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
     }
 
@@ -26,6 +27,11 @@ public class AnimationEventCollector : MonoBehaviour
         player.enabled = true;       
         mainCam.SetActive(true);
         gameObject.SetActive(false);
+    }
+    public void afterMeteorattack()
+    {
+        gameObject.GetComponent<Animator>().SetBool("meteorAttackBool", false);
+
     }
 
 }
