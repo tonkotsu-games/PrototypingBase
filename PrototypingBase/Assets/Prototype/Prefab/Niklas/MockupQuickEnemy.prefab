@@ -2447,7 +2447,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 88a9a35d659fcca4582a3366449ea871, type: 3}
+  - {fileID: 2100000, guid: 336726d5c1badcb4fa1195df37c1de10, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2860,8 +2860,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8926093129155145727}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.16, z: -5.77}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalPosition: {x: -0.031991, y: 3.0325, z: -5.7436}
+  m_LocalScale: {x: 3.7419, y: 3.7419, z: 3.7419}
   m_Children:
   - {fileID: 8926093129155572679}
   - {fileID: 8926093129155572633}
@@ -2936,8 +2936,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyType: 0
-  minSpd: 6
-  maxSpd: 12
+  minSpd: 10
+  maxSpd: 14
   distance: 1
   health: 1
 --- !u!136 &2058644631859542496
