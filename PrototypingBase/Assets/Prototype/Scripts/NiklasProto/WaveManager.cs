@@ -19,7 +19,12 @@ public class WaveManager : MonoBehaviour
     public bool waveSpawnPaused = false;
     public bool modSelected = false;
 
+    public GameObject introCam; //Im sorry luca sam forced me to do this please hate him not me (or benni)
+
     private PlayerController playerScript;
+    bool introPlaying = false;
+
+    public static event System.Action OnGameEnd = delegate { };
 
     private void Awake()
     {
@@ -57,7 +62,7 @@ public class WaveManager : MonoBehaviour
     private void CheckForEnemiesLeftAndChangeWaveState()
     {
 
-        if (waveNumber != System.Enum.GetValues(typeof(Wave.Waves)).Length)
+        if (waveNumber <= System.Enum.GetValues(typeof(Wave.Waves)).Length)
         {
             if (currentEnemies.Count == 0)
             {
@@ -67,6 +72,7 @@ public class WaveManager : MonoBehaviour
                     if (!modSelected)
                     {
                         Debug.Log("Boss Stage");
+                        introPlaying = false;
                         UIManager.instance.ToggleAugmentSelection(true);
                         waveSpawnPaused = true;
                         playerScript.enabled = false;
@@ -86,6 +92,10 @@ public class WaveManager : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            OnGameEnd();
+        }
     }
 
     private void ChangeWaveState(Wave.Waves nextWave)
@@ -93,8 +103,16 @@ public class WaveManager : MonoBehaviour
         if (nextWave != currentWaveState)
         {
             UIManager.instance.ToggleIngameUI(true);       
-            if (waveTimer.timeCurrent <= 0 || waveNumber == 1)
+            if (waveTimer.timeCurrent <= 0 || waveNumber == 1 )
             {
+                if ((!introPlaying && waveNumber == 6) || (!introPlaying && waveNumber == 11))
+                {
+                    introPlaying = true;
+                    playerScript.enabled = false;
+                    playerScript.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+                    introCam.SetActive(true);
+                    Camera.main.gameObject.SetActive(false);
+                }
                 currentWaveState = nextWave;
                 waveNumber++;
                 nextWaveState = (Wave.Waves)waveNumber;

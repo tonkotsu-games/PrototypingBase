@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     #endregion
 
     #region Jumping
-    [Header("If true Jump Values can changed while playing")]
+    [Header("If true Jump Values can be changed while playing")]
     [SerializeField]
     bool jumpTest = false;
 
