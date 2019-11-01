@@ -309,11 +309,9 @@ public class PlayerController : MonoBehaviour, IDamageAble
             headingUpdate.Heading(calculator.Head, transform, target);
             if (grounded)
             {
-                Debug.LogError("in correct part, air attack is " + airAttack);
                 if (airAttack)
                 {
                     animator.SetBool("meteorAttackBool", true);
-                    Debug.LogError("SET METEORATTACK BOOL!");
                    /// animator.SetTrigger("meteorAttack");
                     airAttack = false;
                     knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
