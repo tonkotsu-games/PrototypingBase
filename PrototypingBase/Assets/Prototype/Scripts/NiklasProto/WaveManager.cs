@@ -25,6 +25,7 @@ public class WaveManager : MonoBehaviour
     bool introPlaying = false;
 
     public static event System.Action OnGameEnd = delegate { };
+    public static event System.Action OnFirstModStage = delegate { };
 
     private void Awake()
     {
@@ -78,10 +79,15 @@ public class WaveManager : MonoBehaviour
                         playerScript.enabled = false;
                         playerScript.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
                     }
-                    if (modSelected)
+                    else if (modSelected)
                     {
                         playerScript.enabled = true;
                         ChangeWaveState(nextWaveState);
+                    }
+
+                    if(waveNumber == 2)
+                    {
+                        OnFirstModStage();
                     }
 
                 }
