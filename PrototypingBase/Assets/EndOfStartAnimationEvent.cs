@@ -18,6 +18,7 @@ public class EndOfStartAnimationEvent : MonoBehaviour
     public void LockPlayer()
     {
         playerScript.enabled = false;
+        playerScript.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
     }
 
     public void UnlockPlayer()
