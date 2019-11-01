@@ -50,13 +50,9 @@ public class BeatAnalyse : MonoBehaviour
                 }
             }
         }
-
         sampleBeat = Mathf.Abs(beatList[0] - beatList[1]);
-
         sampleTimeInSec = sampleBeat / 44100;
-
         beatListCopy = new List<int>(beatList);
-
     }
 
     private void Update()
@@ -65,15 +61,14 @@ public class BeatAnalyse : MonoBehaviour
         {
             debugMode = !debugMode;
         }
-        if (sourceWave.timeSamples >= beatList[beatList.Count - 1] && copy)
+        if ((sourceWave.timeSamples >= beatList[beatList.Count - 1] && copy) || beatListCopy.Count == 0)
         {
             copy = false;
             beatListCopy = new List<int>(beatList);
         }
-        if (sourceWave.timeSamples <= beatList[0] && !copy)
+        if(sourceWave.timeSamples <= beatList[0] && !copy)
         {
             copy = true;
-
         }
     }
 
