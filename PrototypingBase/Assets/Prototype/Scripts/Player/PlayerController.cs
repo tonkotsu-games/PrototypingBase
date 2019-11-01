@@ -859,5 +859,4 @@ public class PlayerController : MonoBehaviour, IDamageAble
     {
         currentenemy.Remove(enemy);
     }
-
 }
