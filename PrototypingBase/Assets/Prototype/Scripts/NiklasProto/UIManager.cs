@@ -59,7 +59,6 @@ public class UIManager : MonoBehaviour
     public void ToggleAugmentSelection(bool state)
     {
         augmentSelection.SetActive(state);
-        firstSelectedAugment.Select();
     }
 
    public void EnableStyleGrade()
