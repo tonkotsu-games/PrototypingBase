@@ -312,7 +312,8 @@ public class PlayerController : MonoBehaviour, IDamageAble
             {
                 if (airAttack)
                 {
-                    animator.SetTrigger("meteorAttack");
+                    animator.SetBool("meteorAttackBool", true);
+                   /// animator.SetTrigger("meteorAttack");
                     airAttack = false;
                     knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
                     ChangeStanceTo(Stances.Idle);
@@ -859,4 +860,5 @@ public class PlayerController : MonoBehaviour, IDamageAble
     {
         currentenemy.Remove(enemy);
     }
+
 }
