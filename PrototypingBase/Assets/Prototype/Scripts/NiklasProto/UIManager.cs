@@ -15,6 +15,9 @@ public class UIManager : MonoBehaviour
     private GameObject augmentSelection;
 
     [SerializeField]
+    private Button firstSelectedAugment;
+
+    [SerializeField]
     private GameObject styleGrade;
 
     private PlayerController playerScript;
@@ -56,6 +59,7 @@ public class UIManager : MonoBehaviour
     public void ToggleAugmentSelection(bool state)
     {
         augmentSelection.SetActive(state);
+        firstSelectedAugment.Select();
     }
 
    public void EnableStyleGrade()
