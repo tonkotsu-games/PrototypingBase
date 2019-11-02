@@ -1,6 +1,6 @@
 ﻿public interface IState
 {
-    void Enter(IState previousSate);
+    void Enter();
 
     void Execute();
 

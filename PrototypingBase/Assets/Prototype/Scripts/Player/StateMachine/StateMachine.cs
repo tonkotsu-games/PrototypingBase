@@ -1,9 +1,11 @@
-﻿public class StateMachine
+﻿using UnityEngine;
+
+public class StateMachine
 {
     private IState currentState = null;
     private IState previousState = null;
 
-    public void CangeState(IState newState)
+    public void ChangeState(IState newState)
     {
         if (currentState != null)
         {
@@ -11,6 +13,8 @@
         }
         previousState = currentState;
         currentState = newState;
+
+        currentState.Enter();
     }
 
     public void ExecuteStateUpdate()
