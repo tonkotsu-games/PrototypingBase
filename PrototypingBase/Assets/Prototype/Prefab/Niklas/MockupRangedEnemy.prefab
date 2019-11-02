@@ -2936,7 +2936,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyType: 2
-  minSpd: 5
+  minSpd: 8
   maxSpd: 12
   distance: 20
   health: 1

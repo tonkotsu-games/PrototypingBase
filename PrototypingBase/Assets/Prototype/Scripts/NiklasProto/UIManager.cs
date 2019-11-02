@@ -15,6 +15,9 @@ public class UIManager : MonoBehaviour
     private GameObject augmentSelection;
 
     [SerializeField]
+    private Button firstSelectedAugment;
+
+    [SerializeField]
     private GameObject styleGrade;
 
     private PlayerController playerScript;

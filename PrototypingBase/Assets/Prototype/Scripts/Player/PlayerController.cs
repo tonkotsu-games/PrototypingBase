@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     #endregion
 
     #region Jumping
-    [Header("If true Jump Values can changed while playing")]
+    [Header("If true Jump Values can be changed while playing")]
     [SerializeField]
     bool jumpTest = false;
 
@@ -84,7 +84,6 @@ public class PlayerController : MonoBehaviour, IDamageAble
     public int attackChain = 0;
 
     private bool airAttack = false;
-    private bool airAttackBeat = false;
     #endregion
     #endregion
 
@@ -312,7 +311,8 @@ public class PlayerController : MonoBehaviour, IDamageAble
             {
                 if (airAttack)
                 {
-                    animator.SetTrigger("meteorAttack");
+                    animator.SetBool("meteorAttackBool", true);
+                   /// animator.SetTrigger("meteorAttack");
                     airAttack = false;
                     knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
                     ChangeStanceTo(Stances.Idle);
@@ -452,13 +452,13 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         ChangeMaterial(true);
-                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
-                        airAttackBeat = true;
+                        rigidbody.velocity = new Vector3(0, gravityMax - 90f, 0);
+                        airAttack = true;
                         animator.SetTrigger("airSwordAttack(onB)");
                     }
                     else
                     {
-                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
+                        rigidbody.velocity = new Vector3(0, gravityMax - 90f, 0);
                         airAttack = true;
                         animator.SetTrigger("airSwordAttack");
                     }

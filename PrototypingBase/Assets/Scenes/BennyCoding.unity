@@ -1244,11 +1244,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
-      propertyPath: material.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
-        type: 3}
       propertyPath: beatTimeLockPercent
       value: 0
       objectReference: {fileID: 0}
@@ -1310,21 +1305,6 @@ PrefabInstance:
     - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: Material.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: e8829ef5228b1044aa943d10660f8349, type: 2}
-    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
-        type: 3}
-      propertyPath: materialChangeTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
-        type: 3}
-      propertyPath: material.Array.data[1]
-      value: 
-      objectReference: {fileID: 2100000, guid: 0da610afd4ae77e4db704057ecae9762, type: 2}
-    - target: {fileID: 9167410380006807478, guid: d44f84267306cdb4da2b2eca793c9577,
-        type: 3}
-      propertyPath: material.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: e8829ef5228b1044aa943d10660f8349, type: 2}
     - target: {fileID: 9167410380006807476, guid: d44f84267306cdb4da2b2eca793c9577,
