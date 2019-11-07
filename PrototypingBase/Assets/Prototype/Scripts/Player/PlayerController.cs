@@ -452,13 +452,13 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     if (beat.IsOnBeat(reactionTime, timeWindow))
                     {
                         ChangeMaterial(true);
-                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
+                        rigidbody.velocity = new Vector3(0, gravityMax - 90f, 0);
                         airAttack = true;
                         animator.SetTrigger("airSwordAttack(onB)");
                     }
                     else
                     {
-                        rigidbody.velocity = new Vector3(0, gravityMax, 0);
+                        rigidbody.velocity = new Vector3(0, gravityMax - 90f, 0);
                         airAttack = true;
                         animator.SetTrigger("airSwordAttack");
                     }
