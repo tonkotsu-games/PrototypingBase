@@ -2939,7 +2939,7 @@ MonoBehaviour:
   minSpd: 10
   maxSpd: 14
   distance: 1
-  health: 1
+  health: 3
 --- !u!136 &2058644631859542496
 CapsuleCollider:
   m_ObjectHideFlags: 0

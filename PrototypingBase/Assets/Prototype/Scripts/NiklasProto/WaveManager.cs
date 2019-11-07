@@ -21,7 +21,7 @@ public class WaveManager : MonoBehaviour
 
     public GameObject introCam; //Im sorry luca sam forced me to do this please hate him not me (or benni)
 
-    private PlayerController playerScript;
+    private PlayerNiklas playerScript;
     bool introPlaying = false;
 
     public static event System.Action OnGameEnd = delegate { };
@@ -49,7 +49,7 @@ public class WaveManager : MonoBehaviour
         nextWaveState = (Wave.Waves)waveNumber;
         waveSpawnPaused = true;
         //UIManager.instance.ToggleAugmentSelection(true);
-        playerScript = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
+        playerScript = Locator.instance.GetPlayerGameObject().GetComponent<PlayerNiklas>();
     }
 
     private void LateUpdate()

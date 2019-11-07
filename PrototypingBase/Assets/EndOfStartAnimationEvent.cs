@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class EndOfStartAnimationEvent : MonoBehaviour
 {
-    private PlayerController playerScript;
+    private PlayerNiklas playerScript;
 
     private void Start()
     {
-        playerScript = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
+        playerScript = Locator.instance.GetPlayerGameObject().GetComponent<PlayerNiklas>();
     }
     public void AnimationOver()
     {
