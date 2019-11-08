@@ -252,8 +252,8 @@ MonoBehaviour:
   movementSpeed: 20
   baseMovementEnabled: 1
   playerBody: {fileID: 4653968965115919544}
-  dashDistance: 10
-  dashSpeed: 100
+  dashDistance: 13
+  dashSpeed: 125
   gravity: -200
   knockbackStrength: 5
 --- !u!1001 &4653968965115886170
