@@ -118,7 +118,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1355593713769065361}
-  m_LocalRotation: {x: -0.0026482856, y: 0.919821, z: -0.3922802, w: -0.0062097064}
+  m_LocalRotation: {x: -0.0026482951, y: 0.9198211, z: -0.39228013, w: -0.0062097115}
   m_LocalPosition: {x: -2.4978638, y: 35.054016, z: 38.104214}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -190,7 +190,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1355593713990939385}
-  m_LocalRotation: {x: -0.0026482856, y: 0.919821, z: -0.3922802, w: -0.0062097064}
+  m_LocalRotation: {x: -0.0026482951, y: 0.9198211, z: -0.39228013, w: -0.0062097115}
   m_LocalPosition: {x: -2.4978638, y: 35.054016, z: 38.104214}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -362,7 +362,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6466339345221613840}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: CameraBirdsEye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
