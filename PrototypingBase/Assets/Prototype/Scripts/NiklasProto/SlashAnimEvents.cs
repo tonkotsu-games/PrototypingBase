@@ -23,4 +23,9 @@ public class SlashAnimEvents : MonoBehaviour
         playerScript.slashRight = false;
         playerScript.DisableSlashHitbox();
     }
+
+    public void EndAttackMove()
+    {
+        playerScript.inAttackMove = false;
+    }
 }

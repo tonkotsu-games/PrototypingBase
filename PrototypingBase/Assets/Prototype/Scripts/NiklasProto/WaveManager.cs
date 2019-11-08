@@ -146,7 +146,7 @@ public class WaveManager : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.Box("Current Wave: " + currentWaveState);
-        GUILayout.Box("Enemies Left: " + currentEnemies.Count);
+       // GUILayout.Box("Current Wave: " + currentWaveState);
+       // GUILayout.Box("Enemies Left: " + currentEnemies.Count);
     }
 }
