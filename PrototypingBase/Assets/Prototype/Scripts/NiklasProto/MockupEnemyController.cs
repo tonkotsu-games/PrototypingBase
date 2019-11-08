@@ -22,6 +22,9 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     [SerializeField]
     private int health = 0;
 
+    [SerializeField]
+    private List<GameObject> bloodSpawns;
+
     bool starting = false;
 
     private void Awake()
@@ -45,7 +48,7 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
         agent = gameObject.GetComponent<NavMeshAgent>();
         anim = gameObject.GetComponent<Animator>();
         agent.speed = Random.Range(minSpd, maxSpd);
-        player.GetComponent<PlayerController>().EnemyAdd(gameObject);
+        //player.GetComponent<PlayerController>().EnemyAdd(gameObject);
     }
 
     void Update()
@@ -71,6 +74,7 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     public void Damage(int damageAmount)
     {
         health -= damageAmount;
+        SpawnBlood();
         if(health <= 0)
         {
             Destroy(this.gameObject);
@@ -80,12 +84,24 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     private void OnDestroy()
     {
         WaveManager.instance.RemoveFromCurrentEnemies(gameObject);
-        player.GetComponent<PlayerController>().EnemyRemove(gameObject);
+       // player.GetComponent<PlayerController>().EnemyRemove(gameObject);
     }
 
     IEnumerator Delay()
     {
         yield return new WaitForSeconds(5);
         starting = false;
+    }
+
+    private void SpawnBlood()
+    {
+        GameObject tempSpawn = bloodSpawns[Random.Range(0, bloodSpawns.Count)];
+        ParticleSystem part = tempSpawn.GetComponentInChildren<ParticleSystem>();
+        part.Play();
+        if(part == null)
+        {
+            Debug.Log("oh no");
+        }
+        
     }
 }
