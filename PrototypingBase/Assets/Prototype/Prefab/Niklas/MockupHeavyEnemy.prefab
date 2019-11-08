@@ -31,6 +31,50 @@ Transform:
   m_Father: {fileID: 8926093129155572703}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: -202.10599, z: 0}
+--- !u!1 &4334761326421680741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6822200580946822287}
+  - component: {fileID: 7037925459662923304}
+  m_Layer: 0
+  m_Name: MeleeHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6822200580946822287
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4334761326421680741}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.376, z: 0.352}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8926093129155572703}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &7037925459662923304
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4334761326421680741}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.73946416, y: 0.6359821, z: 1}
+  m_Center: {x: 0.039700918, y: -0.18200992, z: 0}
 --- !u!1 &8424716681194047838
 GameObject:
   m_ObjectHideFlags: 0
@@ -2932,6 +2976,7 @@ Transform:
   - {fileID: 8926093129155572315}
   - {fileID: 1565637035989167516}
   - {fileID: 5050982488073458468}
+  - {fileID: 6822200580946822287}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3003,7 +3048,7 @@ MonoBehaviour:
   enemyType: 1
   minSpd: 5
   maxSpd: 7
-  distance: 1
+  distance: 10
   maxKnockbackRange: 15
   health: 10
   bloodSpawns:

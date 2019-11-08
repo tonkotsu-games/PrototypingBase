@@ -2975,7 +2975,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 8926093129155145727}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.69
+  m_Radius: 0.3
   m_Speed: 10
   m_Acceleration: 8
   avoidancePriority: 50
@@ -3003,7 +3003,7 @@ MonoBehaviour:
   enemyType: 0
   minSpd: 10
   maxSpd: 14
-  distance: 1
+  distance: 10
   maxKnockbackRange: 20
   health: 3
   bloodSpawns:
