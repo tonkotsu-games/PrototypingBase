@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerNiklas : MonoBehaviour
+public class PlayerNiklas : MonoBehaviour,IDamageAble
 {
 
     float inputHorizontal;
@@ -16,9 +16,13 @@ public class PlayerNiklas : MonoBehaviour
     Animator playerAnim;
     SlashCheckNiklas slashScript;
     BoxCollider slashHitbox;
+    int currentHealth;
 
     [HideInInspector]
     public bool slashRight = false;
+
+    [SerializeField]
+    int maxHealth;
 
     [SerializeField]
     float movementSpeed = 1f;
@@ -47,6 +51,7 @@ public class PlayerNiklas : MonoBehaviour
         playerAnim = gameObject.GetComponentInChildren<Animator>();
         slashScript = gameObject.GetComponentInChildren<SlashCheckNiklas>();
         slashHitbox = slashScript.gameObject.GetComponent<BoxCollider>();
+        currentHealth = maxHealth;
     }
 
     // Update is called once per frame
@@ -151,5 +156,31 @@ public class PlayerNiklas : MonoBehaviour
     public void EnemyHit(GameObject target)
     {
         target.GetComponent<MockupEnemyController>().DamageAndPush(2,transform.position,knockbackStrength);       
+    }
+
+    public void Damage(int damageAmount)
+    {
+        currentHealth -= damageAmount;
+        Debug.Log("Player got hit! Current Health: " + currentHealth);
+    }
+
+    void OnGui()
+    {
+        if (currentHealth <= 0)
+        {
+            var style = new GUIStyle(GUI.skin.button);
+            style.normal.textColor = Color.red;
+            style.fontSize = 40;
+            GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height));
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Box("YOU DIEDED PLEB!", style);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndArea();
+
+        }
     }
 }
