@@ -40,7 +40,7 @@ BoxCollider:
   m_GameObject: {fileID: 5206308865077168295}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 0.56047463, y: 0.31738883, z: 0.8276948}
   m_Center: {x: -0.049793914, y: -0.022713182, z: -0.086152904}
@@ -3049,11 +3049,13 @@ MonoBehaviour:
   minSpd: 10
   maxSpd: 14
   distance: 10
+  damageDealt: 1
   maxKnockbackRange: 20
   health: 3
   bloodSpawns:
   - {fileID: 6021924988715621372}
   - {fileID: 7411225544625571252}
+  meleeHitbox: {fileID: 4447349662649085588}
 --- !u!136 &2058644631859542496
 CapsuleCollider:
   m_ObjectHideFlags: 0

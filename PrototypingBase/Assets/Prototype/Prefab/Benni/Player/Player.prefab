@@ -249,6 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slashRight: 0
+  maxHealth: 10
   movementSpeed: 20
   baseMovementEnabled: 1
   playerBody: {fileID: 4653968965115919544}
