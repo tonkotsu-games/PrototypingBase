@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: -5.4444304, y: 39.089985, z: -36.63099}
+  m_FollowOffset: {x: -6.720496, y: 47.97597, z: -45.06185}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -118,8 +118,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1355593713769065361}
-  m_LocalRotation: {x: -0.0026482856, y: 0.919821, z: -0.3922802, w: -0.0062097064}
-  m_LocalPosition: {x: -2.4978638, y: 35.054016, z: 38.104214}
+  m_LocalRotation: {x: -0.0027460968, y: 0.91982746, z: -0.39226073, w: -0.006439393}
+  m_LocalPosition: {x: -2.359993, y: 43.940002, z: 46.629986}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1355593713021213138}
@@ -190,8 +190,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1355593713990939385}
-  m_LocalRotation: {x: -0.0026482856, y: 0.919821, z: -0.3922802, w: -0.0062097064}
-  m_LocalPosition: {x: -2.4978638, y: 35.054016, z: 38.104214}
+  m_LocalRotation: {x: -0.0027460968, y: 0.91982746, z: -0.39226073, w: -0.006439393}
+  m_LocalPosition: {x: -2.359993, y: 43.940002, z: 46.629986}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6466339345221613840}
@@ -362,7 +362,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6466339345221613840}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: CameraBirdsEye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
