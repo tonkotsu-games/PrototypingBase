@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class SlashCheckNiklas : MonoBehaviour
 {
-    [SerializeField]
     PlayerNiklas playerScript;
 
+    private void Start()
+    {
+        playerScript = GetComponentInParent<PlayerNiklas>();
+    }
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.GetComponent<MockupEnemyController>() != null)
