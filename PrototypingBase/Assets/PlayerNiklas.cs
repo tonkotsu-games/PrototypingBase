@@ -35,6 +35,9 @@ public class PlayerNiklas : MonoBehaviour
     [SerializeField]
     float gravity = -60f;
 
+    [SerializeField]
+    float knockbackStrength = 5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -143,5 +146,10 @@ public class PlayerNiklas : MonoBehaviour
     public void DisableSlashHitbox()
     {
         slashHitbox.enabled = false;
+    }
+
+    public void EnemyHit(GameObject target)
+    {
+        target.GetComponent<MockupEnemyController>().DamageAndPush(2,transform.position,knockbackStrength);       
     }
 }
