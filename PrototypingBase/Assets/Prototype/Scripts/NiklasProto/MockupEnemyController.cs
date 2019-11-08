@@ -11,6 +11,8 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     private Vector3 target;
     private NavMeshAgent agent;
     private Animator anim;
+    private Rigidbody rb;
+    private bool gotPushed = false;
 
     [SerializeField]
     private float minSpd;
@@ -18,6 +20,9 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     private float maxSpd;
     [SerializeField]
     private float distance;
+
+    [SerializeField]
+    private float maxKnockbackRange = 10f;
 
     [SerializeField]
     private int health = 0;
@@ -48,6 +53,7 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
         agent = gameObject.GetComponent<NavMeshAgent>();
         anim = gameObject.GetComponent<Animator>();
         agent.speed = Random.Range(minSpd, maxSpd);
+        rb = gameObject.GetComponent<Rigidbody>();
         //player.GetComponent<PlayerController>().EnemyAdd(gameObject);
     }
 
@@ -68,13 +74,30 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
                 agent.isStopped = false;
                 anim.SetBool("rangedAttk", false);
             }
+
+            if (gotPushed)
+            {
+                if(Vector3.Distance(target,transform.position)>= maxKnockbackRange)
+                {
+                    rb.velocity = Vector3.zero;
+                    gotPushed = false;
+                    rb.isKinematic = true;
+                }
+            }
         }
     }
-
-    public void Damage(int damageAmount)
+    public void Damage(int damageAmount) { }
+    public void DamageAndPush(int damageAmount,Vector3 playerPos = default(Vector3),float pushStrength = default(float))
     {
         health -= damageAmount;
         SpawnBlood();
+        if(playerPos != Vector3.zero)
+        {
+            Vector3 pushDirection = transform.position - playerPos;
+            rb.isKinematic = false;
+            rb.AddForce((pushDirection * pushStrength), ForceMode.Impulse);
+            gotPushed = true;
+        }
         if(health <= 0)
         {
             Destroy(this.gameObject);
@@ -98,10 +121,6 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
         GameObject tempSpawn = bloodSpawns[Random.Range(0, bloodSpawns.Count)];
         ParticleSystem part = tempSpawn.GetComponentInChildren<ParticleSystem>();
         part.Play();
-        if(part == null)
-        {
-            Debug.Log("oh no");
-        }
         
     }
 }
