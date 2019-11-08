@@ -13,6 +13,7 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     private Animator anim;
     private Rigidbody rb;
     private bool gotPushed = false;
+    private int currentStaggerCount = 0; 
 
     [SerializeField]
     private float minSpd;
@@ -22,13 +23,22 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
     private float distance;
 
     [SerializeField]
+    private int damageDealt = 1;
+
+    [SerializeField]
     private float maxKnockbackRange = 10f;
+
+    [SerializeField]
+    private int maxStaggerAmount = 3;
 
     [SerializeField]
     private int health = 0;
 
     [SerializeField]
     private List<GameObject> bloodSpawns;
+
+    [SerializeField]
+    BoxCollider meleeHitbox;
 
     bool starting = false;
 
@@ -54,7 +64,6 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
         anim = gameObject.GetComponent<Animator>();
         agent.speed = Random.Range(minSpd, maxSpd);
         rb = gameObject.GetComponent<Rigidbody>();
-        //player.GetComponent<PlayerController>().EnemyAdd(gameObject);
     }
 
     void Update()
@@ -106,6 +115,11 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
             rb.isKinematic = false;
             rb.AddForce((pushDirection * pushStrength), ForceMode.Impulse);
             gotPushed = true;
+            if (currentStaggerCount <= maxStaggerAmount)
+            {
+                currentStaggerCount++;
+                anim.SetTrigger("staggered");
+            }
         }
         if(health <= 0)
         {
@@ -131,5 +145,21 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
         ParticleSystem part = tempSpawn.GetComponentInChildren<ParticleSystem>();
         part.Play();
         
+    }
+
+    public void DamagePlayer(PlayerNiklas playerScript)
+    {
+        playerScript.Damage(damageDealt);
+        currentStaggerCount = 0;
+
+    }
+
+    public void EnableMeleeHit()
+    {
+        meleeHitbox.enabled = true;
+    }
+    public void DisableMeleeHit()
+    {
+        meleeHitbox.enabled = false;
     }
 }
