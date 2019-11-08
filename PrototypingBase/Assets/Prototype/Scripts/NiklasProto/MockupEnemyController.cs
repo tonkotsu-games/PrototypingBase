@@ -59,6 +59,8 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
 
     void Update()
     {
+        anim.ResetTrigger("attacking");
+
         if (starting)
         {
             target = player.transform.position;
@@ -67,7 +69,14 @@ public class MockupEnemyController : MonoBehaviour , IDamageAble
             if (Vector3.Distance(transform.position, target) <= distance)
             {
                 agent.isStopped = true;
-                anim.SetBool("rangedAttk", true);
+                if (enemyType == EnemyType.EnemyTypes.Ranged)
+                {
+                    anim.SetBool("rangedAttk", true);
+                }
+                else
+                {
+                    anim.SetTrigger("attacking");
+                }
             }
             else
             {

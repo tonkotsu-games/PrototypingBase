@@ -3003,7 +3003,7 @@ MonoBehaviour:
   enemyType: 1
   minSpd: 5
   maxSpd: 7
-  distance: 1
+  distance: 10
   maxKnockbackRange: 15
   health: 10
   bloodSpawns:
