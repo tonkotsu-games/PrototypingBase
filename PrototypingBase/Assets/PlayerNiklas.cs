@@ -111,11 +111,13 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
         {
             playerRigidbody.velocity = Vector3.zero;
             inDash = false;
+            Physics.IgnoreLayerCollision(10, 11, false);
         }
         else
         {
             if (dashTimer.timeCurrent <= 0)
             {
+                Physics.IgnoreLayerCollision(10, 11, false);
                 inDash = false;
             }
         }
@@ -125,6 +127,7 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
     {
         if (!inDash)
         {
+            Physics.IgnoreLayerCollision(10, 11, true);
             dashTimer.ResetTimer();
             inDash = true;
             dashStartPosition = gameObject.transform.position;
