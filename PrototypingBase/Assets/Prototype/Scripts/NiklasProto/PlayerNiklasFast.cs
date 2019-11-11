@@ -72,7 +72,7 @@ public class PlayerNiklasFast : MonoBehaviour,IDamageAble
         playerAnim.ResetTrigger("slash1");
         playerAnim.ResetTrigger("slash2");
 
-        if (groundCheck.isGrounded)
+        if (groundCheck.IsGrounded)
         {
 
 

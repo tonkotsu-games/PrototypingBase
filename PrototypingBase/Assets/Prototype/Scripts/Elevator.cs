@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class Elevator : MonoBehaviour
 {
-    public GameObject Player;
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject == Player)
+        if(other.gameObject.tag == "Player")
         {
-            Player.transform.parent = transform;
+            other.transform.parent = transform;
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == Player)
+        if (other.gameObject.tag == "Player")
         {
-            Player.transform.parent = null;
+            other.transform.parent = null;
         }
     
     }

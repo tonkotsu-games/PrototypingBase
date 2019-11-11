@@ -3,7 +3,9 @@
 public class StateMachine
 {
     private IState currentState = null;
+    public IState CurrentState { get => currentState; }
     private IState previousState = null;
+
 
     public void ChangeState(IState newState)
     {

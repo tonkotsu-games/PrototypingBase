@@ -2,218 +2,117 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerNiklas : MonoBehaviour,IDamageAble
+public class PlayerNiklas : MonoBehaviour, IDamageAble
 {
 
-    float inputHorizontal;
-    float inputVertical;
+    StateMachine stateMachine = new StateMachine();
+    public StateMachine StateMachine { get => stateMachine; }
+
+    [SerializeField]
+    AttackStates newAttackSate;
+    AttackStates currentAttackState;
+
+    IState currentAttackISate;
+
+    private static GameObject player;
+    public static GameObject Player { get => player; }
+
     Rigidbody playerRigidbody;
+
     Vector3 moveVector;
-    bool inDash;
-    bool inAttack;
-    Vector3 moveStartPosition;
-    Timer dashTimer = new Timer();
-    Timer animLockTimer = new Timer();
+    public Vector3 MoveVector { get => moveVector; set => moveVector = value; }
+
     GroundCheckNiklas groundCheck;
-    Animator playerAnim;
-    SlashCheckNiklas slashScript;
-    BoxCollider slashHitbox;
     int currentHealth;
 
     [HideInInspector]
     public bool slashRight = false;
-
-    [HideInInspector]
-    public bool inAttackMove;
 
     [SerializeField]
     int maxHealth;
 
     [SerializeField]
     float movementSpeed = 1f;
-    [SerializeField]
-    bool baseMovementEnabled = true;
-    [SerializeField]
-    GameObject playerBody;
+    public float MovementSpeed { get => movementSpeed; }
     [SerializeField]
     float dashDistance = 5f;
-
+    public float DashDistance { get => dashDistance; }
     [SerializeField]
     float dashSpeed = 50f;
-
+    public float DashSpeed { get => dashSpeed; }
     [SerializeField]
     float attackStepDistance = 5f;
-
+    public float AttackStepDistance { get => attackStepDistance; }
     [SerializeField]
     float stepSpeed = 10f;
+    public float StepSpeed { get => stepSpeed; }
 
     [SerializeField]
     float gravity = -60f;
-
     [SerializeField]
     float knockbackStrength = 5f;
 
-    // Start is called before the first frame update
+    private bool currentAttackIsNull = false;
+
     void Start()
     {
+        player = gameObject;
         playerRigidbody = gameObject.GetComponent<Rigidbody>();
         groundCheck = GetComponentInChildren<GroundCheckNiklas>();
-        dashTimer.Set(0.2f);
-        animLockTimer.Set(0.1f);
-        playerAnim = gameObject.GetComponentInChildren<Animator>();
-        slashScript = gameObject.GetComponentInChildren<SlashCheckNiklas>();
-        slashHitbox = slashScript.gameObject.GetComponent<BoxCollider>();
         currentHealth = maxHealth;
+        stateMachine.ChangeState(new MoveState(player));
+        currentAttackState = newAttackSate;
+        currentAttackISate = newAttackSate.NewState();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        playerAnim.ResetTrigger("slash1");
-        playerAnim.ResetTrigger("slash2");
-
-        if (groundCheck.isGrounded)
+        if (newAttackSate != currentAttackState)
         {
+            currentAttackState = newAttackSate;
+            currentAttackISate = newAttackSate.NewState();
+            currentAttackIsNull = false;
+        }
+        if(currentAttackISate == null)
+        {
+            currentAttackIsNull = true;
+        }
 
-
-
-            if (Input.GetButtonDown("Dash") && !inAttack && !inDash)
+        if (Input.GetButtonDown("Dash") &&
+            stateMachine.CurrentState != currentAttackISate &&
+            stateMachine.CurrentState.ToString() != "DashState")
+        {
+            stateMachine.ChangeState(new DashState(player));
+        }
+        else if (Input.GetButtonDown("Slash") &&
+                 stateMachine.CurrentState != currentAttackISate &&
+                 stateMachine.CurrentState.ToString() != "DashState")
+        {
+            if (currentAttackISate != null)
             {
-                InitiateDash();
-
+                stateMachine.ChangeState(currentAttackISate);
             }
-
-            else if (Input.GetButtonDown("Slash") && !inAttack && !inDash)
-            {
-                slashHitbox.enabled = true;
-                InitiateAttackMove();
-
-                if (slashRight)
-                {
-                    playerAnim.SetTrigger("slash1");
-                }
-                else
-                {
-                    playerAnim.SetTrigger("slash2");
-                }
-            }
-            else if (inAttack)
-            {
-                CheckPlayerAttackMove();
-                if (!inAttackMove)
-                {
-                    playerRigidbody.velocity = Vector3.zero;
-                    animLockTimer.Tick();
-                    if(animLockTimer.timeCurrent <= 0)
-                    {
-                        animLockTimer.ResetTimer();
-                        inAttack = false;
-                    }
-                }
-            }
+        }
 
 
+    }
 
-
-            else if (inDash)
-            {
-                dashTimer.Tick();
-
-                DashUntilTick();
-            }
-            else if (!inDash && !inAttack)
-            {
-                BaseMovement();
-            }
-
+    private void FixedUpdate()
+    {
+        if (groundCheck.IsGrounded )
+        {
+            stateMachine.ExecuteStateUpdate();
         }
         else
         {
             playerRigidbody.AddForce(0, gravity, 0);
         }
 
-        playerAnim.SetFloat("speed", playerRigidbody.velocity.magnitude);
-
-    }
-
-    private void InitiateAttackMove()
-    {
-        moveStartPosition = transform.position;
-        inAttack = true;
-        inAttackMove = true;
-        playerRigidbody.velocity = Vector3.zero;
-        if (moveVector != Vector3.zero)
-        {
-            playerRigidbody.AddForce(moveVector.normalized * stepSpeed, ForceMode.Impulse);
-        }
-        else
-        {
-            playerRigidbody.AddForce(playerBody.transform.forward * stepSpeed, ForceMode.Impulse);
-        }
-    }
-
-    private void CheckPlayerAttackMove()
-    {
-        if (Vector3.Distance(transform.position, moveStartPosition) > attackStepDistance)
-        {
-            inAttackMove = false;
-        }
-    }
-
-    private void DashUntilTick()
-    {
-        if (Vector3.Distance(moveStartPosition, transform.position) > dashDistance)
-        {
-            playerRigidbody.velocity = Vector3.zero;
-            inDash = false;
-            Physics.IgnoreLayerCollision(10, 11, false);
-        }
-        else
-        {
-            if (dashTimer.timeCurrent <= 0)
-            {
-                Physics.IgnoreLayerCollision(10, 11, false);
-                inDash = false;
-            }
-        }
-    }
-
-    private void InitiateDash()
-    {
-        if (!inDash)
-        {
-            Physics.IgnoreLayerCollision(10, 11, true);
-            dashTimer.ResetTimer();
-            inDash = true;
-            moveStartPosition = gameObject.transform.position;
-            playerRigidbody.velocity = moveVector * dashSpeed;
-        }
-    }
-
-    private void BaseMovement()
-    {
-        inputHorizontal = Input.GetAxis("Horizontal");
-        inputVertical = Input.GetAxis("Vertical");
-
-        moveVector = new Vector3(inputHorizontal, 0, inputVertical);
-        if (moveVector != Vector3.zero)
-        {
-            playerBody.transform.rotation = Quaternion.LookRotation(moveVector);
-        }
-        if (baseMovementEnabled)
-        {
-            playerRigidbody.velocity = moveVector * movementSpeed;
-        }
-    }
-
-    public void DisableSlashHitbox()
-    {
-        slashHitbox.enabled = false;
     }
 
     public void EnemyHit(GameObject target)
     {
-        target.GetComponent<MockupEnemyController>().DamageAndPush(2,transform.position,knockbackStrength);       
+        target.GetComponent<MockupEnemyController>().DamageAndPush(2, transform.position, knockbackStrength);
     }
 
     public void Damage(int damageAmount)
@@ -238,10 +137,42 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
             GUILayout.EndHorizontal();
             GUILayout.FlexibleSpace();
             GUILayout.EndArea();
-
         }
+        if(currentAttackIsNull)
+        {
+            var style = new GUIStyle(GUI.skin.button);
+            style.normal.textColor = Color.red;
+            style.fontSize = 40;
+            GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height));
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Box("!Warning current attack state is null!", style);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndArea();
+        }
+        GUI.TextField(new Rect(0, 20, 100, 20), stateMachine.CurrentState.ToString());
+    }
+}
 
-        GUILayout.Toggle(inAttack, "inAttack: ");
-        GUILayout.Toggle(inAttackMove, "inAttackMove: ");
+public enum AttackStates
+{
+    FastSlash
+}
+
+public static class TakenStateChanger
+{
+
+    public static IState NewState(this AttackStates stateType)
+    {
+        switch (stateType)
+        {
+            case AttackStates.FastSlash:
+                return new FastSlashState(PlayerNiklas.Player);
+            default:
+                return null;
+        }
     }
 }
