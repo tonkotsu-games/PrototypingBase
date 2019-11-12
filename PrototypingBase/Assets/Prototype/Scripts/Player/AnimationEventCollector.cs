@@ -4,24 +4,24 @@ using UnityEngine;
 
 public class AnimationEventCollector : MonoBehaviour
 {
-    private PlayerController player;
+    private PlayerNiklas player;
     [SerializeField] GameObject mainCam;
 
     private void Start()
     {
 
-        player = Locator.instance.GetPlayerGameObject().GetComponent<PlayerController>();
+        player = Locator.instance.GetPlayerGameObject().GetComponent<PlayerNiklas>();
     }
 
-    public void AfterShoot()
-    {
-        player.ChangeStanceTo(PlayerController.Stances.Idle);
-    }
-
-    public void AttackReset()
-    {
-        player.ChangeStanceTo(PlayerController.Stances.Idle);
-    }
+  //  public void AfterShoot()
+  //  {
+  //      player.ChangeStanceTo(PlayerController.Stances.Idle);
+  //  }
+  //
+  //  public void AttackReset()
+  //  {
+  //      player.ChangeStanceTo(PlayerController.Stances.Idle);
+  //  }
     public void IntroDone()
     {
         player.enabled = true;       

@@ -64,6 +64,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private float gravityMax = 0;
 
     private bool grounded = false;
+    public bool Grounded { get => grounded; }
     #endregion
 
     #region Slide
@@ -108,6 +109,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [SerializeField]
     private FreeLookCamera target = null;
     private StateMachine stateMachine = new StateMachine();
+    private StatesCheck statesCheck;
 
     [Header("Knockback Range")]
     [SerializeField]
@@ -135,7 +137,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     private bool TURNOFFTOFIX = false;
 
     private Stances currentStance = Stances.Idle;
-    private Stances lastStance = Stances.Idle;
+    private Stances previousStance = Stances.Idle;
 
     private bool debugMode = false;
 
@@ -145,6 +147,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
     [SerializeField]
     private float materialChangeTime = 0;
     private bool materialChanged = false;
+
 
     #endregion
 
@@ -162,6 +165,9 @@ public class PlayerController : MonoBehaviour, IDamageAble
         CalculateAndSetLockTime(beatTimeLockPercent);
         currentHealth = health;
         SetSlideValue();
+        stateMachine.ChangeState(new IdleState(rigidbody, cam.GetComponent<FreeLookCamera>(), calculator, gravityUpdate, moveUpdate, headingUpdate));
+        statesCheck = new StatesCheck(rigidbody, cam.GetComponent<FreeLookCamera>(), animator, stateMachine, calculator,
+                                      gravityUpdate, moveUpdate, headingUpdate, sliding, gravityMax);
     }
 
     void Update()
@@ -170,6 +176,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
         bool attackPressed = Input.GetButtonDown("Attack");
         bool gunPressed = Input.GetButtonDown("Gun");
         bool slidePressed = Input.GetButtonDown("Slide");
+        statesCheck.Grounded = grounded;
 
         if (TURNOFFTOFIX)
         {
@@ -209,6 +216,11 @@ public class PlayerController : MonoBehaviour, IDamageAble
         {
             if (jumpPressed)
             {
+                if (beat.IsOnBeat(reactionTime, timeWindow))
+                {
+                    ChangeMaterial(true);
+                }
+
                 if (grounded)
                 {
                     calculator.StartPosition = transform.position.y;
@@ -219,11 +231,21 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
             if (attackPressed)
             {
+                if (beat.IsOnBeat(reactionTime, timeWindow))
+                {
+                    ChangeMaterial(true);
+                }
+
                 ChangeStanceTo(Stances.Attack);
             }
 
             if (gunPressed && !airAttack)
             {
+                if (beat.IsOnBeat(reactionTime, timeWindow))
+                {
+                    ChangeMaterial(true);
+                }
+
                 ChangeStanceTo(Stances.Gun);
             }
         }
@@ -234,6 +256,12 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
         if (slidePressed)
         {
+            if (beat.IsOnBeat(reactionTime, timeWindow))
+            {
+                ChangeMaterial(true);
+            }
+
+            sliding.CurrentSlideTime = slideTime;
             sliding.InSliding = true;
             ChangeStanceTo(Stances.Slide, resetLockTimer: false);
         }
@@ -251,9 +279,10 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
     public void ChangeStanceTo(Stances newStance, bool resetLockTimer = true)
     {
-        lastStance = currentStance;
+        previousStance = currentStance;
         currentStance = newStance;
-        RunStanceChangeTransitions(lastStance, currentStance);
+
+        statesCheck.StateToSubstateCheck(currentStance, previousStance, beat.IsOnBeat(reactionTime, timeWindow));
 
         if (resetLockTimer)
         {
@@ -277,27 +306,25 @@ public class PlayerController : MonoBehaviour, IDamageAble
             verticalInput = Random.value * 2 - 1;
         }
 
+        stateMachine.ExecuteStateUpdate();
+
         if (currentStance == Stances.Idle ||
             currentStance == Stances.Jump ||
             currentStance == Stances.Gun)
         {
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
             calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);
-            headingUpdate.Heading(calculator.Head,transform,target);
-            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
+            //headingUpdate.Heading(calculator.Head,transform ,target);
+            //moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
             gravityUpdate.GravityUpdate(grounded, gravityMax, calculator.JumpGravity);
         }
         else if (currentStance == Stances.Slide)
         {
-            if (sliding.CurrentSlideTime >= 0)
-            {
-                sliding.SlideUpdate(grounded, lastStance, gravityUpdate.Gravity, gravityMax, calculator.Head, transform);
-            }
-            else
+            sliding.Grounded = grounded;
+            if (sliding.CurrentSlideTime < 0)
             {
                 ChangeStanceTo(Stances.Idle);
             }
-            moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafe);
         }
         else if (currentStance == Stances.Attack)
         {
@@ -306,18 +333,16 @@ public class PlayerController : MonoBehaviour, IDamageAble
                 weaponCollider.enabled = true;
             }
             calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
-            headingUpdate.Heading(calculator.Head, transform, target);
             if (grounded)
             {
                 if (airAttack)
                 {
                     animator.SetBool("meteorAttackBool", true);
-                   /// animator.SetTrigger("meteorAttack");
+                    /// animator.SetTrigger("meteorAttack");
                     airAttack = false;
                     knockback.EnemyKnockback(currentenemy, knockbackRange, enemyKnockbackRange, gameObject.transform);
                     ChangeStanceTo(Stances.Idle);
                 }
-                moveUpdate.MoveUpdate(currentStance, rigidbody, sliding.SlideVelocity, calculator.MoveVector, gravityUpdate.Gravity, attackStrafeUpdate);
             }
         }
         else
@@ -326,31 +351,31 @@ public class PlayerController : MonoBehaviour, IDamageAble
         }
     }
 
-    public void RunStanceChangeTransitions(Stances lastStanceCheck, Stances currentStanceCheck)
-    {
-        switch (lastStanceCheck)
-        {
-            case Stances.Idle:
-                IdleTransition(currentStanceCheck);
-                break;
-
-            case Stances.Jump:
-                JumpTransitions(currentStanceCheck);
-                break;
-
-            case Stances.Slide:
-                SlideTransitions(currentStanceCheck);
-                break;
-
-            case Stances.Attack:
-                AttackTransition(currentStanceCheck);
-                break;
-
-            case Stances.Gun:
-                GunTransitions(currentStanceCheck);
-                break;
-        }
-    }
+    //public void RunStanceChangeTransitions(Stances lastStanceCheck, Stances currentStanceCheck)
+    //{
+    //    switch (lastStanceCheck)
+    //    {
+    //        case Stances.Idle:
+    //            IdleTransition(currentStanceCheck);
+    //            break;
+    //
+    //        case Stances.Jump:
+    //            JumpTransitions(currentStanceCheck);
+    //            break;
+    //
+    //        case Stances.Slide:
+    //            SlideTransitions(currentStanceCheck);
+    //            break;
+    //
+    //        case Stances.Attack:
+    //            AttackTransition(currentStanceCheck);
+    //            break;
+    //
+    //        case Stances.Gun:
+    //            GunTransitions(currentStanceCheck);
+    //            break;
+    //    }
+    //}
 
     private void IdleTransition(Stances currentStance)
     {
@@ -364,7 +389,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         ChangeMaterial(true);
                     }
                     animator.SetTrigger("jumping");
-                    gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                    gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     break;
                 }
             case Stances.Slide:
@@ -432,7 +457,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         }
 
                         animator.SetTrigger("airJump");
-                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     break;
                 }
@@ -470,7 +495,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                     {
                         ChangeMaterial(true);
                         animator.SetTrigger("airGunAttack(onB)");
-                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     else
                     {
@@ -500,7 +525,8 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         {
                             ChangeMaterial(true);
                             animator.SetTrigger("jumping");
-                            gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
+                            gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
+                            Debug.Log(sliding.InSliding);
                         }
                     }
                     else
@@ -508,7 +534,8 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         if (grounded)
                         {
                             animator.SetTrigger("jumping");
-                            gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                            gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                            Debug.Log(sliding.InSliding);
                         }
                     }
                     break;
@@ -575,7 +602,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
                         ChangeMaterial(true);
                         //invulnerable
                     }
-                    gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                    gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     break;
                 }
             case Stances.Slide:
@@ -653,11 +680,11 @@ public class PlayerController : MonoBehaviour, IDamageAble
 
                     if (grounded)
                     {
-                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
+                        gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
                     }
                     else
                     {
-                        gravityUpdate.Gravity = jump.Jump(sliding.InSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
+                        gravityUpdate.Gravity = jump.Jump(calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
                     }
                     break;
                 }
@@ -794,7 +821,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
         }
         else if (currentStance == Stances.Slide)
         {
-            lastStance = currentStance;
+            previousStance = currentStance;
         }
         gravityUpdate.Gravity = 0;
     }
@@ -832,7 +859,7 @@ public class PlayerController : MonoBehaviour, IDamageAble
             style.normal.textColor = Color.red;
 
             GUI.Label(new Rect(10, 10, 400, 40), "Current Stance: " + currentStance, style);
-            GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + lastStance, style);
+            GUI.Label(new Rect(10, 40, 400, 40), "Last Stance: " + previousStance, style);
             GUI.Label(new Rect(10, 100, 400, 40), "Jump State: " + jump.JumpTypeDisplay, style);
             GUI.Label(new Rect(10, 160, 400, 40), "Grounded: " + grounded, style);
             GUI.Label(new Rect(10, 190, 400, 40), "Gravity: " + gravityUpdate.Gravity, style);

@@ -10,9 +10,8 @@
     public float JumpForce { get => jumpForce; }
     public JumpType JumpTypeDisplay { get => jumpTypeDisplay; }
 
-    public float Jump(bool inSliding, float jumpVelocity, float airJumpVelocity, float slideJumpVelocity, JumpType jumpState)
+    public float Jump(float jumpVelocity, float airJumpVelocity, float slideJumpVelocity, JumpType jumpState)
     {
-        inSliding = false;
         if (jumpState == JumpType.Normal)
         {
             gravity = jumpVelocity;

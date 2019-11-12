@@ -249,12 +249,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slashRight: 0
+  inAttackMove: 0
   maxHealth: 10
   movementSpeed: 20
   baseMovementEnabled: 1
   playerBody: {fileID: 4653968965115919544}
-  dashDistance: 13
-  dashSpeed: 125
+  dashDistance: 16
+  dashSpeed: 150
+  attackStepDistance: 5
+  stepSpeed: 50
   gravity: -200
   knockbackStrength: 5
 --- !u!1001 &4653968965115886170
@@ -336,10 +339,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 2.0539708
       objectReference: {fileID: 0}
-    - target: {fileID: 13700002, guid: b871666b64de8f642a6930fa03149fb4, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: a6645355322bd0f409ddea606ed8b1cd, type: 2}
     - target: {fileID: 400062, guid: b871666b64de8f642a6930fa03149fb4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -1.9494253
@@ -379,7 +378,7 @@ PrefabInstance:
     - target: {fileID: 9500000, guid: b871666b64de8f642a6930fa03149fb4, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: cb55c70ee034d734db588619b87fdf6f, type: 2}
+      objectReference: {fileID: 9100000, guid: 1a091e83f3524204d876a4f8e1e2ac55, type: 2}
     - target: {fileID: 400120, guid: b871666b64de8f642a6930fa03149fb4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 45.632526
@@ -416,6 +415,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.13900495
       objectReference: {fileID: 0}
+    - target: {fileID: 13700002, guid: b871666b64de8f642a6930fa03149fb4, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a6645355322bd0f409ddea606ed8b1cd, type: 2}
     - target: {fileID: 13700000, guid: b871666b64de8f642a6930fa03149fb4, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MovementUpdate
 {
-    public void MoveUpdate(PlayerController.Stances currentStance, Rigidbody rigidbody, Vector3 slideVelocity, Vector3 moveVector, float gravity, float attackStrafe)
+    public void MoveUpdate(PlayerController.Stances currentStance, Rigidbody rigidbody, Vector3 slideVelocity, Vector3 moveVector, float gravity, float attackStrafe = 0)
     {
         if (currentStance == PlayerController.Stances.Slide)
         {
