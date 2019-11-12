@@ -19,23 +19,20 @@ public class Selected : BaseNode
             {
                 case NodeStates.FAILURE:
                     {
-                        currentNodeState = NodeStates.FAILURE;
-                        return currentNodeState;
+                        continue;
                     }
                 case NodeStates.SUCCESS:
-                    {
-                        continue;
-                    }
-                case NodeStates.RUNNING:
-                    {
-                        continue;
-                    }
-                default:
                     {
                         currentNodeState = NodeStates.SUCCESS;
                         return currentNodeState;
                     }
+                default:
+                    {
+                        continue;
+                    }
             }
         }
+        currentNodeState = NodeStates.FAILURE;
+        return currentNodeState;
     }
 }
