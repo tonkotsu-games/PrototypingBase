@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Selected : BaseNode
+public class Selector : BaseNode
 {
     private List<BaseNode> nodes = new List<BaseNode>();
 
-    public Selected(List<BaseNode> nodes)
+    public Selector(List<BaseNode> nodes)
     {
         this.nodes = nodes;
     }

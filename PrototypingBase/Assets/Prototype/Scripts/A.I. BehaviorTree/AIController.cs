@@ -10,13 +10,13 @@ public class AIController : MonoBehaviour, IBehaviorAI
     private float searchWayPointRange = 0;
 
     private Rigidbody rigidbody;
-
+    
     public Vector3 wayPointPosition = Vector3.zero;
 
 
-    public Selected rootBehavior;
-    public Sequence checkPosition;
-    public Sequence walkTo;
+    private Selector rootBehavior;
+    private Sequence checkPosition;
+    private Sequence walkTo;
 
     void Start()
     {
@@ -33,13 +33,11 @@ public class AIController : MonoBehaviour, IBehaviorAI
             new WalkToNode(this, 100f, moveSpeed, rigidbody)
         });
 
-        rootBehavior = new Selected(new List<BaseNode>
+        rootBehavior = new Selector(new List<BaseNode>
         {
             checkPosition,
             walkTo
         });
-
-        new WayPointNode(this, searchWayPointRange);
     }
 
     private void FixedUpdate()
