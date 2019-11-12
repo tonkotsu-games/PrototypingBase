@@ -6,7 +6,7 @@ public class Camera_Playmyani : MonoBehaviour
 {
     
     [SerializeField] private Animator Camera_Level_Animation;
-    [SerializeField] GameObject Camera2_Level_Animation;
+    [SerializeField] GameObject Camera2;
     [SerializeField] GameObject Camera;
     GameObject player;
 
@@ -16,13 +16,14 @@ public class Camera_Playmyani : MonoBehaviour
         {
             Camera_Level_Animation.SetBool("Camera_Level_Cinematic", true);
             player.GetComponent<PlayerNiklas>().enabled = false;
-            Camera2_Level_Animation.GetComponent<Camera2_Level_Animation>().enabled = true;
-            Camera.GetComponent<Camera>().enabled = false;
+            Camera2.enabled = true;
+            Camera.enabled = false;
         }
         else
         {
             player.GetComponent<PlayerNiklas>().enabled = true;
-            GetComponent<Camera_Level_Cinematic>().enabled = false;
+            Camera2.enabled = false;
+            Camera.enabled = true;
         }
 
     }
