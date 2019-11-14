@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class GroundCheckNiklas : MonoBehaviour
 {
-    public bool isGrounded;
+    private bool isGrounded;
+    public bool IsGrounded { get => isGrounded; }
 
     private void OnTriggerStay(Collider other)
     {
@@ -20,5 +21,4 @@ public class GroundCheckNiklas : MonoBehaviour
     {
         GUILayout.Toggle(isGrounded, "isGrounded");
     }
-
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerNiklas : MonoBehaviour,IDamageAble
+public class PlayerNiklasFast : MonoBehaviour,IDamageAble
 {
 
     float inputHorizontal;
@@ -10,8 +10,10 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
     Rigidbody playerRigidbody;
     Vector3 moveVector;
     bool inDash;
-    Vector3 dashStartPosition;
+    bool inAttack;
+    Vector3 moveStartPosition;
     Timer dashTimer = new Timer();
+    Timer animLockTimer = new Timer();
     GroundCheckNiklas groundCheck;
     Animator playerAnim;
     SlashCheckNiklas slashScript;
@@ -20,6 +22,9 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
 
     [HideInInspector]
     public bool slashRight = false;
+
+    [HideInInspector]
+    public bool inAttackMove;
 
     [SerializeField]
     int maxHealth;
@@ -37,6 +42,12 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
     float dashSpeed = 50f;
 
     [SerializeField]
+    float attackStepDistance = 5f;
+
+    [SerializeField]
+    float stepSpeed = 10f;
+
+    [SerializeField]
     float gravity = -60f;
 
     [SerializeField]
@@ -47,7 +58,8 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
     {
         playerRigidbody = gameObject.GetComponent<Rigidbody>();
         groundCheck = GetComponentInChildren<GroundCheckNiklas>();
-        dashTimer.Set(1);
+        dashTimer.Set(0.2f);
+        animLockTimer.Set(0.1f);
         playerAnim = gameObject.GetComponentInChildren<Animator>();
         slashScript = gameObject.GetComponentInChildren<SlashCheckNiklas>();
         slashHitbox = slashScript.gameObject.GetComponent<BoxCollider>();
@@ -60,20 +72,22 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
         playerAnim.ResetTrigger("slash1");
         playerAnim.ResetTrigger("slash2");
 
-        if (groundCheck.isGrounded)
+        if (groundCheck.IsGrounded)
         {
-        
 
 
-            if (Input.GetButtonDown("Dash"))
+
+            if (Input.GetButtonDown("Dash") && !inAttack && !inDash)
             {
                 InitiateDash();
 
             }
 
-            else if (Input.GetButtonDown("Slash"))
+            else if (Input.GetButtonDown("Slash") && !inAttack && !inDash)
             {
                 slashHitbox.enabled = true;
+                InitiateAttackMove();
+
                 if (slashRight)
                 {
                     playerAnim.SetTrigger("slash1");
@@ -83,18 +97,35 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
                     playerAnim.SetTrigger("slash2");
                 }
             }
-
-            else if (!inDash)
+            else if (inAttack)
             {
-                BaseMovement();
+                CheckPlayerAttackMove();
+                if (!inAttackMove)
+                {
+                    playerRigidbody.velocity = Vector3.zero;
+                    animLockTimer.Tick();
+                    if(animLockTimer.timeCurrent <= 0)
+                    {
+                        animLockTimer.ResetTimer();
+                        inAttack = false;
+                    }
+                }
             }
 
-            else
+
+
+
+            else if (inDash)
             {
                 dashTimer.Tick();
 
                 DashUntilTick();
             }
+            else if (!inDash && !inAttack)
+            {
+                BaseMovement();
+            }
+
         }
         else
         {
@@ -105,17 +136,43 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
 
     }
 
+    private void InitiateAttackMove()
+    {
+        moveStartPosition = transform.position;
+        inAttack = true;
+        inAttackMove = true;
+        playerRigidbody.velocity = Vector3.zero;
+        if (moveVector != Vector3.zero)
+        {
+            playerRigidbody.AddForce(moveVector.normalized * stepSpeed, ForceMode.Impulse);
+        }
+        else
+        {
+            playerRigidbody.AddForce(playerBody.transform.forward * stepSpeed, ForceMode.Impulse);
+        }
+    }
+
+    private void CheckPlayerAttackMove()
+    {
+        if (Vector3.Distance(transform.position, moveStartPosition) > attackStepDistance)
+        {
+            inAttackMove = false;
+        }
+    }
+
     private void DashUntilTick()
     {
-        if (Vector3.Distance(dashStartPosition, transform.position) > dashDistance)
+        if (Vector3.Distance(moveStartPosition, transform.position) > dashDistance)
         {
             playerRigidbody.velocity = Vector3.zero;
             inDash = false;
+            Physics.IgnoreLayerCollision(10, 11, false);
         }
         else
         {
             if (dashTimer.timeCurrent <= 0)
             {
+                Physics.IgnoreLayerCollision(10, 11, false);
                 inDash = false;
             }
         }
@@ -125,9 +182,10 @@ public class PlayerNiklas : MonoBehaviour,IDamageAble
     {
         if (!inDash)
         {
+            Physics.IgnoreLayerCollision(10, 11, true);
             dashTimer.ResetTimer();
             inDash = true;
-            dashStartPosition = gameObject.transform.position;
+            moveStartPosition = gameObject.transform.position;
             playerRigidbody.velocity = moveVector * dashSpeed;
         }
     }

@@ -4,105 +4,38 @@ using UnityEngine;
 
 public class JumpState : IState
 {
-    private MovementCalculation calculator = new MovementCalculation();
-    private MovementUpdate moveUpdate = new MovementUpdate();
-    private Jumping jump = new Jumping();
-    private HeadingUpdate headingUpdate = new HeadingUpdate();
-    private GravityArtificial gravityUpdate = new GravityArtificial();
+    private Rigidbody rigidbody;
+    private FreeLookCamera cam;
+    private Animator animator;
 
-    private Animator animator = null;
+    private MovementCalculation calculator;
+    private GravityArtificial gravityUpdate;
 
-    private bool inSliding = false;
-    private bool grounded = false;
+    private MovementUpdate moveUpdate;
+    private HeadingUpdate headUpdate;
 
-    private float maxJumpHeight = 0;
-
-    public JumpState(bool inSliding, bool grounded, float maxJumpHeight, Animator animator)
+    public JumpState(Rigidbody rigidbody, FreeLookCamera cam, Animator animator, MovementCalculation calculator, 
+                     GravityArtificial gravityUpdate, MovementUpdate moveUpdate, HeadingUpdate headUpdate)
     {
-        this.inSliding = inSliding;
-        this.grounded = grounded;
-        this.maxJumpHeight = maxJumpHeight;
+        this.rigidbody = rigidbody;
+        this.cam = cam;
         this.animator = animator;
+        this.calculator = calculator;
+        this.gravityUpdate = gravityUpdate;
+        this.moveUpdate = moveUpdate;
+        this.headUpdate = headUpdate;
     }
 
-    public void Enter(IState previousState)
+    public void Enter()
     {
-        //switch(previousState.ToString())
-        //{
-        //    case "IdleState":
-        //        {
-        //            gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
-        //            break;
-        //        }
-        //    case "JumpState":
-        //        {
-        //            if (calculator.CurrentJumpHeight < maxJumpHeight)
-        //            {
-        //                if (beat.IsOnBeat(reactionTime, timeWindow))
-        //                {
-        //                    //invulnerable
-        //                }
-        //                animator.SetTrigger("airJump");
-        //                gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
-        //            }
-        //            break;
-        //        }
-        //    case "SlideState":
-        //        {
-        //            if (beat.IsOnBeat(reactionTime, timeWindow))
-        //            {
-        //                if (grounded)
-        //                {
-        //                    animator.SetTrigger("jumping");
-        //                    gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Slide);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (grounded)
-        //                {
-        //                    animator.SetTrigger("jumping");
-        //                    gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
-        //                }
-        //            }
-        //            break;
-        //        }
-        //    case "AttackState":
-        //        {
-        //            if (beat.IsOnBeat(reactionTime, timeWindow))
-        //            {
-        //                //invulnerable
-        //            }
-        //            gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
-        //            break;
-        //        }
-        //    case "GunState":
-        //        {
-        //            if (beat.IsOnBeat(reactionTime, timeWindow))
-        //            {
-        //                //invulnerable
-        //            }
-        //
-        //            if (grounded)
-        //            {
-        //                gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Normal);
-        //            }
-        //            else
-        //            {
-        //                gravityUpdate.Gravity = jump.Jump(inSliding, calculator.JumpVelocity, calculator.AirJumpVelocity, calculator.SlideJumpVelocity, Jumping.JumpType.Air);
-        //            }
-        //            break;
-        //        }
-        //}
+        animator.SetTrigger("jumping");
+        gravityUpdate.Gravity = calculator.JumpVelocity;
     }
 
     public void Execute()
     {
-        //calculator.CalculateHeading(horizontalInput, verticalInput, deadZone, cam.transform);
-        //calculator.CalcualteMovement(horizontalInput, verticalInput, deadZone, movementSpeed, cam.transform);        
-        //headingUpdate.Heading();
-        //moveUpdate.MoveUpdate();
-        //gravityUpdate.GravityUpdate();
+        moveUpdate.MoveUpdate(PlayerController.Stances.Jump, rigidbody, Vector3.zero, calculator.MoveVector, gravityUpdate.Gravity);
+        headUpdate.Heading(calculator.Head, rigidbody.transform, cam);
     }
 
     public void Exit()

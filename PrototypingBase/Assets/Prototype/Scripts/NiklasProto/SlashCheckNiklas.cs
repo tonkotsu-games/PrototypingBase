@@ -12,7 +12,7 @@ public class SlashCheckNiklas : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.GetComponent<MockupEnemyController>() != null)
+        if (other.gameObject.GetComponent<MockupEnemyController>() != null)
         {
             playerScript.EnemyHit(other.gameObject);
         }
