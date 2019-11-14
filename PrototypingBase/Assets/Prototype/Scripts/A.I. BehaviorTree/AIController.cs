@@ -7,36 +7,65 @@ public class AIController : MonoBehaviour, IBehaviorAI
     [SerializeField]
     private float moveSpeed = 0;
     [SerializeField]
-    private float searchWayPointRange = 0;
+    [Range(0, 100)]
+    float detectionRange;
+    [SerializeField]
+    [Range(0, 10)]
+    float stopDistance;
+    [SerializeField]
+    [Range(0, 10)]
+    float collisionRange;
+    [SerializeField]
+    LayerMask layerMask;
+    [SerializeField]
+    float gravity;
+    [SerializeField]
+    float jumpForce;
+    [SerializeField]
+    private GameObject player;
 
     private Rigidbody rigidbody;
-    
-    public Vector3 wayPointPosition = Vector3.zero;
 
+    Vector3 startPosition;
+
+    private bool target = false;
 
     private Selector rootBehavior;
-    private Sequence checkPosition;
-    private Sequence walkTo;
+    private Sequence CheckPlayerDistance;
+    private Sequence Jump;
+    private Sequence BackToStartPosition;
 
     void Start()
     {
         rigidbody = gameObject.GetComponent<Rigidbody>();
 
-        checkPosition = new Sequence(new List<BaseNode>
+        startPosition = gameObject.transform.position;
+
+        CheckPlayerDistance = new Sequence(new List<BaseNode>
         {
-            new CheckPositionNode(this),
-            new WayPointNode(this, searchWayPointRange)
+            new PlayerInRangeNode(detectionRange, player.transform,this),
+            new WalkToPlayerNode(stopDistance,moveSpeed,player,this,rigidbody,gravity,this),
+            new CheckCollisionNode(collisionRange,this,layerMask)
         });
 
-        walkTo = new Sequence(new List<BaseNode>
+        Jump = new Sequence(new List<BaseNode>
+         {
+             new JumpNode(jumpForce,gameObject)
+         });
+
+
+        BackToStartPosition = new Sequence(new List<BaseNode>
         {
-            new WalkToNode(this, 100f, moveSpeed, rigidbody)
+            new CheckToStartNode(this),
+            new WalkToStartNode(moveSpeed,gravity,gameObject,startPosition, this),
+            new CheckCollisionNode(collisionRange,this,layerMask)
         });
 
         rootBehavior = new Selector(new List<BaseNode>
         {
-            checkPosition,
-            walkTo
+            CheckPlayerDistance,
+            BackToStartPosition,
+            Jump
         });
     }
 
@@ -45,10 +74,10 @@ public class AIController : MonoBehaviour, IBehaviorAI
         rootBehavior.Evaluate();
     }
 
-    public Vector3 SetTargetPosition(Vector3 targetPosition)
+    public bool SetTarget(bool target = false)
     {
-        wayPointPosition = targetPosition;
-        return wayPointPosition;
+        this.target = target;
+        return this.target;
     }
 
     public Transform GetAITransform()
@@ -56,8 +85,21 @@ public class AIController : MonoBehaviour, IBehaviorAI
         return transform;
     }
 
-    public Vector3 GetWayPointPosition()
+    public bool GetTarget()
     {
-        return wayPointPosition;
+        return target;
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(new Vector3(transform.position.x, 0.1f + transform.localScale.y / 2 + transform.position.y, transform.position.z), new Vector3(collisionRange, transform.localScale.y, collisionRange));
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y + 0.15f, transform.position.z), 0.1f);
+    }
+    public bool OnGround()
+    {
+        return Physics.CheckSphere(new Vector3(transform.position.x, transform.position.y + 0.15f, transform.position.z), 0.1f, layerMask);
     }
 }

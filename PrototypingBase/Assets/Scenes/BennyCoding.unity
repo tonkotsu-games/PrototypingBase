@@ -499,7 +499,7 @@ GameObject:
   - component: {fileID: 662309769}
   - component: {fileID: 662309768}
   - component: {fileID: 662309767}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: AIBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -518,9 +518,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d5e778fb1340e74bb883daa7636f97e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
-  searchWayPointRange: 100
-  wayPointPosition: {x: 0, y: 0, z: 0}
+  moveSpeed: 0.5
+  detectionRange: 26.4
+  stopDistance: 3.99
+  collisionRange: 1.5
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 1847
+  gravity: -2
+  jumpForce: 100
+  player: {fileID: 1348333258}
 --- !u!54 &662309768
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -549,7 +556,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1516867888}
-  - {fileID: 1160142160}
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -670,13 +676,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1160142159}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.39, y: 3.3538961, z: -8.17}
+  m_LocalRotation: {x: 0.31537098, y: -0.5670369, z: 0.18567008, w: 0.73792744}
+  m_LocalPosition: {x: 7.45, y: 17.1, z: -2.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 662309769}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1348333263}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 42.532, y: -77.617004, z: -6.517}
 --- !u!114 &1160142161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -886,6 +892,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1348333258 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9167410380006807475, guid: d44f84267306cdb4da2b2eca793c9577,
+    type: 3}
+  m_PrefabInstance: {fileID: 7447188670903775229}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1348333263 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9167410380006807472, guid: d44f84267306cdb4da2b2eca793c9577,
+    type: 3}
+  m_PrefabInstance: {fileID: 7447188670903775229}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1428378291
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,7 +946,7 @@ GameObject:
   - component: {fileID: 1516867891}
   - component: {fileID: 1516867890}
   - component: {fileID: 1516867889}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1389,7 +1407,7 @@ PrefabInstance:
     - target: {fileID: 9167410380006807472, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.1716474
+      value: 30.4
       objectReference: {fileID: 0}
     - target: {fileID: 9167410380006807472, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
@@ -1399,7 +1417,7 @@ PrefabInstance:
     - target: {fileID: 9167410380006807472, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 104.3
+      value: 25.05
       objectReference: {fileID: 0}
     - target: {fileID: 9167410380006807472, guid: d44f84267306cdb4da2b2eca793c9577,
         type: 3}

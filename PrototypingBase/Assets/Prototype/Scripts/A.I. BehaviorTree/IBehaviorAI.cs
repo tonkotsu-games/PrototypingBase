@@ -2,7 +2,7 @@
 
 public interface IBehaviorAI
 {
-    Vector3 SetTargetPosition(Vector3 targetPosition);
+    bool SetTarget(bool target = false);
     Transform GetAITransform();
-    Vector3 GetWayPointPosition();
+    bool GetTarget();
 }
